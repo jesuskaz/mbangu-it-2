@@ -96,27 +96,27 @@ class Index extends CI_Controller
         ]);
     }
 
-    public function getSchoolChart($devise)
-    {
-        $login = $this->session->userdata("login");
-        $idEcole = $this->Manager->getIdSchool($login);
+    // public function getSchoolChart($devise)
+    // {
+    //     $login = $this->session->userdata("login");
+    //     $idEcole = $this->Manager->getIdSchool($login);
 
-        $query = $this->Manager->getDataGraphe($idEcole, $devise);
-        if ($query) {
-            foreach ($query[0] as $value => $key) {
-                $mois[] = $value;
-                $somme[] = $key;
-            }
-            $maxValue = max($somme);
-            $excedent = (int)($maxValue / 4);
+    //     $query = $this->Manager->getDataGraphe($idEcole, $devise);
+    //     if ($query) {
+    //         foreach ($query[0] as $value => $key) {
+    //             $mois[] = $value;
+    //             $somme[] = $key;
+    //         }
+    //         $maxValue = max($somme);
+    //         $excedent = (int)($maxValue / 4);
 
-            $resultat = $maxValue + $excedent;
+    //         $resultat = $maxValue + $excedent;
 
-            $all[] = $somme;
-            $all[] = $mois;
-            $all[] = array($resultat);
+    //         $all[] = $somme;
+    //         $all[] = $mois;
+    //         $all[] = array($resultat);
 
-            echo json_encode($all);
-        }
-    }
+    //         echo json_encode($all);
+    //     }
+    // }
 }

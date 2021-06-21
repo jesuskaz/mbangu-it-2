@@ -295,6 +295,15 @@
     </div>
   </div>
   <?php include("footer.php"); ?>
+  
+  <script>
+        $('.table').DataTable({
+          dom: 'Bfrtip',
+          buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+          ]
+        });
+      </script>
 </body>
 
 

@@ -251,9 +251,9 @@
                 <div class="card-header">
                   <h4>Statistique de Paiement</h4>
                   <div class="card-header-action">
-                    <div class="form-inline">
+                    <form class="form-inline form">
                       <div class="form-group p-0 ">
-                        <select class="custom-select devise">
+                        <select name="devise" class="custom-select">
                           <option value="">Choisissez la devise</option>
                           <?php foreach ($devises as $de) : ?>
                             <option value="<?= $de->iddevise ?>"><?= $de->nomDevise ?></option>
@@ -261,25 +261,14 @@
                         </select>
                       </div>
                       <div class="form-group p-1 ">
-                        <select class="custom-select universite">
+                        <select name="universite" class="custom-select universite">
                           <option value="">Choisissez l'universite</option>
                           <?php foreach ($universites as $de) : ?>
                             <option value="<?= $de->iduniversite ?>"><?= $de->nomUniversite ?></option>
                           <?php endforeach ?>
                         </select>
                       </div>
-                    </div>
-                    <div class="dropdown">
-                      <a href="#" data-toggle="dropdown" class="btn btn-warning dropdown-toggle">Options</a>
-                      <div class="dropdown-menu">
-                        <a href="#" class="dropdown-item has-icon"><i class="fas fa-eye"></i> View</a>
-                        <a href="#" class="dropdown-item has-icon"><i class="far fa-edit"></i> Edit</a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item has-icon text-danger"><i class="far fa-trash-alt"></i>
-                          Delete</a>
-                      </div>
-                    </div>
-                    <a href="#" class="btn btn-primary">View All</a>
+                    </form>
                   </div>
                 </div>
                 <div class="card-body">
@@ -496,7 +485,7 @@
   <?php include("footer.php"); ?>
 
   <script>
-    $(function() {    
+    $(function() {
       var options = {
         chart: {
           height: 300,
@@ -549,9 +538,7 @@
           }
         },
         yaxis: {
-          title: {
-            text: "Income"
-          },
+          
           labels: {
             style: {
               color: "#9aa0ac"
@@ -570,12 +557,12 @@
       chart.render();
       // }
 
-      chart_data()
+      form =  $('.form');
 
-      function chart_data(devise = '') {
-        $.get("<?= site_url('ajax/chart-data') ?>", {
-          devise: devise
-        }, function(d) {
+      chart_data()
+      function chart_data() {
+
+        $.get("<?= site_url('ajax/chart-data') ?>", "type=admin&" + form.serialize(), function(d) {
           d = JSON.parse(d)
           var tab_data = [];
           $.each(d, function(i, j) {
@@ -588,8 +575,8 @@
         })
       }
 
-      $('.devise').change(function() {
-        chart_data($(this).val())
+     form.change(function() {
+        chart_data();
       })
 
 

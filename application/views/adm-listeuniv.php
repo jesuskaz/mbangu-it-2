@@ -161,14 +161,14 @@
       <div class="main-content">
         <section class="section">
           <div class="row">
-            <div class="col-md-6 col-lg-12 col-xl-6">
+            <div class="col-md-12">
               <div class="card">
                 <div class="card-header">
                   <h4>Liste des univercités</h4>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+                    <table class="table table-hover mb-0" style="width: 100%;">
                       <thead>
                         <tr>
                           <th>Numero</th>
@@ -291,8 +291,14 @@
     </div>
   </div>
   <?php include("footer.php"); ?>
+  <script>
+    $('.table').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print'
+      ]
+    });
+  </script>
 </body>
-</body>
-<!-- index.html  21 Nov 2019 03:47:04 GMT -->
 
 </html>

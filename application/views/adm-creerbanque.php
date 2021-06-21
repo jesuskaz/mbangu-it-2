@@ -159,49 +159,50 @@
       </div>
       <!-- Main Content -->
       <div class="main-content">
-        <section class="section">
-          <div class="section-body">
-            <div class="row">
-              <div class="col-12 col-md-6 col-lg-6">
-                <div class="card">
-                  <form action="<?php echo site_url('AdmBanque/banqueCreate'); ?>" method="POST">
-                    <div class="card-header">
-                      <h4>Création Banque</h4>
-                      <center><b><?php if (isset($success)) echo $success; ?></b></center>
-                      <center><b><?php if (isset($error)) echo $error; ?></b></center>
-                    </div>
-                    <div class="card-body">
-                      <div class="form-group">
-                        <label>Nom de la banque</label>
-                        <input type="text" class="form-control" required="" name="banque" required autofocus>
-                        <div class="invalid-feedback">
-                          Veuillez remplir ce champ svp
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <label>Nom de utilisateur</label>
-                        <input type="text" class="form-control" name="login" required autofocus>
-                        <div class="invalid-feedback">
-                          Veuillez remplir ce champ svp
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <label>Mot de pass</label>
-                        <input type="password" class="form-control" name="password" required autofocus>
-                        <div class="invalid-feedback">
-                          Veuillez remplir ce champ svp
-                        </div>
-                      </div>
-                    </div>
-                    <div class="card-footer text-right">
-                      <button class="btn btn-primary">Submit</button>
-                    </div>
-                  </form>
+
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header" style="background: whitesmoke;">
+                <div class="inbox-header">
+                  Création Banque
+                  <center><b><?php if (isset($success)) echo $success; ?></b></center>
+                  <center><b><?php if (isset($error)) echo $error; ?></b></center>
                 </div>
               </div>
+              <form action="<?php echo site_url('AdmBanque/banqueCreate'); ?>" method="POST">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label>Nom de la banque</label>
+                    <input type="text" class="form-control" required="" name="banque" required autofocus>
+                    <div class="invalid-feedback">
+                      Veuillez remplir ce champ svp
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Nom de utilisateur</label>
+                    <input type="text" class="form-control" name="login" required autofocus>
+                    <div class="invalid-feedback">
+                      Veuillez remplir ce champ svp
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Mot de pass</label>
+                    <input type="password" class="form-control" name="password" required autofocus>
+                    <div class="invalid-feedback">
+                      Veuillez remplir ce champ svp
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer text-right">
+                  <button class="btn btn-primary">Submit</button>
+                </div>
+              </form>
             </div>
+            </form>
           </div>
-        </section>
+        </div>
+
         <div class="settingSidebar">
           <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
           </a>

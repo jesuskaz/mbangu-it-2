@@ -191,7 +191,7 @@
                   </div>
                   <div class="card-body">
                     <div class="table-responsive">
-                      <table class="table table-striped table-hover" id="save-stage" style="width:100%;">
+                      <table class="table table-striped table-hover" id="ksave-stage" style="width:100%;">
                         <thead>
                           <tr>
                             <th>ID</th>
@@ -318,6 +318,15 @@
       </div>
 
       <?php include("footer.php"); ?>
+
+      <script>
+        $('.table').DataTable({
+          dom: 'Bfrtip',
+          buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+          ]
+        });
+      </script>
 </body>
 
 

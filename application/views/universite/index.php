@@ -472,9 +472,6 @@
 					}
 				},
 				yaxis: {
-					title: {
-						text: "Income"
-					},
 					labels: {
 						style: {
 							color: "#9aa0ac"

@@ -14,12 +14,17 @@ class Ajax extends CI_Controller
 
     function checktype($type)
     {
-        if (!in_array($type, ['univ', 'banque'])) {
+        if (!in_array($type, ['univ', 'admin', 'banque'])) {
             echo json_encode(['ERROR']);
             die;
         }
 
         if ($type == 'univ' and empty($this->session->userdata("universite_session"))) {
+            echo json_encode(['ERROR NOT CONNECTED']);
+            die;
+        }
+
+        if ($type == 'admin' and empty($this->session->userdata("isadmin"))) {
             echo json_encode(['ERROR NOT CONNECTED']);
             die;
         }
@@ -125,20 +130,24 @@ class Ajax extends CI_Controller
         $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
 
         if ($type == 'univ') {
-            $this->db->where('universite.iduniversite', $this->session->userdata("universite_session"));
-
-            $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
-            $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-            $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
-            $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
-            $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
+            $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+            $this->db->where('frais.iduniversite', $this->session->userdata("universite_session"));
         }
 
-        // var_dump($_GET, $devise);die;
+        if ($type == 'admin') {
+            $iduniv = (int) $this->input->get('universite');
+            if ($iduniv) {
+                $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+                $this->db->where('frais.iduniversite', $iduniv);
+            }
+        }
 
         $this->db->group_by('paiement.idpaiement');
         $paie = $this->db->get('paiement')->result();
         $devise = $this->db->get('devise')->result();
+
+        // var_dump($paie);die;
+
         $final = [];
         foreach ($devise as $dev) {
             $tab = [];

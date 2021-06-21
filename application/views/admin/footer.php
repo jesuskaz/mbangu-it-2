@@ -18,11 +18,12 @@
   <!-- Page Specific JS File -->
   <script src="<?php echo base_url().'assets/js/page/calendar.js'; ?>"></script>
 
+<link rel="stylesheet" href="<?= base_url('/') ?>assets/bundles/datatables/datatables.min.css">
+
 
   <!-- An other data -->
 
    <!-- General JS Scripts -->
-   <script src="assets/js/app.min.js"></script>
   <!-- JS Libraies -->
   <!-- Page Specific JS File -->
   <script src="<?php echo base_url().'assets/js/page/index.js'; ?>"></script>
@@ -36,4 +37,3 @@
   <script src="<?php echo base_url().'assets/bundles/datatables/export-tables/vfs_fonts.js'; ?>"></script>
   <script src="<?php echo base_url().'assets/bundles/datatables/export-tables/buttons.print.min.js'; ?>"></script>
   <script src="<?php echo base_url().'assets/js/page/datatables.js'; ?>"></script>
-</footer>
