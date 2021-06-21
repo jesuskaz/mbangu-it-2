@@ -1,0 +1,133 @@
+<!DOCTYPE html >
+< html  lang =" fr " >
+
+
+<!-- auth-register.html 21 nov. 2019 04:05:01 GMT -->
+< tête >
+  < meta  charset =" UTF-8 " >
+  < meta  content =" width=device-width, initial-scale=1, maximum-scale=1, Shrink-to-fit=no " name =" viewport " >
+  < titre > Point culminant </ titre >
+  <!-- Fichiers CSS généraux -->
+  < link  rel =" feuille de style " href =" <?php  echo  base_url (). 'assets/css/app.min.css' ; ?> " >
+  <!-- Modèle CSS -->
+  < link  rel =" feuille de style " href =" <?php  echo  base_url (). 'assets/css/style.css' ; ?> " >
+  < link  rel =" feuille de style " href =" <?php  echo  base_url (). 'assets/css/components.css' ; ?> " >
+  <!-- Style CSS personnalisé -->
+  < link  rel =" feuille de style " href =" <?php  echo  base_url (). 'assets/css/custom.css' ; ?> " >
+  < link  rel =' icône de raccourci ' type =' image/x-icon ' href =" <?php  echo  base_url (). 'assets/img/favicon.ico' ; ?> "/>
+</ tête >
+
+< corps >
+  < div  class =" loader " > </ div >
+  < div  id =" application " >
+    < section  classe =" section " >
+      < div  class =" conteneur mt-5 " >
+        < div  classe =" ligne " >
+          < div  class =" col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-8 offset-lg-2 col-xl-8 offset-xl-2 " >
+            < div  class =" card card-primary " >
+              <!-- Afficher le message -->
+              < b > <?php  if ( isset ( $ noms de fichiers )) echo  " Téléchargement réussi " . count ( $ noms de fichiers ). " fichiers" ; ?> </ b >
+              < b > <?php  if ( isset ( $ error )) echo  "Erreur, verifiez très bien votre fichier" ; ?> </ b >
+              <!-- Formulaire -->
+              < div  class =" en -tête de carte " >
+                < h4 > Affiche Film </ h4 >
+              </ div >
+              < div  class =" card-body " >
+                < form  method =" post " action =" <?php  echo  site_url ( 'poster/uploader' ); ?> " class = " need -validation " novalidate ="" enctype =" multipart/form-data " >
+                  < div  classe =" ligne " >
+                    < div  class =" form-group col-6 " >
+                      < label  for =" titre " > Titre </ label >
+                      < input  id =" titre " type =" text " class =" form-control " name =" titre " tabindex =" 1 " autofocus requis  >
+                      < div  class =" invalid-feedback " >
+                        Veuillez remplir ce champs.
+                      </ div >
+                    </ div >
+                    < div  class =" form-group col-6 " >
+                      < label  pour =" type " > Tapez </ label >
+                      < select  id =" type " type =" text " class =" form-control " name =" type " tabindex =" 2 " >
+                        < option  value =" type1 " > Type1 </ option >
+                        < option  value =" type2 " > Type2 </ option >
+                        < option  value =" type3 " > Type3 </ option >
+                      </ sélectionnez >
+                    </ div >
+                  </ div >
+                  < div  classe =" ligne " >
+                    < div  class =" form-group col-6 " >
+                      < label  for =" heureDebut " > Heure début </ label >
+                      < input  id =" heureDebut " type =" time " class =" form-control " name =" heureDebut " requis >
+                      < div  class =" invalid-feedback " >
+                        Veuillez remplir ce champs.
+                      </ div >
+                    </ div >
+                    < div  class =" form-group col-6 " >
+                        < label  for =" heureFin " class =" d-block " > Heure fin </ label >
+                        < input  id =" heureFin " type =" time " class =" form-control pwstrength " data-indicator =" pwindicator " requis
+                          nom =" heureFin " >
+                        < div  id =" pwindicator " class =" pwindicator " >
+                          < div  classe =" barre " > </ div >
+                          < div  classe =" label " > </ div >
+                        </ div >
+                        < div  class =" invalid-feedback " >
+                        Veuillez remplir ce champs.
+                      </ div >
+                    </ div >
+                  </ div >
+                  < div  classe =" ligne " >
+                    < div  class =" form-group col-6 " >
+                      < label  for =" jourDiffusion " class =" d-block " > Jour diffusion </ label >
+                      < input  id =" jourDiffusion " type =" date " class =" form-control " name =" jourDiffusion " requis >
+                      < div  class =" invalid-feedback " >
+                        Veuillez remplir ce champs.
+                      </ div >
+                    </ div >
+                    < div  class =" form-group col-6 " >
+                      < label  for =" film " class =" d-block " > Film </ label >
+                      < input  id =" film " type =" file " class =" form-control " name =" files[] " requis  multiple ="" >
+                      < div  class =" invalid-feedback " >
+                        Veuillez remplir ce champs.
+                      </ div >
+                    </ div >
+                  </ div >
+                  < div  classe =" ligne " >
+                    < div  class =" form-group col-6 " >
+                      < label  for =" desc " class =" d-block " > Description </ label >
+                      < textarea  id =" desc " type =" text " class =" form-control " name =" des " cols =" 100 " rows =" 20 " required > </ textarea >
+                      < div  class =" invalid-feedback " >
+                        Veuillez remplir ce champs.
+                      </ div >
+                    </ div >
+                  </ div >
+                  < div  class =" form-group " >
+                    < input  type =" submit " name =" upload " class =" btn btn-primary btn-lg btn-block " value = " Valider " id =" swal-2 "/>
+                  </ div >
+                  < div  class =" form-group " >
+                    < a  href =" <?php  echo  site_url ( 'poster/espaceAdmin' ); ?> " >
+                        < p  type =" text " class =" btn btn-primary btn-lg btn-block " > Retour </ p >
+                    </ A >
+                  </ div >
+                </ formulaire >
+              </ div >
+            </ div >
+          </ div >
+        </ div >
+      </ div >
+    </ section >
+  </ div >
+  <!-- Scripts JS généraux -->
+  < script  src =" <?php  echo  base_url (). 'assets/js/app.min.js' ; ?> " > </ script >
+  <!-- Bibliothèques JS -->
+  < script  src =" <?php  echo  base_url (). 'assets/bundles/jquery-pwstrength/jquery.pwstrength.min.js' ; ?> " > </ script >
+  < script  src =" <?php  echo  base_url (). 'assets/bundles/jquery-selectric/jquery.selectric.min.js' ; ?> " > </ script >
+  <!-- Fichier JS spécifique à la page -->
+  < script  src =" <?php  echo  base_url (). 'assets/js/page/auth-register.js' ; ?> " > </ script >
+  <!-- Modèle de fichier JS -->
+  < script  src =" <?php  echo  base_url (). 'assets/js/scripts.js' ; ?> " > </ script >
+  <!-- Fichier JS personnalisé -->
+  < script  src =" <?php  echo  base_url (). 'assets/js/custom.js' ; ?> " > </ script >
+  < script  src =" <?php  echo  base_url (). 'assets/bundles/sweetalert/sweetalert.min.js' ; ?> " > </ script >
+  <!-- Fichier JS spécifique à la page -->
+  < script  src =" <?php  echo  base_url (). 'assets/js/page/sweetalert.js' ; ?> " > </ script >
+</ corps >
+
+<!-- auth-register.html 21 nov. 2019 04:05:02 GMT -->
+</ html >
