@@ -4,13 +4,16 @@ class AdmEtudiant extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        if (!$this->session->isadmin) {
+            redirect('AdminCredential/loginAdmin');
+        }
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
         $this->load->model("EtudiantModel");
     }
-    public function etudiant()
-    {
-        $this->load->view("etuidant");
-    }
+    // public function etudiant()
+    // {
+    //     $this->load->view("etuidant");
+    // }
 
     // public function listeEtudiant()
     // {
@@ -40,20 +43,20 @@ class AdmEtudiant extends CI_Controller
         // die;
 
         if ($data) {
-            $this->load->view("adm-listepay", $data);
+            $this->load->view("admin/adm-listepay", $data);
         } else {
             $data["error"] = "Vide";
-            $this->load->view("adm-listepay", $data);
+            $this->load->view("admin/adm-listepay", $data);
         }
     }
-    public function listeUniv()
-    {
-        $this->load->view("admn-listuniv");
-    }
-    public function listBanque()
-    {
-        $this->load->view("adm-voirbanque");
-    }
+    // public function listeUniv()
+    // {
+    //     $this->load->view("admn-listuniv");
+    // }
+    // public function listBanque()
+    // {
+    //     $this->load->view("adm-voirbanque");
+    // }
     public function listeEtudiant()
     {
         $this->db->select("

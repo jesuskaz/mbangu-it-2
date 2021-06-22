@@ -28,12 +28,19 @@ class Ajax extends CI_Controller
             echo json_encode(['ERROR NOT CONNECTED']);
             die;
         }
+
+        if ($type == 'banque' and empty($this->session->userdata("bank_session"))) {
+            echo json_encode(['ERROR NOT CONNECTED']);
+            die;
+        }
     }
 
     function getallrapport()
     {
         $type = $this->input->get('type', true);
         $this->checktype($type);
+
+        // var_dump($_GET); die;
 
         $faculte = $this->input->get('faculte', true);
         $promotion = $this->input->get('promotion', true);

@@ -1,48 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- index.html  21 Nov 2019 03:44:50 GMT -->
 <?php include("heade.php"); ?>
 </script>
 
 <body>
-	<!-- <div class="loader"></div> -->
 	<div id="app">
 		<div class="main-wrapper main-wrapper-1">
 			<div class="navbar-bg"></div>
-			<nav class="navbar navbar-expand-lg main-navbar sticky">
-				<div class="form-inline mr-auto">
-					<ul class="navbar-nav mr-3">
-						<li><a href="#" data-toggle="sidebar" class="nav-link nav-link-lg
-									collapse-btn"> <i data-feather="align-justify"></i></a></li>
-						<li><a href="#" class="nav-link nav-link-lg fullscreen-btn">
-								<i data-feather="maximize"></i>
-							</a></li>
-						<li>
-							<form class="form-inline mr-auto">
-								<div class="search-element">
-									<input class="form-control" type="search" placeholder="Search" aria-label="Search" data-width="200">
-									<button class="btn" type="submit">
-										<i class="fas fa-search"></i>
-									</button>
-								</div>
-							</form>
-						</li>
-					</ul>
-				</div>
-
-			</nav>
-
+			<?php include("nav.php"); ?>
 			<div class="main-sidebar sidebar-style-2">
 				<?php include('sidebar.php'); ?>
 			</div>
-			<!-- Main Content -->
 			<div class="main-content">
 				<section class="section">
 					<div class="row">
 						<div class="col-12 col-sm-12 col-lg-12">
 							<div class="card ">
 								<div class="card-header">
-									<h4>Revenue chart</h4>
+									<h4>Statistiques de paiement</h4>
 									<div class="card-header-action">
 										<div class="form-group p-0 ">
 											<select class="custom-select devise">
@@ -52,17 +27,6 @@
 												<?php endforeach ?>
 											</select>
 										</div>
-										<div class="dropdown">
-											<a href="#" data-toggle="dropdown" class="btn btn-warning dropdown-toggle">Options</a>
-											<div class="dropdown-menu">Revenue
-												<a href="#" class="dropdown-item has-icon"><i class="fas fa-eye"></i> View</a>
-												<a href="#" class="dropdown-item has-icon"><i class="far fa-edit"></i> Edit</a>
-												<div class="dropdown-divider"></div>
-												<a href="#" class="dropdown-item has-icon text-danger"><i class="far fa-trash-alt"></i>
-													Delete</a>
-											</div>
-										</div>
-										<a href="#" class="btn btn-primary">View All</a>
 									</div>
 								</div>
 								<div class="card-body">
@@ -132,15 +96,12 @@
 								<div class="card">
 									<div class="card-header">
 										<h4>Rapport de tous les étudiants</h4>
-										<?php
-										// var_dump($promotions);
-										?>
 									</div>
 									<div class="card-header">
 										<form id='form-change' method="">
 											<div class="form-inline">
 												<div class="form-group m-2">
-													<select name="faculte" style="width:130px" class="custom-select data">
+													<select name="faculte" style="width:130px" class="custom-select">
 														<option value="">Faculte</option>
 														<?php foreach ($selectFaculte as $facultes) {
 														?>
@@ -150,7 +111,7 @@
 													</select>
 												</div>
 												<div class="form-group m-2">
-													<select name="promotion" style="width:130px" class="custom-select data">
+													<select name="promotion" style="width:130px" class="custom-select">
 														<option value="">Promotion</option>
 														<?php
 														foreach ($promotions as $promotion) {
@@ -160,7 +121,7 @@
 													</select>
 												</div>
 												<div class="form-group m-2">
-													<select name="option" style="width:130px" class="custom-select data">
+													<select name="option" style="width:130px" class="custom-select">
 														<option value="">Option</option>
 														<?php foreach ($options as $option) { ?>
 															<option value="<?php echo $option['idoptions'] ?>"><?php echo $option['intituleOptions'] ?></option>
@@ -181,13 +142,7 @@
 														<?php } ?>
 													</select>
 												</div>
-												<!-- <div class="form-group">
-													<button type="button" name="submit" class="btn btn-primary" style="border-radius: 5px;" id="to">
-														Envoyer
-													</button>
-												</div> -->
 											</div>
-
 										</form>
 										<style>
 											.custom-select {
@@ -210,7 +165,7 @@
 
 									<div class="card-body">
 										<div class="table-responsive">
-											<table class="table table-striped table-hover" id='table-r' iiid="tableExport" style="width:100%;">
+											<table class="table table-striped table-hover" id='table-r' style="width:100%;">
 												<thead>
 													<tr>
 														<th>Date</th>
@@ -338,14 +293,28 @@
 				}
 			});
 
+			opt = {
+				dom: 'Bfrtip',
+				buttons: [
+					'copy', 'csv', 'excel', 'pdf', 'print'
+				]
+			};
+
 			table = $('#table-r');
-			form = $('.data');
-			table.DataTable();
+			form = $('#form-change');
+			table.DataTable().destroy()
+			table.DataTable(opt);
+			var s_promotion = $('select[name=promotion]');
+			var s_faculte = $('select[name=faculte]');
 
 			data();
 
 			function data() {
-				$.getJSON("<?= site_url('ajax/getallrapport') ?>", "type=univ&"+form.serialize(), function(d) {
+				$('select').attr('disabled', false);
+				var t = "type=univ&" + form.serialize();
+				$('select').attr('disabled', true);
+
+				$.getJSON("<?= site_url('ajax/getallrapport') ?>", t, function(d) {
 					var str = '',
 						data = d.data;
 					$(data).each(function(i, data) {
@@ -366,7 +335,7 @@
 					})
 					table.DataTable().destroy()
 					table.children('tbody').html(str)
-					table.DataTable().draw()
+					table.DataTable(opt).draw()
 					$('select').attr('disabled', false);
 				})
 			}
@@ -374,6 +343,7 @@
 			form.change(function(r) {
 				var name = $(this).attr('name');
 				$('select').attr('disabled', true);
+
 				if (name == 'faculte' || name == 'promotion') {
 					$.getJSON("<?= site_url('ajax/select-data') ?>", {
 						'faculte': s_faculte.val(),
@@ -387,7 +357,7 @@
 								str += `<option value="${j.idoptions}">${j.intituleOptions}</option>`;
 							})
 						}
-						$('select[name=option]').html(str);
+						$('select').attr('disabled', true);
 						data()
 					})
 				} else {
@@ -395,31 +365,6 @@
 				}
 			})
 
-			var s_promotion = $('select[name=promotion]');
-			var s_faculte = $('select[name=faculte]');
-
-			// $('select[name=faculte]').change(function(r) {
-			// 	$.getJSON("<?= site_url('ajax/select-data') ?>", {
-			// 		'name': 'faculte',
-			// 		'id': $(this).val(),
-			// 		'promotion': s_promotion.val()
-			// 	}, function(d) {
-			// 		var str = '<option value="">Option</option>';
-			// 		if (d.length > 0) {
-			// 			$(d).each(function(i, j) {
-			// 				var _o = j.intituleOptions;
-			// 				var _v = j.idoptions;
-			// 				str += `<option value="${j.idoptions}">${j.intituleOptions}</option>`;
-			// 			})
-			// 		}
-			// 		$('select[name=option]').html(str)
-			// 	})
-			// 	// data()
-			// })
-
-			// chart();
-
-			// function chart() {
 			var options = {
 				chart: {
 					height: 300,
@@ -488,14 +433,13 @@
 			};
 			var chart = new ApexCharts(document.querySelector("#graph"), options);
 			chart.render();
-			// }
 
 			chart_data()
 
 			function chart_data(devise = '') {
 				$.get("<?= site_url('ajax/chart-data') ?>", {
 					devise: devise,
-					type:'univ'
+					type: 'univ'
 				}, function(d) {
 					d = JSON.parse(d)
 					var tab_data = [];
@@ -517,6 +461,5 @@
 	</script>
 </body>
 </body>
-<!-- index.html  21 Nov 2019 03:47:04 GMT -->
 
 </html>

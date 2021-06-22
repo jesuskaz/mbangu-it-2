@@ -41,11 +41,16 @@ class Faculte extends CI_Controller
     }
     public function anneeAcademique()
     {
-
+        if (!$this->session->universite_session) {
+            redirect();
+        }
         $this->load->view("universite/anneAcademique");
     }
     public function listeFaculte()
     {
+        if (!$this->session->universite_session) {
+            redirect();
+        }
         $login = $this->session->userdata("universite_session");
 
         $data["facultes"] = $this->FaculteModel->getData($login);
@@ -53,14 +58,23 @@ class Faculte extends CI_Controller
     }
     public function ajouterFaculte()
     {
+        if (!$this->session->universite_session) {
+            redirect();
+        }
         $this->load->view("universite/ajouter-faculte");
     }
     public function promotion()
     {
+        if (!$this->session->universite_session) {
+            redirect();
+        }
         $this->load->view("universite/promotion");
     }
     public function option()
     {
+        if (!$this->session->universite_session) {
+            redirect();
+        }
         $id = $this->session->userdata('universite_session');
 
         $faculte = $this->FaculteModel->getFaculte($id);

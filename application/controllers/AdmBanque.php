@@ -4,6 +4,9 @@ class AdmBanque extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        if (!$this->session->isadmin) {
+            redirect('AdminCredential/loginAdmin');
+        }
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
         $this->load->model("AdmBanqueModel");
     }
@@ -25,7 +28,7 @@ class AdmBanque extends CI_Controller
     }
     public function addBanque()
     {
-        $this->load->view("adm-creerbanque");
+        $this->load->view("admin/adm-creerbanque");
     }
     public function banqueCreate()
     {
@@ -44,16 +47,16 @@ class AdmBanque extends CI_Controller
         if ($checkLogin || $checkBanque) {
             if ($checkBanque) {
                 $data["error"] = "La banque " . strtoupper($banque) . " existe déjà";
-                $this->load->view("adm-creerbanque", $data);
+                $this->load->view("admin/adm-creerbanque", $data);
             } else if ($checkLogin) {
                 $data["error"] = "Le nom d'utilisateur " . strtoupper($login) . " existe déjà";
-                $this->load->view("adm-creerbanque", $data);
+                $this->load->view("admin/adm-creerbanque", $data);
             }
         } else {
             $insert = $this->AdmBanqueModel->createBanque($data);
             if ($insert) {
                 $data["success"] = "La banque " . strtoupper($banque) . " a été créée avec succès";
-                $this->load->view("adm-creerbanque", $data);
+                $this->load->view("admin/adm-creerbanque", $data);
             }
         }
     }

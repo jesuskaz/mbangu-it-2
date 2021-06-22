@@ -7,3 +7,16 @@
 
 "use strict";
 
+var current_url = location.href;
+$(`a[href='${current_url}']`).closest('li').addClass('active');
+$(`a[href='${current_url}']`).closest('ul').closest('li').find('.has-dropdown').addClass('toggled').next().slideDown('slow');
+
+
+$(function () {
+    $('.table').DataTable({
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    });
+})

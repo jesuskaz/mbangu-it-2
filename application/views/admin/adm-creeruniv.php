@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
 <?php include("heade.php"); ?>
 
 <body>
@@ -14,51 +12,49 @@
         <?php include("sidebar.php"); ?>
       </div>
       <div class="main-content">
-        <section class="section">
-          <div class="row">
-            <div class="col-md-6 col-lg-12 col-xl-12">
-              <div class="card">
-                <div class="card-header">
-                  <h4>Liste de Banque</h4>
-                  <?php if (isset($error)) {
-                    echo "<b> Erreur qui s'est produit</b>";
-                  }
-                  ?>
-                </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                      <thead>
-                        <tr>
-                          <th>Numero</th>
-                          <th>Nom banque</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <?php
-                        $i = 0;
-                        if (isset($banques)) {
-                          foreach ($banques as $banque) {
-                            $i = $i + 1;
-                        ?>
-                            <tr>
-                              <td><?php echo $i; ?></td>
-                              <td><?php echo $banque->denomination; ?></td>
-                            </tr>
-                        <?php
-                          }
-                        } else {
-                          echo "<b> Vide </b>";
-                        }
-                        ?>
-                      </tbody>
-                    </table>
-                  </div>
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header" style="background: whitesmoke;">
+                <div class="inbox-header">
+                  Création Univercité
+                  <center><b><?php if (isset($success)) echo $success; ?></b></center>
+                  <center><b><?php if (isset($error)) echo $error; ?></b></center>
                 </div>
               </div>
+              <form action="<?php echo site_url('AdmUniversite/univCreate'); ?>" method="POST">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label>Nom de l'univercité</label>
+                    <input type="text" class="form-control" name="nom" required autofocus>
+                    <div class="invalid-feedback">
+                      Veuillez remplir ce champ svp
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Nom de utilisateur</label>
+                    <input type="text" class="form-control" name="login" required autofocus>
+                    <div class="invalid-feedback">
+                      Veuillez remplir ce champ svp
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Mot de pass</label>
+                    <input type="password" class="form-control" name="password" required autofocus>
+                    <div class="invalid-feedback">
+                      Veuillez remplir ce champ svp
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer text-right">
+                  <button class="btn btn-primary">Submit</button>
+                </div>
+              </form>
             </div>
+            </form>
           </div>
-        </section>
+        </div>
+
         <div class="settingSidebar">
           <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
           </a>
@@ -147,12 +143,9 @@
           </div>
         </div>
       </div>
+      <?php include("footer.php"); ?>
     </div>
   </div>
-  <?php include("footer.php"); ?>
-
 </body>
-
-
 
 </html>

@@ -1,15 +1,26 @@
 <head>
 	<meta charset="UTF-8">
 	<meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-	<title>Mbangu</title>
-	<!-- General CSS Files -->
+	<?php
+	$univ  = $this->db->where('iduniversite', (int)  $this->session->universite_session)->get('universite')->result();
+	$annee  = $this->db->where(['iduniversite' => (int)  $this->session->universite_session, 'actif' => 1])->get('anneeAcademique')->result();
+	$nom = $an = '';
+	if (count($univ)) {
+		$univ = $univ[0];
+		$nom = $univ->nomUniversite;
+	}
+
+	if (count($annee)) {
+		$annee = $annee[0];
+		$an = " | AA - $annee->annee";
+	}
+	?>
+	<title>Université <?= $nom . $an ?></title>
 	<link rel="stylesheet" href="<?php echo base_url() . 'assets/css/app.min.css'; ?>">
 	<link rel="stylesheet" href="<?php echo base_url() . 'assets/bundles/owlcarousel2/dist/assets/owl.carousel.min.css'; ?>">
 	<link rel="stylesheet" href="<?php echo base_url() . 'assets/bundles/owlcarousel2/dist/assets/owl.theme.default.min.css'; ?>">
-	<!-- Template CSS -->
 	<link rel="stylesheet" href="<?php echo base_url() . 'assets/css/style.css'; ?>">
 	<link rel="stylesheet" href="<?php echo base_url() . 'assets/css/components.css'; ?>">
-	<!-- Custom style CSS -->
 	<link rel="stylesheet" href="<?php echo base_url() . 'assets/css/custom.css'; ?>">
 	<link rel='shortcut icon' type='image/x-icon' href="<?php echo base_url() . 'assets/img/favicon.ico'; ?>" />
 
@@ -17,6 +28,4 @@
 	<link rel="stylesheet" href="<?php echo base_url() . 'assets/bundles/jquery-selectric/selectric.css'; ?>">
 
 	<link rel='shortcut icon' type='image/x-icon' href="<?php echo base_url() . 'assets/img/favicon.ico'; ?>" />
-	<link rel="stylesheet" href="<?php echo base_url() . "assets/bundles/pretty-checkbox/pretty-checkbox.min.css"; ?>">
-
 </head>

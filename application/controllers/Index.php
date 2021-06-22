@@ -13,6 +13,11 @@ class Index extends CI_Controller
         $this->load->view('first/index');
     }
 
+    function deconnexion(){
+        $this->session->sess_destroy();
+        redirect();
+    }
+
     public function contact()
     {
         $this->load->view('first/contact');
@@ -31,7 +36,7 @@ class Index extends CI_Controller
     public function login()
     {
 
-        if ($this->session->userdata("login")) 
+        if ($this->session->userdata("universite_session")) 
         {
 
             $data["promotions"] = $this->Manager->getPromotion($this->session->universite_session);
@@ -62,39 +67,39 @@ class Index extends CI_Controller
         }
     }
 
-    function getallrapport()
-    {
-        $faculte = $this->input->get('faculte', true);
-        $promotion = $this->input->get('promotion', true);
-        $option = $this->input->get('option', true);
-        $d = $this->input->get('date', true);
-        $d = explode('-', $d);
-        $date_debut = trim(@$d[0]);
-        $date_fin = trim(@$d[1]);
-        $devise = $this->input->get('devise', true);
+    // function getallrapport()
+    // {
+    //     $faculte = $this->input->get('faculte', true);
+    //     $promotion = $this->input->get('promotion', true);
+    //     $option = $this->input->get('option', true);
+    //     $d = $this->input->get('date', true);
+    //     $d = explode('-', $d);
+    //     $date_debut = trim(@$d[0]);
+    //     $date_fin = trim(@$d[1]);
+    //     $devise = $this->input->get('devise', true);
 
-        $login = $this->session->userdata("login");
-        $denomination = $this->Manager->rapportPayement($login);
-        $where = ['universite' => $denomination];
-        if(!empty($faculte)){
-            $where['faculte'] = $faculte;
-        }
-        if(!empty($promotion)){
-            $where['promotion'] = $promotion;
-        }
-        if(!empty($option)){
-            $where['options'] = $option;
-        }
-        $r = $this->Manager->getAllRapport($where);
-        // $r = $this->Manager->getAllRapport($denomination);
-        // var_dump($denomination);
-        // die;
-        // var_dump(empty($faculte), $where,$faculte, $promotion, $option, $date_debut, $date_fin, $devise);
-        // die;
-        echo json_encode([
-            'data' => $r
-        ]);
-    }
+    //     $login = $this->session->userdata("login");
+    //     $denomination = $this->Manager->rapportPayement($login);
+    //     $where = ['universite' => $denomination];
+    //     if(!empty($faculte)){
+    //         $where['faculte'] = $faculte;
+    //     }
+    //     if(!empty($promotion)){
+    //         $where['promotion'] = $promotion;
+    //     }
+    //     if(!empty($option)){
+    //         $where['options'] = $option;
+    //     }
+    //     $r = $this->Manager->getAllRapport($where);
+    //     // $r = $this->Manager->getAllRapport($denomination);
+    //     // var_dump($denomination);
+    //     // die;
+    //     // var_dump(empty($faculte), $where,$faculte, $promotion, $option, $date_debut, $date_fin, $devise);
+    //     // die;
+    //     echo json_encode([
+    //         'data' => $r
+    //     ]);
+    // }
 
     // public function getSchoolChart($devise)
     // {

@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
 <?php include("heade.php"); ?>
 
 <body>
@@ -16,14 +14,10 @@
       <div class="main-content">
         <section class="section">
           <div class="row">
-            <div class="col-md-6 col-lg-12 col-xl-12">
+            <div class="col-md-12">
               <div class="card">
                 <div class="card-header">
-                  <h4>Liste de Banque</h4>
-                  <?php if (isset($error)) {
-                    echo "<b> Erreur qui s'est produit</b>";
-                  }
-                  ?>
+                  <h4>Liste des facultes</h4>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
@@ -31,24 +25,26 @@
                       <thead>
                         <tr>
                           <th>Numero</th>
-                          <th>Nom banque</th>
+                          <th>Nom Faculte</th>
+                          <th>Ecole</th>
                         </tr>
                       </thead>
                       <tbody>
                         <?php
-                        $i = 0;
-                        if (isset($banques)) {
-                          foreach ($banques as $banque) {
+                        if (isset($facultes)) {
+                          $i = 0;
+                          foreach ($facultes as $faculte) {
                             $i = $i + 1;
                         ?>
                             <tr>
                               <td><?php echo $i; ?></td>
-                              <td><?php echo $banque->denomination; ?></td>
+                              <td><?php echo $faculte->nomFaculte ?></td>
+                              <td><?php echo $faculte->nomUniversite ?></td>
                             </tr>
                         <?php
                           }
-                        } else {
-                          echo "<b> Vide </b>";
+                        } else if (isset($error)) {
+                          echo $error;
                         }
                         ?>
                       </tbody>
@@ -150,9 +146,6 @@
     </div>
   </div>
   <?php include("footer.php"); ?>
-
 </body>
-
-
 
 </html>

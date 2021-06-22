@@ -75,7 +75,8 @@ class AdminCredential extends CI_Controller
         if (count($sent)) {
             // $this->session->set_userdata("loginBanque", $login);
             $this->session->set_userdata(['bank_session' =>  $sent[0]->idbanque]);
-            redirect("Manager/connectBanque");
+            redirect("banquee");
+            // redirect("Manager/connectBanque");
         } else {
             $error["error"] = "Vos données ne sont pas correctes";
             $this->load->view("first/mbangulog/admin", $error);

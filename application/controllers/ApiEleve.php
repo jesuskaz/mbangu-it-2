@@ -17,6 +17,67 @@
             $province = $this->db->get('province')->result_array();
             echo json_encode($province);
         }
+        public function updateInfo()
+        {
+            $inputData = $this->input->post("data");
+            $index = $this->input->post("index");
+            $matricule = $this->input->post("matricule");
+
+            if($index == '1')
+            {
+                $data = [
+                    "email" => $inputData,
+                ];
+
+                $this->db->where("matricule", $matricule);
+                $update = $this->db->update("etudiant", $data);
+
+                if($update)
+                {
+                    echo json_encode("true");
+                }
+                else
+                {
+                    echo json_encode("false");
+                }
+            }
+            else if($index == '2')
+            {
+                $data = [
+                    "adresse" => $inputData,
+                ];
+
+                $this->db->where("matricule", $matricule);
+                $update = $this->db->update("etudiant", $data);
+
+                if($update)
+                {
+                    echo json_encode("true");
+                }
+                else
+                {
+                    echo json_encode("false");
+                }
+            }
+            else if($index == '3')
+            {
+                $data = [
+                    "tel" => $inputData,
+                ];
+
+                $this->db->where("matricule", $matricule);
+                $update = $this->db->update("etudiant", $data);
+
+                if($update)
+                {
+                    echo json_encode("true");
+                }
+                else
+                {
+                    echo json_encode("false");
+                }
+            }
+        }
         public function picture()
         {
             $matricule = $this->input->post("matricule");
@@ -61,7 +122,7 @@
 
             file_put_contents($tempo, $decodeImage);
 
-            $data = [
+            $data = [-+
                 "carte" => $tempo
             ];
             
@@ -162,4 +223,3 @@
             }
         }
     }
-?>

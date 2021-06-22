@@ -4,6 +4,9 @@ class AdmUniversite extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        if (!$this->session->isadmin) {
+            redirect('AdminCredential/loginAdmin');
+        }
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
         $this->load->model("AdmUniversiteModel");
     }
@@ -12,15 +15,15 @@ class AdmUniversite extends CI_Controller
         // $data["ecoles"] = $this->AdmUniversiteModel->getAllSchool();
         $data["ecoles"] = $this->db->get('universite')->result();
         if ($data) {
-            $this->load->view("adm-listeuniv", $data);
+            $this->load->view("admin/adm-listeuniv", $data);
         } else {
             $data["error"] = "Vide";
-            $this->load->view("adm-listeuniv", $data);
+            $this->load->view("admin/adm-listeuniv", $data);
         }
     }
     public function addUniversite()
     {
-        $this->load->view("adm-creeruniv");
+        $this->load->view("admin/adm-creeruniv");
     }
     public function univCreate()
     {
@@ -37,12 +40,12 @@ class AdmUniversite extends CI_Controller
 
         if ($insert) {
             $data["error"] = "L'université " . strtoupper($nom) . "  existe déjà";
-            $this->load->view("adm-creeruniv", $data);
+            $this->load->view("admin/adm-creeruniv", $data);
         } else {
             $insert = $this->AdmUniversiteModel->addUniv($data);
             if ($insert) {
                 $data["success"] = "L'université " . strtoupper($nom) . " a été créée avec succès";
-                $this->load->view("adm-creeruniv", $data);
+                $this->load->view("admin/adm-creeruniv", $data);
             }
         }
     }

@@ -1,7 +1,7 @@
 "use strict";
 
 $(function () {
-    call();
+    // call();
     chart2();
     chart3();
     chart4();

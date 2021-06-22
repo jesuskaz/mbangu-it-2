@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<?php include("heade.php"); ?>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>Otika - Admin Dashboard Template</title>
+  <link rel="stylesheet" href="assets/css/app.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/custom.css">
+  <link rel='shortcut icon' type='image/x-icon' href='assets/img/favicon.ico' />
+</head>
 
 <body>
   <div class="loader"></div>
@@ -9,58 +21,103 @@
       <div class="navbar-bg"></div>
       <?php include("nav.php"); ?>
       <div class="main-sidebar sidebar-style-2">
-        <?php include("sidebar.php"); ?>
-        <div class="sidebar-brand">
-
-        </div>
+        <aside id="sidebar-wrapper">
+          <div class="sidebar-brand">
+            <a href="index.html"> <img alt="image" src="assets/img/logo.png" class="header-logo" /> <span class="logo-name">MBANGU</span>
+            </a>
+          </div>
+          <ul class="sidebar-menu">
+            <li class="menu-header">Main</li>
+            <li class="dropdown">
+              <a href="index.html" class="nav-link"><i data-feather="monitor"></i><span>Accueil</span></a>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="briefcase"></i><span>Banque</span></a>
+              <ul class="dropdown-menu">
+                <li><a class="nav-link" href="liste-banque.html">Liste de Banque</a></li>
+                <li><a class="nav-link" href="ajouter-compte.html">Ajouter un compte</a></li>
+                <li><a class="nav-link" href="liste-compte.html">Liste de comptes</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="command"></i><span>Faculté</span></a>
+              <ul class="dropdown-menu">
+                <li><a class="nav-link" href="liste-faculte.html">Liste de faculté</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="mail"></i><span>Etudiant</span></a>
+              <ul class="dropdown-menu">
+                <li><a class="nav-link" href="liste-tousetudiant.html">Voir la liste des Etudiants</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="copy"></i><span>Rapport</span></a>
+              <ul class="dropdown-menu">
+                <li><a class="nav-link" href="liste-payetudiant.html">Liste de paiement</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="shopping-bag"></i><span>Se deconnecter</span></a>
+              <ul class="dropdown-menu">
+                <li><a class="nav-link" href="avatar.html">Deconnecter</a></li>
+              </ul>
+            </li>
+          </ul>
+        </aside>
       </div>
-      <div class="main-content">
+
+
+      <div class="main-content" style="min-height: 675px;">
         <section class="section">
           <div class="section-body">
             <div class="row">
               <div class="col-12">
+
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-12">
                 <div class="card">
                   <div class="card-header">
-                    <h4>Liste des etudiant</h4>
+                    <h4>Liste de Faculté</h4>
                   </div>
                   <div class="card-body">
                     <div class="table-responsive">
-                      <table class="table table-striped table-hover" style="width:100%;">
+                      <table class="table table-striped table-hover" id="save-stage" style="width:100%;">
                         <thead>
                           <tr>
-                            <th>N°</th>
-                            <th>Nom</th>
-                            <th>Post-nom</th>
-                            <th>Prénom</th>
-                            <th>Matricule</th>
+                            <th>ID</th>
                             <th>Faculté</th>
-                            <th>Promotion</th>
-                            <th>Adresse</th>
-                            <th>Téléphone</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <?php
-                          $i = 0;
-                          if (isset($etudiants)) {
-                            foreach ($etudiants as $etudiant) {
-                              $i = $i + 1;
-                          ?>
-                              <tr>
-                                <td><?php echo $i; ?></td>
-                                <td><?php echo $etudiant->nom  ?></td>
-                                <td><?php echo $etudiant->postnom  ?></td>
-                                <td><?php echo $etudiant->prenom  ?></td>
-                                <td><?php echo $etudiant->matricule  ?></td>
-                                <td><?php echo $etudiant->nomFaculte  ?></td>
-                                <td><?php echo $etudiant->intitulePromotion  ?></td>
-                                <td><?php echo $etudiant->adresse  ?></td>
-                                <td><?php echo $etudiant->telephone  ?></td>
-                              </tr>
-                          <?php
-                            }
-                          }
-                          ?>
+                          <tr>
+                            <td>ID001</td>
+                            <td>Economie</td>
+
+                          </tr>
+                          <tr>
+                            <td>ID002</td>
+                            <td>Droit</td>
+                          </tr>
+                          <tr>
+                            <td>ID003</td>
+                            <td>Relations internationales</td>
+
+                          </tr>
+                          <tr>
+                            <td>ID004</td>
+                            <td>Comunication</td>
+
+                          </tr>
+                          <tr>
+                            <td>ID005</td>
+                            <td>Touriste</td>
+
+                          </tr>
+
                         </tbody>
                       </table>
                     </div>
@@ -158,9 +215,30 @@
           </div>
         </div>
       </div>
+      <footer class="main-footer">
+        <div class="footer-left">
+          <a href="www.bcs-it.cd">Mbangu</a></a>
+        </div>
+        <div class="footer-right">
+        </div>
+      </footer>
     </div>
   </div>
-  <?php include("footer.php"); ?>
+  <script src="assets/js/app.min.js"></script>
+  <script src="assets/bundles/datatables/datatables.min.js"></script>
+  <script src="assets/bundles/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+  <script src="assets/bundles/jquery-ui/jquery-ui.min.js"></script>
+  <script src="assets/js/page/datatables.js"></script>
+  <script src="assets/js/scripts.js"></script>
+  <script src="assets/js/custom.js"></script>
+
+  <script src="assets/js/app.min.js"></script>
+  <script src="assets/bundles/apexcharts/apexcharts.min.js"></script>
+  <script src="assets/js/page/index.js"></script>
+  <script src="assets/js/scripts.js"></script>
+  <script src="assets/js/custom.js"></script>
 </body>
+
+
 
 </html>

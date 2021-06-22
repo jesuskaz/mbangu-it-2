@@ -25,11 +25,11 @@ class Manager extends CI_Controller
         $data["devises"] = $this->db->get('devise')->result();
         $data["universites"] = $this->db->get('universite')->result();
 
-        $this->load->view("adm-index", $data);
+        $this->load->view("admin/adm-index", $data);
     }
     public function devise()
     {
-        $this->load->view('devise');
+        $this->load->view('admin/devise');
     }
     public function adddevise()
     {
@@ -54,84 +54,12 @@ class Manager extends CI_Controller
         // $data = $this->BanqueModel->getDate($heureDebut, $heureFin);
         // print_r($data);
     }
-    public function connectBanque()
-    {
-
-        if (!$this->session->bank_session) {
-            redirect('AdminCredential/adminConnexion');
-        };
-
-        $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, etudiant.email, faculte.nomFaculte, promotion.intitulePromotion, etudiant.adresse, etudiant.telephone, universite.nomUniversite");
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
-
-        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
-        $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
-        $this->db->group_by('etudiant.idetudiant');
-
-        $data["etudiants"] =  $this->db->get('etudiant')->result();
-        $data["devises"] = $this->db->get('devise')->result();
-
-        $this->load->view("banque/bk-index", $data);
-    }
-    public function etudiantListe()
-    {
-        $login = $this->session->userdata('loginBanque');
-        $denom = $this->BanqueModel->banqueName($login);
-
-        $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, 
-        etudiant.email, etudiant.telephone, faculte.nomFaculte, promotion.intitulePromotion, etudiant.adresse, 
-        etudiant.telephone");
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
-        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
-        $data["etudiants"] =  $this->db->get('etudiant')->result();
-        $this->load->view("banque/bk-etudiant", $data);
-    }
-    public function paiement()
-    {
-        $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, 
-        etudiant.matricule, etudiant.email, faculte.nomFaculte, promotion.intitulePromotion, 
-        frais.designation, frais.numeroCompte, banque.denomination, paiement.montant, devise.nomDevise");
-
-        $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
-        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
-
-        $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
-        $this->db->join('banque', 'banque.idbanque=frais.idbanque');
-        $this->db->join('devise', 'devise.iddevise=frais.iddevise');
-
-        $data["paies"] = $r = $this->db->get('paiement')->result();
-
-        $this->load->view('banque/bk-listepay', $data);
-    }
+    
     public function codingTest()
     {
         $this->load->view("coding");
     }
-    public function universiteListe()
-    {
-        if (!$this->session->bank_session) {
-            redirect('AdminCredential/adminConnexion');
-        };
-
-        // $login = $this->session->userdata('loginBanque');
-        // $denom = $this->BanqueModel->banqueName($login);
-        // if ($denom) {
-        //     $listeStudent = $this->BanqueModel->listSchool($denom);
-        //     if ($listeStudent) {
-        //         $data["ecoles"] = $listeStudent;
-        //         $this->load->view("banque/bk-univ", $data);
-        //     } else {
-        //         $data["error"] = "Cela lave";
-        //         $this->load->view("banque/bk-univ", $data);
-        //     }
-        // }
-        $data["ecoles"] = $this->db->get('universite')->result();
-        $this->load->view("banque/bk-univ", $data);
-    }
+    
     public function accueil()
     {
         $login = $this->session->userdata("login");
