@@ -13,7 +13,8 @@ class Index extends CI_Controller
         $this->load->view('first/index');
     }
 
-    function deconnexion(){
+    function deconnexion()
+    {
         $this->session->sess_destroy();
         redirect();
     }
@@ -36,33 +37,27 @@ class Index extends CI_Controller
     public function login()
     {
 
-        if ($this->session->userdata("universite_session")) 
-        {
+        if ($iduniv = (int) $this->session->userdata("universite_session")) {
 
             $data["promotions"] = $this->Manager->getPromotion($this->session->universite_session);
-
-            // // get Faculte data
-            $data["faculte"] = count($this->db->get_where('faculte', ["iduniversite" => $this->session->universite_session])->result() );
-
-            
-            // $data["faculte"] = count($faculte);
+            $data["faculte"] = count($this->db->get_where('faculte', ["iduniversite" => $this->session->universite_session])->result());
             $data["selectFaculte"] = $this->db->get_where('faculte', ["iduniversite" => $this->session->universite_session])->result_array();
 
-            // // get Student
-            $data["etudiant"] = count([]);
-            // $data["etudiant"] = count($this->Manager->getStudent($denomination));
+            $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
+            $this->db->where('promotion.iduniversite', $iduniv);
+            $data["tot_etudiant"] = $te = count($this->db->get('etudiant')->result());
 
-            // // get Option
+            $sql = "SELECT * from etudiant where idetudiant 
+            in (select paiement.idetudiant from paiement join etudiant ON paiement.idetudiant=etudiant.idetudiant join promotion on promotion.idpromotion=etudiant.idpromotion 
+            where promotion.iduniversite=$iduniv)";
+            $data["etudiant_paie"] = $ep = count($this->db->query($sql)->result());
+
+            $data["etudiant_pas_paie"] = $te - $ep;
+
             $data["options"] = $this->Manager->getOption($this->session->universite_session);
             $data["devises"] = $this->db->get('devise')->result();
-            // $data["options"] = $this->Manager->getOption($denomination);
-         
-            // $data["rapports"] = $this->Manager->getAllRapport(['universite' => $denomination]);
-            // $data["rapports"] = $this->Manager->getAllRapport($denomination);
             $this->load->view("universite/index", $data);
-        } 
-        else 
-        {
+        } else {
             redirect("AdminCredential");
         }
     }

@@ -22,10 +22,22 @@
               <div class="card">
                 <div class="card-header">
                   <h4>Liste de paiement</h4>
+                  <div class="card-header-action">
+                    <form class="form-inline form">
+                      <div class="form-group p-1 ">
+                        <select name="universite" class="custom-select universite">
+                          <option value="">Choisissez l'universite</option>
+                          <?php foreach ($universites as $de) : ?>
+                            <option value="<?= $de->iduniversite ?>"><?= $de->nomUniversite ?></option>
+                          <?php endforeach ?>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
-                    <table class="table table-striped table-hover" style="width:100%;">
+                    <table id="table-r" class="table table-striped table-hover" style="width:100%;">
                       <thead>
                         <tr>
                           <th>N°</th>
@@ -33,39 +45,18 @@
                           <th>Post-nom</th>
                           <th>Prénom</th>
                           <th>Matricule</th>
+                          <th>Université</th>
                           <th>Faculté</th>
                           <th>Promotion</th>
+                          <th>Option</th>
                           <th>Frais</th>
                           <th>N° Compte</th>
                           <th>Banque</th>
                           <th>Montant</th>
+                          <th>Commission</th>
                         </tr>
                       </thead>
-                      <tbody>
-                        <?php
-                        $i = 0;
-                        if (isset($paies)) {
-                          foreach ($paies as $paie) {
-                            $i = $i + 1;
-                        ?>
-                            <tr>
-                              <td><?php echo $i; ?></td>
-                              <td><?php echo $paie->nom  ?></td>
-                              <td><?php echo $paie->postnom  ?></td>
-                              <td><?php echo $paie->prenom  ?></td>
-                              <td><?php echo $paie->matricule  ?></td>
-                              <td><?php echo $paie->nomFaculte  ?></td>
-                              <td tyle="text-align:center"><?php echo $paie->intitulePromotion  ?></td>
-                              <td><?php echo $paie->designation  ?></td>
-                              <td><?php echo $paie->numeroCompte  ?></td>
-                              <td style="text-align:right"><?php echo "$paie->denomination"  ?></td>
-                              <td style="text-align:right"><?php echo "$paie->montant $paie->nomDevise"  ?></td>
-                            </tr>
-                        <?php
-                          }
-                        }
-                        ?>
-                      </tbody>
+                      <tbody></tbody>
                     </table>
                   </div>
                 </div>
@@ -165,6 +156,63 @@
   </div>
   </div>
   <?php include("footer.php"); ?>
+
+
+  <script>
+    $(function() {
+      form = $('.form');
+      opt = {
+        dom: 'Bfrtip',
+        buttons: [
+          'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+      };
+
+      table = $('#table-r');
+      table.DataTable().destroy()
+      table.DataTable(opt);
+
+      _data()
+
+      function _data() {
+        var d = "type=admin&" + form.serialize();
+        $('select').attr('disabled', true);
+
+        $.getJSON("<?= site_url('ajax/liste-paie') ?>", d, function(d) {
+          var str = '',
+            data = d.data;
+          $(data).each(function(i, data) {
+            str += `
+						<tr>
+							<td>${i+1}</td>
+							<td>${data.nom}</td>
+							<td>${data.postnom}</td>
+							<td>${data.prenom}</td>
+							<td>${data.matricule}</td>
+							<td>${data.universite}</td>
+							<td>${data.faculte}</td>
+							<td>${data.promotion}</td>
+							<td>${data.option}</td>
+							<td>${data.frais}</td>
+							<td>${data.compte}</td>
+							<td>${data.banque}</td>
+							<td>${data.montant + ' '+ data.devise }</td>
+							<td> ### </td>
+						</tr>
+						`;
+          })
+          table.DataTable().destroy()
+          table.children('tbody').html(str)
+          table.DataTable(opt).draw()
+          $('select').attr('disabled', false);
+        })
+      }
+
+      form.change(function() {
+        _data();
+      })
+    })
+  </script>
 </body>
 
 

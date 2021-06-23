@@ -18,36 +18,30 @@
               <div class="card">
                 <div class="card-header">
                   <h4>Liste des facultes</h4>
+                  <div class="card-header-action">
+                    <form class="form-inline form">
+                      <div class="form-group p-1 ">
+                        <select name="universite" class="custom-select universite">
+                          <option value="">Choisissez l'universite</option>
+                          <?php foreach ($universites as $de) : ?>
+                            <option value="<?= $de->iduniversite ?>"><?= $de->nomUniversite ?></option>
+                          <?php endforeach ?>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+                    <table id="table-r" class="table table-hover mb-0">
                       <thead>
                         <tr>
-                          <th>Numero</th>
-                          <th>Nom Faculte</th>
-                          <th>Ecole</th>
+                          <th>N° </th>
+                          <th>Faculté</th>
+                          <th>Université</th>
                         </tr>
                       </thead>
-                      <tbody>
-                        <?php
-                        if (isset($facultes)) {
-                          $i = 0;
-                          foreach ($facultes as $faculte) {
-                            $i = $i + 1;
-                        ?>
-                            <tr>
-                              <td><?php echo $i; ?></td>
-                              <td><?php echo $faculte->nomFaculte ?></td>
-                              <td><?php echo $faculte->nomUniversite ?></td>
-                            </tr>
-                        <?php
-                          }
-                        } else if (isset($error)) {
-                          echo $error;
-                        }
-                        ?>
-                      </tbody>
+                      <tbody></tbody>
                     </table>
                   </div>
                 </div>
@@ -146,6 +140,51 @@
     </div>
   </div>
   <?php include("footer.php"); ?>
+
+  <script>
+    $(function() {
+      form = $('.form');
+      opt = {
+        dom: 'Bfrtip',
+        buttons: [
+          'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+      };
+
+      table = $('#table-r');
+      table.DataTable().destroy()
+      table.DataTable(opt);
+
+      _data()
+
+      function _data() {
+        var d = "type=admin&" + form.serialize();
+        $('select').attr('disabled', true);
+
+        $.getJSON("<?= site_url('ajax/facultes') ?>", d, function(univ) {
+          var str = '',
+            data = univ.data;
+          $(data).each(function(i, data) {
+            str += `
+						<tr>
+							<td>${i+1}</td>
+							<td>${data.faculte}</td>
+							<td>${data.universite}</td>
+						</tr>
+						`;
+          })
+          table.DataTable().destroy()
+          table.children('tbody').html(str)
+          table.DataTable(opt).draw()
+          $('select').attr('disabled', false);
+        })
+      }
+
+      form.change(function() {
+        _data();
+      })
+    })
+  </script>
 </body>
 
 </html>

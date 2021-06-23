@@ -26,25 +26,31 @@
                       <table class="table table-striped table-hover" style="width:100%;">
                         <thead>
                           <tr>
-                            <th>ID</th>
+                            <th>N°</th>
                             <th>Faculté</th>
+                            <th class="text-center">Options</th>
                           </tr>
                         </thead>
-                        <?php
-                        if (!empty($facultes)) {
-                          $i = 0;
-                          foreach ($facultes as $faculte) {
-                        ?>
-                            <tbody>
+                        <tbody>
+                          <?php
+                          if (!empty($facultes)) {
+                            $i = 0;
+                            foreach ($facultes as $faculte) {
+                          ?>
                               <tr>
                                 <td><?php echo $i = $i + 1; ?></td>
                                 <td><?php echo  $faculte["nomFaculte"]; ?></td>
+                                <td class="text-center">
+                                  <a href="<?= site_url('faculte/options/' . $faculte['idfaculte']) ?>">
+                                    <i class="fa fa-eye"></i> voir les options
+                                  </a>
+                                </td>
                               </tr>
-                            </tbody>
-                        <?php
+                          <?php
+                            }
                           }
-                        }
-                        ?>
+                          ?>
+                        </tbody>
                       </table>
                     </div>
                   </div>
@@ -145,4 +151,5 @@
   </div>
   <?php include("footer.php"); ?>
 </body>
+
 </html>

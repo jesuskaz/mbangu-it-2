@@ -198,4 +198,82 @@ class Ajax extends CI_Controller
         // die;
         echo json_encode($r);
     }
+
+    function liste_etudiant()
+    {
+        $type = $this->input->get('type', true);
+        $this->checktype($type);
+        $faculte = $this->input->get('faculte', true);
+        $promotion = $this->input->get('promotion', true);
+        $option = $this->input->get('option', true);
+
+        $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, 
+            etudiant.matricule, etudiant.adresse, etudiant.email, faculte.nomFaculte faculte, 
+            promotion.intitulePromotion promotion, etudiant.telephone ");
+        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion', 'left');
+        $this->db->join('options', 'options.idpromotion=promotion.idpromotion', 'left');
+        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+        $this->db->group_by('etudiant.idetudiant');
+        $iduniv = $this->session->userdata("universite_session");
+        $this->db->where('promotion.iduniversite', $iduniv);
+
+        if ($faculte) {
+            $this->db->where('faculte.idfaculte', $faculte);
+        }
+
+        if ($promotion) {
+            $this->db->where('promotion.idpromotion', $promotion);
+        }
+
+        if ($option) {
+            $this->db->where('options.idoptions', $option);
+        }
+
+        $r = $this->db->get('etudiant')->result();
+        echo json_encode(['data' => $r]);
+    }
+
+    function facultes()
+    {
+        $type = $this->input->get('type', true);
+        $this->checktype($type);
+        $iduniv = $this->input->get('universite', true);
+
+        if ($iduniv) {
+            $this->db->where('universite.iduniversite', $iduniv);
+        }
+        $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
+        $this->db->select('nomFaculte faculte, nomUniversite universite');
+        echo json_encode(['data' => $this->db->get('faculte')->result()]);
+    }
+
+    function liste_paie()
+    {
+
+        $type = $this->input->get('type', true);
+        $this->checktype($type);
+        $iduniv = $this->input->get('universite', true);
+
+        $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, 
+        etudiant.matricule, etudiant.email, faculte.nomFaculte faculte, promotion.intitulePromotion promotion, options.intituleOptions option,
+        frais.designation frais, frais.numeroCompte compte, banque.denomination banque, paiement.montant, devise.nomDevise devise, nomUniversite universite");
+
+        $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
+        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
+        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+        $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
+
+        $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+        $this->db->join('banque', 'banque.idbanque=frais.idbanque');
+        $this->db->join('devise', 'devise.iddevise=frais.iddevise');
+        $this->db->group_by('paiement.idpaiement');
+
+        if($iduniv) {
+            $this->db->where('universite.iduniversite', $iduniv);
+        }
+        $r = $this->db->get('paiement')->result();
+
+        echo json_encode(['data'=>$r]);
+    }
 }

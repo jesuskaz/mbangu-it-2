@@ -129,32 +129,6 @@
                   <div class="row">
                     <div class="col-lg-9">
                       <div id="graph"></div>
-                      <div class="row mb-0">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                          <div class="list-inline text-center">
-                            <div class="list-inline-item p-r-30"><i data-feather="arrow-up-circle" class="col-green"></i>
-                              <h5 class="m-b-0">$675</h5>
-                              <p class="text-muted font-14 m-b-0">Weekly Earnings</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                          <div class="list-inline text-center">
-                            <div class="list-inline-item p-r-30"><i data-feather="arrow-down-circle" class="col-orange"></i>
-                              <h5 class="m-b-0">$1,587</h5>
-                              <p class="text-muted font-14 m-b-0">Monthly Earnings</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                          <div class="list-inline text-center">
-                            <div class="list-inline-item p-r-30"><i data-feather="arrow-up-circle" class="col-green"></i>
-                              <h5 class="mb-0 m-b-0">$45,965</h5>
-                              <p class="text-muted font-14 m-b-0">Yearly Earnings</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                     <div class="col-lg-3">
                       <div class="row mt-5">
@@ -212,6 +186,7 @@
                             <th>Adresse</th>
                             <th>Email</th>
                             <th>Téléphone</th>
+                            <th></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -232,6 +207,9 @@
                                 <td><?php echo $etudiant->adresse  ?></td>
                                 <td><?php echo $etudiant->email  ?></td>
                                 <td><?php echo $etudiant->telephone  ?></td>
+                                <td> <a href="<?= site_url('manager/detail-etudiant/' . $etudiant->idetudiant) ?>">
+                                    <i class="fa fa-eye"></i> Détails
+                                  </a> </td>
                               </tr>
                           <?php
                             }
@@ -409,7 +387,6 @@
       };
       var chart = new ApexCharts(document.querySelector("#graph"), options);
       chart.render();
-      // }
 
       form = $('.form');
 

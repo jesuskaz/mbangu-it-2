@@ -17,7 +17,96 @@
           <div class="section-body">
             <div class="row">
               <div class="col-12">
-
+                <div class="card">
+                  <div class="boxs mail_listing">
+                    <div class="inbox-center ">
+                      <div class="form-inline">
+                        <div class="inbox-header p-3 w-100" style="background: whitesmoke;">
+                          Ajouter un frais
+                        </div>
+                        <div class="form-group m-4">
+                          <a type="button" class="btn btn-success" href="<?php echo site_url('Faculte/anneeAcademique') ?>">Ajouter annee Academique</a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <form class="composeForm" action="<?php echo base_url('Banque/createBanque'); ?>" method="POST">
+                          <div class="row">
+                            <div class="form-group col-6">
+                              <select name="annee" class="custom-select data" required focus>
+                                <?php
+                                foreach ($anneeAcademiques as $annee) {
+                                ?>
+                                  <option <?php echo $annee['actif'] == 1 ? 'selected' : '' ?> value="<?php echo $annee['idanneeAcademique'] ?>"><?php echo $annee['annee'] ?></option>
+                                <?php } ?>
+                              </select>
+                            </div>
+                            <div class="form-group col-6">
+                              <?php if (empty($banque)) echo "" ?>
+                              <div class="form-line">
+                                <select type="text" name="banque" class="custom-select data" placeholder="Banque" required focus>
+                                  <?php foreach ($banques as $banque) {
+                                  ?>
+                                    <option value="<?php echo $banque->idbanque; ?>"><?php echo $banque->denomination; ?></option>
+                                  <?php
+                                  }
+                                  ?>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="form-group col-6">
+                              <div class="form-line">
+                                <input type="text" name="compte" class="form-control" placeholder="Compte" required focus>
+                                <div class="invalid-feedback">
+                                  Ce champs est obligatoire
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group col-6">
+                              <div class="form-line">
+                                <input type="text" id="subject" name="frais" class="form-control" placeholder="Frais" required focus>
+                                <div class="invalid-feedback">
+                                  Ce champs est obligatoire
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="form-group col-6">
+                              <div class="form-line">
+                                <input type="number" min='1' id="subject" name="montant" class="form-control" placeholder="Montant" required focus>
+                                <div class="invalid-feedback">
+                                  Ce champs est obligatoire
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group col-6">
+                              <div class="form-line">
+                                <select type="text" name="devise" class="custom-select data" placeholder="Banque" required focus>
+                                  <?php foreach ($devise as $dev) { ?>
+                                    <option value="<?= $dev->iddevise ?>"><?= $dev->nomDevise ?></option>
+                                  <?php } ?>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
+                      <div class="col-12 text-center mb-3">
+                        <b class="text-<?= $this->session->classe; ?>"><?= $this->session->message; ?></b>
+                      </div>
+                      <div class="col-lg-12">
+                        <div class="m-l-25 m-b-20">
+                          <button type="submit" class="btn btn-info btn-border-radius waves-effect">Créer</button>
+                          <button type="button" class="btn btn-danger btn-border-radius waves-effect">Annuler</button>
+                        </div>
+                      </div>
+                    </div>
+                    </form>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="row">
@@ -37,6 +126,7 @@
                             <th>Frais</th>
                             <th>Montant</th>
                             <th>Devise</th>
+                            <th></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -53,6 +143,9 @@
                                 <td><?php echo $compte["designation"]; ?></td>
                                 <td><?php echo $compte["montant"]; ?></td>
                                 <td><?php echo $compte["nomDevise"]; ?>
+                                <td class="text-center">
+                                <a href="<?= site_url('banque/edit-f/'.$compte['idfrais']) ?>"> <i class="fa fa-edit"></i> Modifier </a>
+                                </td> 
                               </tr>
                           <?php
                             }
@@ -156,7 +249,7 @@
         </div>
       </div>
       <?php include("footer.php"); ?>
-     
+
 </body>
 
 </html>

@@ -9,21 +9,21 @@ class Banque extends CI_Controller
         $this->load->model("Manager");
     }
     //Get Banque Data in liste scroll
-    public function loadCompte()
-    {
-        if (!$this->session->universite_session) {
-            redirect();
-        }
+    // public function loadCompte()
+    // {
+    //     if (!$this->session->universite_session) {
+    //         redirect();
+    //     }
 
-        $id = $this->session->universite_session;
+    //     $id = $this->session->universite_session;
 
-        $data["anneeAcademiques"] = $this->db->get_where('anneeAcademique', ['iduniversite' => $id])->result_array();
+    //     $data["anneeAcademiques"] = $this->db->get_where('anneeAcademique', ['iduniversite' => $id])->result_array();
 
-        $data['devise'] = $this->db->get('devise')->result();
-        $data['banques'] = $this->db->get('banque')->result();
+    //     $data['devise'] = $this->db->get('devise')->result();
+    //     $data['banques'] = $this->db->get('banque')->result();
 
-        $this->load->view("universite/ajouter-compte", $data);
-    }
+    //     $this->load->view("universite/ajouter-compte", $data);
+    // }
     public function listeCompte()
     {
         if (!$this->session->universite_session) {
@@ -31,11 +31,15 @@ class Banque extends CI_Controller
         }
         $login = $this->session->userdata("universite_session");
         $idEcole = $this->BanqueModel->getIdEcole($login);
-        $idUversite = $this->session->universite_session;
+        $iduniv = $this->session->universite_session;
 
         $this->db->join('banque', 'banque.idbanque=frais.idbanque');
         $this->db->join('devise', 'devise.iddevise = frais.iddevise');
-        $data["frais"] = $this->db->where(['iduniversite' => $idUversite])->get('frais')->result_array();
+        $data["frais"] = $this->db->where(['iduniversite' => $iduniv])->get('frais')->result_array();
+        $data["anneeAcademiques"] = $this->db->get_where('anneeAcademique', ['iduniversite' => $iduniv])->result_array();
+
+        $data['devise'] = $this->db->get('devise')->result();
+        $data['banques'] = $this->db->get('banque')->result();
 
         $this->load->view("universite/liste-compte", $data);
 
@@ -48,41 +52,35 @@ class Banque extends CI_Controller
         // $this->load->view("universite/liste-compte", $data);
 
     }
-    public function listeBanque()
+
+    function edit_f($id_frais = null)
     {
-        $login = $this->session->userdata("login");
-        $nomEcole = $this->BanqueModel->getIdEcole($login);
-
-        $data["banques"] = $this->BanqueModel->getAllBanque($nomEcole);
-        if ($data) {
-            $this->load->view("universite/liste-banque", $data);
-        } else {
-            $data["error"] = "Aucune donnee";
-            $this->load->view("universite/liste-banque", $data);
+        if (!$this->session->universite_session) {
+            redirect();
         }
+
+        $id_frais = (int) $id_frais;
+        if (!count($et = $this->db->where('idfrais', $id_frais)->get('frais')->result())) {
+            redirect('banque/listecompte');
+        }
+
+        $data['frais'] = $et[0]->designation;
+        $this->load->view("universite/edit_frais", $data);
     }
-    // public function getChartData()
+    // public function listeBanque()
     // {
-    //     $query = $this->BanqueModel->getDataGraphe();
-    //     if($query)
-    //     {
-    //         foreach($query[0] as $value => $key)
-    //         {
-    //             $mois[] = $value;
-    //             $somme[] = $key;
-    //         }
-    //         $maxValue = max($somme);
-    //         $excedent = (int)($maxValue / 4);
+    //     $login = $this->session->userdata("login");
+    //     $nomEcole = $this->BanqueModel->getIdEcole($login);
 
-    //         $resultat = $maxValue + $excedent;
-
-    //         $all[] = $somme;
-    //         $all[] = $mois;
-    //         $all[] = array($resultat);
-
-    //         echo json_encode($all);
+    //     $data["banques"] = $this->BanqueModel->getAllBanque($nomEcole);
+    //     if ($data) {
+    //         $this->load->view("universite/liste-banque", $data);
+    //     } else {
+    //         $data["error"] = "Aucune donnee";
+    //         $this->load->view("universite/liste-banque", $data);
     //     }
     // }
+
     public function createBanque()
     {
         // Login n'est pas unique pour le moment
@@ -116,19 +114,16 @@ class Banque extends CI_Controller
 
             $data['devise'] = $this->db->get('devise')->result();
             $data['banques'] = $this->db->get('banque')->result();
-            $data["success"] = "Compte ajoute avec succes";
-
-            $this->load->view("universite/ajouter-compte", $data);
+            $this->session->set_flashdata(['message' => "Compte ajoute avec succes", 'classe' => 'success']);
         } else {
             $id = $this->session->universite_session;
             $data["anneeAcademiques"] = $this->db->get_where('anneeAcademique', ['iduniversite' => $id])->result_array();
 
             $data['devise'] = $this->db->get('devise')->result();
             $data['banques'] = $this->db->get('banque')->result();
-            $data["error"] = "Echec lors de l'ajout du compte";
-
-            $this->load->view("universite/ajouter-compte", $data);
+            $this->session->set_flashdata(['message' => "Echec lors de l'ajout du compte", 'classe' => 'error']);
         }
+        redirect('banque/listecompte');
     }
     public function listeRapport()
     {
@@ -176,34 +171,17 @@ class Banque extends CI_Controller
     }
     public function listeEtudiant()
     {
-        if (!$this->session->universite_session) {
+        if (!$iduniv = $this->session->universite_session) {
             redirect();
         }
-        $login =  $login = $this->session->userdata("login");
-        $idSchool = $this->BanqueModel->getStudentSchool($login);
 
-        $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, 
-            etudiant.matricule, etudiant.adresse, etudiant.email, faculte.nomFaculte, 
-            promotion.intitulePromotion, etudiant.telephone ");
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
-
-        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
-        $this->db->group_by('etudiant.idetudiant');
-
-        $collection["etudiants"] = $this->db->get('etudiant')->result();
-
-        // $collection["etudiants"] = $this->BanqueModel->getAllStudent($idSchool);
-        $this->load->view("universite/liste-etudiant", $collection);
+        $data["promotions"] = $this->db->where(['iduniversite' => $iduniv])->get('promotion')->result_array();
+        $data["facultes"] = $this->db->where(['iduniversite' => $iduniv])->get('faculte')->result_array();
 
 
-        // $login =  $login = $this->session->userdata("login");
-        // $idSchool = $this->BanqueModel->getStudentSchool($login);
-
-        // $collection["etudiants"] = $this->BanqueModel->getAllStudent($idSchool);
 
 
-        // $this->load->view("liste-etudiant", $collection);
+        $this->load->view("universite/liste-etudiant", $data);
     }
 
     public function rapportPayement()

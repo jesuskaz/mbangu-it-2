@@ -16,9 +16,7 @@ class AdmFaculte extends CI_Controller
     }
     public function listeFaculte()
     {
-        $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
-        $data["facultes"] = $this->db->get('faculte')->result();
-        // $data["facultes"] = $this->AdmUniversiteModel->getAllFaculte();
+        $data["universites"] = $this->db->get('universite')->result();
 
         if ($data) {
             $this->load->view("admin/adm-listfaculte", $data);

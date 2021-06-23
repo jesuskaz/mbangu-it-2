@@ -56,6 +56,27 @@ class Faculte extends CI_Controller
         $data["facultes"] = $this->FaculteModel->getData($login);
         $this->load->view("universite/liste-faculte", $data);
     }
+
+
+    public function options($idfaculte = null)
+    {
+
+        if (!$login = $this->session->universite_session) {
+            redirect();
+        }
+        $idfaculte = (int) $idfaculte;
+
+        if (!count($fac = $this->db->where(['idfaculte' => $idfaculte, 'iduniversite' => $login])->get('faculte')->result())) {
+            redirect('faculte/listefaculte');
+        }
+
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
+        $this->db->group_by('promotion.idpromotion');
+        $data["options"] = $this->db->where(['idfaculte' => $idfaculte])->get('options')->result();
+        $data["faculte"] = $fac[0]->nomFaculte;
+
+        $this->load->view("universite/liste-options", $data);
+    }
     public function ajouterFaculte()
     {
         if (!$this->session->universite_session) {

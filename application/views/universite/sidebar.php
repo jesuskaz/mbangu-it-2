@@ -11,8 +11,6 @@
     <li class="dropdown">
       <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="briefcase"></i><span>Frais</span></a>
       <ul class="dropdown-menu">
-        <!-- <li><a class="nav-link" href="<?php echo site_url("Banque/listeBanque"); ?>">Banque</a></li> -->
-        <li><a class="nav-link" href="<?php echo site_url("Banque/loadCompte"); ?>">Ajouter un frais</a></li>
         <li><a class="nav-link" href="<?php echo site_url("Banque/listeCompte"); ?>">Liste de frais</a></li>
       </ul>
     </li>

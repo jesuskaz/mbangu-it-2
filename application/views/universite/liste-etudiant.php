@@ -23,45 +23,64 @@
                   <div class="card-header">
                     <h4>Liste des etudiant</h4>
                   </div>
+                  <div class="card-header">
+                    <form id='form-change' method="">
+                      <div class="form-inline">
+                        <div class="form-group m-2">
+                          <select name="faculte" style="width:130px" class="custom-select">
+                            <option value="">Faculte</option>
+                            <?php foreach ($facultes as $faculte) {
+                            ?>
+                              <option value="<?php echo $faculte['idfaculte']  ?>"><?php echo $faculte['nomFaculte']  ?></option>
+                            <?php
+                            } ?>
+                          </select>
+                        </div>
+                        <div class="form-group m-2">
+                          <select name="promotion" style="width:130px" class="custom-select">
+                            <option value="">Promotion</option>
+                            <?php
+                            foreach ($promotions as $promotion) {
+                            ?>
+                              <option value="<?php echo $promotion['idpromotion']  ?>"><?php echo $promotion['intitulePromotion'] ?></option>
+                            <?php } ?>
+                          </select>
+                        </div>
+                        <div class="form-group m-2">
+                          <select name="option" style="width:130px" class="custom-select">
+                            <option value="">Option</option>
+                            <?php foreach ($options as $option) { ?>
+                              <option value="<?php echo $option['idoptions'] ?>"><?php echo $option['intituleOptions'] ?></option>
+                            <?php
+                            }
+                            ?>
+                          </select>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="card">
                   <div class="card-body">
                     <div class="table-responsive">
-                      <table class="table table-striped table-hover" style="width:100%;">
+                      <table id="table-r" class="table table-striped table-hover" style="width:100%;">
                         <thead>
                           <tr>
                             <th>N°</th>
                             <th>Nom</th>
                             <th>Post-nom</th>
                             <th>Prénom</th>
-                            <th>Matricule</th>
                             <th>Faculté</th>
-                            <th>Promotion</th>
+                            <th>Pomotion</th>
+                            <th>Matricule</th>
+                            <th>Email</th>
                             <th>Adresse</th>
                             <th>Téléphone</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <?php
-                          $i = 0;
-                          if (isset($etudiants)) {
-                            foreach ($etudiants as $etudiant) {
-                              $i = $i + 1;
-                          ?>
-                              <tr>
-                                <td><?php echo $i; ?></td>
-                                <td><?php echo $etudiant->nom  ?></td>
-                                <td><?php echo $etudiant->postnom  ?></td>
-                                <td><?php echo $etudiant->prenom  ?></td>
-                                <td><?php echo $etudiant->matricule  ?></td>
-                                <td><?php echo $etudiant->nomFaculte  ?></td>
-                                <td><?php echo $etudiant->intitulePromotion  ?></td>
-                                <td><?php echo $etudiant->adresse  ?></td>
-                                <td><?php echo $etudiant->telephone  ?></td>
-                              </tr>
-                          <?php
-                            }
-                          }
-                          ?>
-                        </tbody>
+                        <tbody></tbody>
                       </table>
                     </div>
                   </div>
@@ -161,6 +180,85 @@
     </div>
   </div>
   <?php include("footer.php"); ?>
+
+  <script>
+    $(function() {
+
+      opt = {
+        dom: 'Bfrtip',
+        buttons: [
+          'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+      };
+
+      table = $('#table-r');
+      form = $('#form-change');
+
+      table.DataTable().destroy()
+      table.DataTable(opt);
+      var s_promotion = $('select[name=promotion]');
+      var s_faculte = $('select[name=faculte]');
+
+      data();
+
+      function data() {
+        $('select').attr('disabled', false);
+        var t = "type=univ&" + form.serialize();
+        $('select').attr('disabled', true);
+
+        $.getJSON("<?= site_url('ajax/liste-etudiant') ?>", t, function(d) {
+          var str = '',
+            data = d.data;
+          $(data).each(function(i, data) {
+            str += `
+						<tr>
+							<td>${i+1}</td>
+							<td>${data.nom}</td>
+							<td>${data.postnom}</td>
+							<td>${data.prenom}</td>
+							<td>${data.faculte}</td>
+							<td>${data.promotion}</td>
+              <td>${data.matricule ?? ''}</td>
+							<td>${data.email ?? ''}</td>
+							<td>${data.adresse ?? ''}</td>
+							<td>${data.telephone ?? ''}</td>
+						</tr>
+						`;
+          })
+          table.DataTable().destroy()
+          table.children('tbody').html(str)
+          table.DataTable(opt).draw()
+          $('select').attr('disabled', false);
+        })
+      }
+
+      form.change(function(r) {
+        var name = $(this).attr('name');
+        $('select').attr('disabled', true);
+
+        if (name == 'faculte' || name == 'promotion') {
+          $.getJSON("<?= site_url('ajax/select-data') ?>", {
+            'faculte': s_faculte.val(),
+            'promotion': s_promotion.val()
+          }, function(d) {
+            var str = '<option value="">Option</option>';
+            if (d.length > 0) {
+              $(d).each(function(i, j) {
+                var _o = j.intituleOptions;
+                var _v = j.idoptions;
+                str += `<option value="${j.idoptions}">${j.intituleOptions}</option>`;
+              })
+            }
+            $('select').attr('disabled', true);
+            data()
+          })
+        } else {
+          data()
+        }
+      })
+
+    })
+  </script>
 </body>
 
 </html>

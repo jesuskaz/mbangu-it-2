@@ -14,8 +14,7 @@ class Manager extends CI_Controller
     public function index()
     {
         $this->load->model("EtudiantModel");
-        // $data["etudiants"] = $this->EtudiantModel->getAllStudent();
-        $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, etudiant.email, faculte.nomFaculte, promotion.intitulePromotion, etudiant.adresse, etudiant.telephone");
+        $this->db->select("etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, etudiant.email, faculte.nomFaculte, promotion.intitulePromotion, etudiant.adresse, etudiant.telephone");
         $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
         $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
@@ -54,15 +53,27 @@ class Manager extends CI_Controller
         // $data = $this->BanqueModel->getDate($heureDebut, $heureFin);
         // print_r($data);
     }
-    
+
     public function codingTest()
     {
         $this->load->view("coding");
     }
-    
+
     public function accueil()
     {
         $login = $this->session->userdata("login");
         $this->load->view("banque/bk-index");
+    }
+
+    function detail_etudiant($idetudiant = null)
+    {
+
+        $idetudiant = (int) $idetudiant;
+        if (!count($et = $this->db->where('idetudiant', $idetudiant)->get('etudiant')->result())) {
+            redirect('manager');
+        }
+
+
+        $this->load->view("admin/detail_etudiant", $data = []);
     }
 }

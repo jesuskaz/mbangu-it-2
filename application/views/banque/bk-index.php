@@ -23,11 +23,12 @@
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
                         <div class="card-content">
                           <h5 class="font-15">Nombre Universite</h5>
-                          <h2 class="mb-3 font-18"><?php
-                                                    if (isset($nbSchool)) {
-                                                      echo $nbSchool;
-                                                    }
-                                                    ?></h2>
+                          <h2 class="mb-3 font-18">
+                            <?php if (isset($nbSchool)) {
+                              echo $nbSchool;
+                            }
+                            ?>
+                          </h2>
                         </div>
                       </div>
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
@@ -124,49 +125,12 @@
                         <?php endforeach ?>
                       </select>
                     </div>
-                    <div class="dropdown">
-                      <a href="#" data-toggle="dropdown" class="btn btn-warning dropdown-toggle">Options</a>
-                      <div class="dropdown-menu">
-                        <a href="#" class="dropdown-item has-icon"><i class="fas fa-eye"></i> View</a>
-                        <a href="#" class="dropdown-item has-icon"><i class="far fa-edit"></i> Edit</a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item has-icon text-danger"><i class="far fa-trash-alt"></i>
-                          Delete</a>
-                      </div>
-                    </div>
-                    <a href="#" class="btn btn-primary">View All</a>
                   </div>
                 </div>
                 <div class="card-body">
                   <div class="row">
                     <div class="col-lg-9">
                       <div id="graph"></div>
-                      <div class="row mb-0">
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                          <div class="list-inline text-center">
-                            <div class="list-inline-item p-r-30"><i data-feather="arrow-up-circle" class="col-green"></i>
-                              <h5 class="m-b-0">$675</h5>
-                              <p class="text-muted font-14 m-b-0">Weekly Earnings</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                          <div class="list-inline text-center">
-                            <div class="list-inline-item p-r-30"><i data-feather="arrow-down-circle" class="col-orange"></i>
-                              <h5 class="m-b-0">$1,587</h5>
-                              <p class="text-muted font-14 m-b-0">Monthly Earnings</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                          <div class="list-inline text-center">
-                            <div class="list-inline-item p-r-30"><i data-feather="arrow-up-circle" class="col-green"></i>
-                              <h5 class="mb-0 m-b-0">$45,965</h5>
-                              <p class="text-muted font-14 m-b-0">Yearly Earnings</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                     <div class="col-lg-3">
                       <div class="row mt-5">

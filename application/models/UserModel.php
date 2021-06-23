@@ -427,7 +427,7 @@ class UserModel extends CI_Model
         $this->db->join('promotion', 'promotion.idpromotion = options.idpromotion');
         $this->db->join('etudiant', 'etudiant.idpromotion = promotion.idpromotion');
         $this->db->where('paiement.idetudiant', $idetudiant);
-        // $this->db->order_by("idpaiement", "desc");
+        $this->db->order_by("idpaiement", "desc");
         $this->db->group_by('idpaiement');
         $query = $this->db->get()->result_array();
         return $query;
