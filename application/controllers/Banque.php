@@ -37,7 +37,6 @@ class Banque extends CI_Controller
         $this->db->join('devise', 'devise.iddevise = frais.iddevise');
         $data["frais"] = $this->db->where(['iduniversite' => $iduniv])->get('frais')->result_array();
         $data["anneeAcademiques"] = $this->db->get_where('anneeAcademique', ['iduniversite' => $iduniv])->result_array();
-
         $data['devise'] = $this->db->get('devise')->result();
         $data['banques'] = $this->db->get('banque')->result();
 
@@ -55,17 +54,88 @@ class Banque extends CI_Controller
 
     function edit_f($id_frais = null)
     {
-        if (!$this->session->universite_session) {
+        if (!$iduniv = $this->session->universite_session) {
             redirect();
         }
 
         $id_frais = (int) $id_frais;
+        $this->db->join('devise', 'devise.iddevise=frais.iddevise');
+        $this->db->join('banque', 'banque.idbanque=frais.idbanque');
         if (!count($et = $this->db->where('idfrais', $id_frais)->get('frais')->result())) {
             redirect('banque/listecompte');
         }
+        $et = $et[0];
+        $data['frais'] = "$et->designation : $et->montant $et->nomDevise";
+        $data["anneeAcademiques"] = $this->db->get_where('anneeAcademique', ['iduniversite' => $iduniv])->result_array();
+        $data['devises'] = $this->db->get('devise')->result();
+        $data['banques'] = $this->db->get('banque')->result();
 
-        $data['frais'] = $et[0]->designation;
+        $data['idfrais'] = $id_frais;
+        $data['nom_f'] = $et->designation;
+        $data['compte'] = $et->numeroCompte;
+        $data['banque'] = $et->idbanque;
+        $data['montant'] = $et->montant;
+        $data['devise'] = $et->iddevise;
+        $data['annee'] = $et->idanneeAcademique;
         $this->load->view("universite/edit_frais", $data);
+    }
+
+    function update_f()
+    {
+        if (!$iduniv = $this->session->universite_session) {
+            redirect();
+        }
+        // var_dump($_POST);
+        $this->load->library('form_validation');
+        $validation = new CI_Form_validation();
+
+        $validation->set_rules('idfrais', '', 'required');
+        $validation->set_rules('annee', '', 'required');
+        $validation->set_rules('banque', '', 'required');
+        $validation->set_rules('compte', '', 'required');
+        $validation->set_rules('frais', '', 'required');
+        $validation->set_rules('montant', '', 'required');
+        $validation->set_rules('devise', '', 'required');
+
+        if ($validation->run()) {
+            $fr = $this->input->post('idfrais');
+            if (!count($this->db->where(['idfrais' => $fr, 'iduniversite' => $iduniv])->get('frais')->result())) {
+                redirect();
+            }
+            if (count($this->db->where(['paiement.idfrais' => $fr])->get('paiement')->result())) {
+                $this->session->set_flashdata(['message' => "Vous ne pouvez plus modifier ce frais, car il existe déjà un paiement lié à ce frais.", 'classe' => 'danger']);
+            } else {
+                $this->db->update('frais', [
+                    'idanneeAcademique' => $this->input->post('annee'),
+                    'iddevise' => $this->input->post('devise'),
+                    'numeroCompte' => $this->input->post('compte'),
+                    'designation' => $this->input->post('frais'),
+                    'montant' => $this->input->post('montant'),
+                ], ['idfrais' => $fr]);
+                $this->session->set_flashdata(['message' => "Le frais a été mis à jour.", 'classe' => 'success']);
+            }
+            redirect('banque/edit_f/' . $fr);
+        } else {
+            redirect('banque/edit_f');
+        }
+    }
+
+    function delete_f($idfrais = null)
+    {
+        if (!$iduniv = $this->session->universite_session) {
+            redirect();
+        }
+        $idfrais = (int) $idfrais;
+        if (!count($this->db->where(['idfrais' => $idfrais, 'iduniversite' => $iduniv])->get('frais')->result())) {
+            redirect();
+        }
+        if (count($this->db->where(['paiement.idfrais' => $idfrais])->get('paiement')->result())) {
+            $this->session->set_flashdata(['message2' => "Vous ne pouvez plus supprimer ce frais, car il existe déjà un paiement lié à ce frais.", 'classe2' => 'danger']);
+        } else {
+            $this->db->delete('frais', ['idfrais' => $idfrais]);
+            $this->session->set_flashdata(['message2' => "Le frais a été supprimé.", 'classe2' => 'success']);
+        }
+        redirect('banque/listecompte');
     }
     // public function listeBanque()
     // {
@@ -130,8 +200,8 @@ class Banque extends CI_Controller
         if (!$this->session->universite_session) {
             redirect();
         }
-        $login = $this->session->userdata("universite_session");
-        $denomination = $this->Manager->rapportPayement($login);
+        $iduniv = $this->session->userdata("universite_session");
+        // $denomination = $this->Manager->rapportPayement($iduniv);
 
         $this->db->select("paiement.*, etudiant.nom, etudiant.postnom,
             etudiant.prenom, etudiant.matricule, etudiant.email, faculte.nomFaculte, 
@@ -146,26 +216,25 @@ class Banque extends CI_Controller
         $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
         $this->db->join('banque', 'banque.idbanque=frais.idbanque');
         $this->db->join('devise', 'devise.iddevise=frais.iddevise');
+        $this->db->where('frais.iduniversite', $iduniv);
 
         $this->db->group_by('paiement.idpaiement');
-
-
         $data["paies"] = $r = $this->db->get('paiement')->result_array();
 
-        $this->db->select('*');
-        $this->db->from('promotion');
-        $this->db->group_by('intitulePromotion');
-        $data["promotion"] = $r = $this->db->get()->result_array();
+        // $this->db->select('*');
+        // $this->db->from('promotion');
+        // $this->db->group_by('intitulePromotion');
+        // $data["promotion"] = $r = $this->db->get()->result_array();
 
-        $this->db->select('*');
-        $this->db->from('faculte');
-        $this->db->group_by('nomFaculte');
-        $data["faculte"] = $r = $this->db->get()->result_array();
+        // $this->db->select('*');
+        // $this->db->from('faculte');
+        // $this->db->group_by('nomFaculte');
+        // $data["faculte"] = $r = $this->db->get()->result_array();
 
-        $this->db->select('*');
-        $this->db->from('options');
-        $this->db->group_by('intituleOptions');
-        $data["option"] = $r = $this->db->get()->result_array();
+        // $this->db->select('*');
+        // $this->db->from('options');
+        // $this->db->group_by('intituleOptions');
+        // $data["option"] = $r = $this->db->get()->result_array();
 
         $this->load->view("universite/liste-rapport", $data);
     }
@@ -174,13 +243,8 @@ class Banque extends CI_Controller
         if (!$iduniv = $this->session->universite_session) {
             redirect();
         }
-
         $data["promotions"] = $this->db->where(['iduniversite' => $iduniv])->get('promotion')->result_array();
         $data["facultes"] = $this->db->where(['iduniversite' => $iduniv])->get('faculte')->result_array();
-
-
-
-
         $this->load->view("universite/liste-etudiant", $data);
     }
 
@@ -195,5 +259,64 @@ class Banque extends CI_Controller
         } else {
             redirect("AdminCredential");
         }
+    }
+
+    function detail_etudiant($idetudiant = null)
+    {
+        if (!$this->session->universite_session) {
+            redirect();
+        }
+        $idetudiant = (int) $idetudiant;
+        if (!count($et = $this->db->where('idetudiant', $idetudiant)->get('etudiant')->result())) {
+            redirect('index/login');
+        }
+        $et = $et[0];
+        $data['etudiant'] = "$et->nom $et->postnom $et->prenom | Matricule : $et->matricule";
+
+        $this->db->select('paiement.idpaiement,paiement.idetudiant, frais.idfrais, frais.montant montant_frais, paiement.montant montant_paye, frais.designation frais, devise.nomDevise devise, commission, date');
+        $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+        $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+        $this->db->where('paiement.idetudiant', $idetudiant);
+        $data['paiements'] = $this->db->get('paiement')->result();
+        $this->load->view("universite/detail_etudiant", $data);
+    }
+
+    function print($idetudiant = null)
+    {
+        if (!$iduniv = $this->session->universite_session) {
+            redirect();
+        }
+        // idetudiant - idpaiement //
+        $d = explode('-', $idetudiant);
+        if (count($d) != 2) {
+            redirect('index/login');
+        }
+        $ann = (int)  $this->session->annee_academique;
+        $idetudiant = (int) $d[0];
+        $idpaiement = (int) $d[1];
+        $where = [
+            'etudiant.idetudiant' => $idetudiant,
+            'anneeAcademique.idanneeAcademique' => $ann,
+            'anneeAcademique.iduniversite' => $iduniv,
+        ];
+        $this->db->join('anneeAcademique', 'etudiant.idanneeAcademique=anneeAcademique.idanneeAcademique');
+        $this->db->join('promotion', 'etudiant.idpromotion=promotion.idpromotion');
+        $this->db->join('options', 'promotion.idpromotion=options.idpromotion');
+        $this->db->join('faculte', 'options.idfaculte=faculte.idfaculte');
+        $this->db->group_by('etudiant.idetudiant');
+        if (!count($et = $this->db->where($where)->get('etudiant')->result())) {
+            redirect('index/login');
+        }
+
+        $data['etudiant'] = $et[0];
+        $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+        $this->db->select('universite.*, devise.nomDevise,frais.designation, frais.montant montant_frais,frais.numeroCompte,paiement.date, paiement.montant montant_paye');
+        $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+        $this->db->join('universite', 'universite.iduniversite=frais.iduniversite');
+
+        $p = $this->db->where(['idpaiement' => $idpaiement, 'idetudiant' => $idetudiant])->get('paiement')->result();
+        $data['paie'] = @$p[0];
+
+        $this->load->view("universite/print", $data);
     }
 }

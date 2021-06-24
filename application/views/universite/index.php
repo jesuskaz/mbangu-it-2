@@ -141,6 +141,7 @@
 														<th>Promotion</th>
 														<th>Faculté</th>
 														<th>Montant</th>
+														<th></th>
 													</tr>
 												</thead>
 												<tbody></tbody>
@@ -281,6 +282,7 @@
 					var str = '',
 						data = d.data;
 					$(data).each(function(i, data) {
+						var url = "<?= site_url('banque/detail-etudiant/') ?>" + data.idetudiant;
 						str += `
 						<tr>
 							<td> ${data.date}</td>
@@ -293,6 +295,7 @@
 							<td style="text-align:center">${data.intitulePromotion}</td>
 							<td>${data.nomFaculte}</td>
 							<td style="text-align:right">${data.montant} ${data.nomDevise}</td>
+							<td style="text-align:center"><a href="${url}"><i class="fa fa-eye"></i> Détail</a></td>
 						</tr>
 						`;
 					})

@@ -18,10 +18,20 @@
               <div class="col-12">
                 <div class="card">
                   <div class="card-header d-flex justify-content-between">
-                    <h4>Détail Etudiant : <b> -- </b></h4>
+                    <h4>Détail Etudiant : <b> <?= $etudiant ?></b></h4>
                     <button class="btn btn-success float-right rounded-0" onclick="history.back()">
                       <i class="fa fa-arrow-left"></i>
                     </button>
+                  </div>
+                  <div class="card-header">
+                    <div class="jumbotron w-100 p-3">
+                      <h4 class="mb-2">Compte</h4>
+                      <?php if(count($comptes)) { foreach ($comptes as $c) { ?>
+                        <h6 class="text-danger"><?= "$c->montant $c->devise" ?></h6>
+                      <?php  } } else {
+                        echo ' <h6 class="text-danger">Aucun approvisionnement</h6>';
+                      } ?>
+                    </div>
                   </div>
                   <div class="card-body">
                     <div class="table-responsive">
@@ -29,19 +39,26 @@
                         <thead>
                           <tr>
                             <th>N°</th>
-                            <th>Nom</th>
-                            <th>Post-nom</th>
-                            <th>Prénom</th>
-                            <th>Matricule</th>
-                            <th>Faculté</th>
-                            <th>Promotion</th>
-                            <th>Adresse</th>
-                            <th>Email</th>
-                            <th>Téléphone</th>
-                            <th></th>
+                            <th>Frais</th>
+                            <th>Montant à payer</th>
+                            <th>Montant payé</th>
+                            <th>Commission</th>
+                            <th>Date Paiement</th>
                           </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                          <?php $n = 1;
+                          foreach ($paiements as $paie) { ?>
+                            <tr>
+                              <td><?= $n++ ?></td>
+                              <td><?= $paie->frais ?></td>
+                              <td><?= "$paie->montant_frais $paie->devise" ?></td>
+                              <td><?= "$paie->montant_paye $paie->devise" ?></td>
+                              <td><?= "$paie->commission $paie->devise" ?></td>
+                              <td><?= $paie->date ?></td>
+                            </tr>
+                          <?php } ?>
+                        </tbody>
                       </table>
                     </div>
                   </div>

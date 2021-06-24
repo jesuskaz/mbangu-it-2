@@ -35,6 +35,19 @@
                     </form>
                   </div>
                 </div>
+                <div class="card-header">
+                  <div class="jumbotron w-100 p-3 d-flex justify-content-between">
+                    <div class="">
+                      <h4 class="mb-2">Total paiement <i univ></i></h4>
+                      <span paie></span>
+                    </div>
+                    <div class=" text-right">
+                      <h4 class="mb-2">Total Comission <i univ></i></h4>
+                      <span commission></span>
+                    </div>
+
+                  </div>
+                </div>
                 <div class="card-body">
                   <div class="table-responsive">
                     <table id="table-r" class="table table-striped table-hover" style="width:100%;">
@@ -197,10 +210,25 @@
 							<td>${data.compte}</td>
 							<td>${data.banque}</td>
 							<td>${data.montant + ' '+ data.devise }</td>
-							<td> ### </td>
+							<td>${data.commission + ' '+ data.devise }</td>
 						</tr>
 						`;
-          })
+          });
+          $('i[univ]').html(d.universite)
+          var l = c = '';
+          if (d.paiement.length > 0) {
+            $(d.paiement).each(function(i, p) {
+              l += `<h6 class="text-danger">${p.total } ${p.devise}</h6>`;
+              c += `<h6 class="text-danger">${p.commission } ${p.devise}</h6>`;
+            })
+          } else {
+            l += `<h6 class="text-danger">Aucun paiement</h6>`;
+            c += `<h6 class="text-danger">Aucun paiement</h6>`;
+          }
+
+          $('span[paie]').html(l)
+          $('span[commission]').html(c)
+
           table.DataTable().destroy()
           table.children('tbody').html(str)
           table.DataTable(opt).draw()

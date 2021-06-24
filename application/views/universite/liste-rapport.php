@@ -18,7 +18,7 @@
 			<section class="section">
 				<div class="section-body">
 					<div class="row">
-						<div class="col-12">
+						<!-- <div class="col-12">
 							<div class="card">
 								<div class="card-header">
 									<h4>--- </h4>
@@ -95,8 +95,7 @@
 									</style>
 								</div>
 							</div>
-						</div>
-
+						</div> -->
 						<div class="col-12">
 							<div class="card">
 								<div class="card-header">
@@ -243,4 +242,5 @@
 	</div>
 	<?php include("footer.php"); ?>
 </body>
+
 </html>

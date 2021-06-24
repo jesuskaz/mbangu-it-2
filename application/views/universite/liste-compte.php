@@ -115,6 +115,9 @@
                   <div class="card-header">
                     <h4>Liste de compte</h4>
                   </div>
+                  <div class="col-12 text-center mb-3">
+                    <b class="text-<?= $this->session->classe2; ?>"><?= $this->session->message2; ?></b>
+                  </div>
                   <div class="card-body">
                     <div class="table-responsive">
                       <table class="table table-striped table-hover" style="width:100%;">
@@ -144,8 +147,9 @@
                                 <td><?php echo $compte["montant"]; ?></td>
                                 <td><?php echo $compte["nomDevise"]; ?>
                                 <td class="text-center">
-                                <a href="<?= site_url('banque/edit-f/'.$compte['idfrais']) ?>"> <i class="fa fa-edit"></i> Modifier </a>
-                                </td> 
+                                  <a href="<?= site_url('banque/edit-f/' . $compte['idfrais']) ?>"> <i class="fa fa-edit"></i> Modifier </a>
+                                  <a class="btn-link ml-2 text-danger" href="<?= site_url('banque/delete-f/' . $compte['idfrais']) ?>"> <i class="fa fa-trash"></i> Supprimer </a>
+                                </td>
                               </tr>
                           <?php
                             }

@@ -218,10 +218,10 @@
 							<td>${data.prenom}</td>
 							<td>${data.faculte}</td>
 							<td>${data.promotion}</td>
-              <td>${data.matricule ?? ''}</td>
-							<td>${data.email ?? ''}</td>
-							<td>${data.adresse ?? ''}</td>
-							<td>${data.telephone ?? ''}</td>
+              <td>${data.matricule ? data.matricule : ''}</td>
+							<td>${data.email ? data.email : ''}</td>
+							<td>${data.adresse ? data.adresse : ''}</td>
+							<td>${data.telephone ? data.telephone : ''}</td>
 						</tr>
 						`;
           })

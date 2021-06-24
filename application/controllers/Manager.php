@@ -72,8 +72,48 @@ class Manager extends CI_Controller
         if (!count($et = $this->db->where('idetudiant', $idetudiant)->get('etudiant')->result())) {
             redirect('manager');
         }
+        $et = $et[0];
+        $data['etudiant'] = "$et->nom $et->postnom $et->prenom | Matricule : $et->matricule";
 
+        $this->db->select('frais.montant montant_frais, paiement.montant montant_paye, frais.designation frais, devise.nomDevise devise, commission, date');
+        $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+        $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+        $this->db->where('paiement.idetudiant', $idetudiant);
+        $data['paiements'] = $this->db->get('paiement')->result();
 
-        $this->load->view("admin/detail_etudiant", $data = []);
+        $total_appro = $this->db->query("SELECT SUM(montant) total, nomDevise devise, devise.iddevise FROM appro join devise on devise.iddevise=appro.iddevise 
+        WHERE appro.idetudiant=$idetudiant GROUP BY appro.iddevise ")->result();
+
+        $total_paiement = $this->db->query("SELECT SUM(montant) total, SUM(commission) commission, nomDevise devise, devise.iddevise FROM paiement join devise on devise.iddevise=paiement.iddevise 
+        WHERE paiement.idetudiant=$idetudiant GROUP BY paiement.iddevise ")->result();
+
+        $compte = [];
+        foreach ($total_appro as $ta) {
+            $find = false;
+            $ob = new stdClass();
+            foreach ($total_paiement as $tp) {
+                if ($ta->iddevise == $tp->iddevise) {
+                    $solde = $ta->total - $tp->total - $tp->commission;
+                    if ($solde < 0) {
+                        die(); // doit toujour etre >= 0 
+                    }
+                    $ob->montant = $solde;
+                    $ob->devise = $ta->devise;
+                    $find = true;
+                }
+            }
+            if ($find) {
+                array_push($compte, $ob);
+            } else {
+                $ob = new stdClass();
+                $ob->montant = $ta->total;
+                $ob->devise = $ta->devise;
+                array_push($compte, $ob);
+            }
+        }
+        // var_dump($total_appro, $total_paiement, $compte);
+        // die;
+        $data['comptes'] = $compte;
+        $this->load->view("admin/detail_etudiant", $data);
     }
 }

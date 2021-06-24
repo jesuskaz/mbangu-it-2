@@ -24,11 +24,6 @@ class AdmEtudiant extends CI_Controller
     {
 
         $data["universites"] = $this->db->get('universite')->result();
-
-        // $data["paies"] = $this->EtudiantModel->gelAllPaie();
-
-        // var_dump($r);
-        // die;
         $this->load->view("admin/adm-listepay", $data);
     }
     // public function listeUniv()
@@ -46,18 +41,14 @@ class AdmEtudiant extends CI_Controller
         etudiant.nom, etudiant.postnom, etudiant.prenom, 
         etudiant.matricule, etudiant.email, faculte.nomFaculte, 
         promotion.intitulePromotion, etudiant.adresse, 
-        etudiant.telephone"
+        etudiant.telephone, nomUniversite universite"
         );
         $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
         $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+        $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
+        $this->db->group_by('etudiant.idetudiant');
         $data["etudiants"] =  $this->db->get('etudiant')->result();
-        // $data["etudiants"] = $this->EtudiantModel->getAllStudent();
-        if ($data) {
-            $this->load->view("admin/liste-etudiant", $data);
-        } else {
-            $data["error"] = "vide";
-            $this->load->view("admin/liste-etudiant", $data);
-        }
+        $this->load->view("admin/liste-etudiant", $data);
     }
 }

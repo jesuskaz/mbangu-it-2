@@ -51,7 +51,7 @@ class Ajax extends CI_Controller
         $date_fin = trim(@$d[1]);
         $devise = $this->input->get('devise', true);
 
-        $this->db->select("paiement.idpaiement, paiement.date, etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, frais.numeroCompte, 
+        $this->db->select("paiement.idpaiement, paiement.date, etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, frais.numeroCompte, 
         frais.designation, promotion.intitulePromotion, faculte.nomFaculte, paiement.montant, devise.nomDevise");
 
         $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
@@ -252,11 +252,11 @@ class Ajax extends CI_Controller
 
         $type = $this->input->get('type', true);
         $this->checktype($type);
-        $iduniv = $this->input->get('universite', true);
+        $iduniv = (int) $this->input->get('universite', true);
 
         $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, 
         etudiant.matricule, etudiant.email, faculte.nomFaculte faculte, promotion.intitulePromotion promotion, options.intituleOptions option,
-        frais.designation frais, frais.numeroCompte compte, banque.denomination banque, paiement.montant, devise.nomDevise devise, nomUniversite universite");
+        frais.designation frais, frais.numeroCompte compte, banque.denomination banque, paiement.montant, paiement.commission, devise.nomDevise devise, nomUniversite universite");
 
         $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
         $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
@@ -269,11 +269,26 @@ class Ajax extends CI_Controller
         $this->db->join('devise', 'devise.iddevise=frais.iddevise');
         $this->db->group_by('paiement.idpaiement');
 
-        if($iduniv) {
+        $universite = '';
+        if ($iduniv) {
             $this->db->where('universite.iduniversite', $iduniv);
         }
         $r = $this->db->get('paiement')->result();
 
-        echo json_encode(['data'=>$r]);
+        if ($iduniv) {
+            // penser a filtre selon les annees academiques
+            $total_paiement = $this->db->query("SELECT SUM(paiement.montant) total, SUM(commission) commission, nomDevise devise, devise.iddevise 
+            FROM paiement join devise on devise.iddevise=paiement.iddevise join frais on paiement.idfrais=frais.idfrais 
+            WHERE frais.iduniversite=$iduniv 
+            GROUP BY paiement.iddevise ")->result();
+            $universite = ($this->db->where('iduniversite', $iduniv)->get('universite')->result())[0]->nomUniversite;
+        } else {
+            // penser a filtre selon les annees academiques
+            $total_paiement = $this->db->query("SELECT SUM(paiement.montant) total, SUM(commission) commission, nomDevise devise, devise.iddevise 
+             FROM paiement join devise on devise.iddevise=paiement.iddevise join frais on paiement.idfrais=frais.idfrais 
+             GROUP BY paiement.iddevise ")->result();
+        }
+
+        echo json_encode(['data' => $r, 'paiement' => $total_paiement, 'universite' => $universite]);
     }
 }
