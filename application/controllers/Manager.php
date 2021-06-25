@@ -24,6 +24,20 @@ class Manager extends CI_Controller
         $data["devises"] = $this->db->get('devise')->result();
         $data["universites"] = $this->db->get('universite')->result();
 
+        $data['nb_faculte'] = count($this->db->get('faculte')->result());
+        $data['nb_etudiant'] = count($this->db->get('etudiant')->result());
+
+        $sql = "SELECT sum(montant) montant, sum(commission) commission, nomDevise devise from paiement
+        join devise on devise.iddevise=paiement.iddevise 
+        where cast(date as date)  >= curdate() group by paiement.iddevise ";
+        $data['nb_ca_jour'] = $f = $this->db->query($sql)->result();
+
+        $sql = "SELECT sum(montant) montant, sum(commission) commission, nomDevise devise from paiement
+        join devise on devise.iddevise=paiement.iddevise 
+        where MONTH(date) = MONTH(CURRENT_DATE) AND YEAR(date) = YEAR(CURRENT_DATE) group by paiement.iddevise ";
+        $data['nb_ca_mensuel'] = $f = $this->db->query($sql)->result();
+        // var_dump($f);
+        // die;
         $this->load->view("admin/adm-index", $data);
     }
     public function devise()

@@ -47,13 +47,19 @@ class Ajax extends CI_Controller
         $option = $this->input->get('option', true);
         $d = $this->input->get('date', true);
         $d = explode('-', $d);
-        $date_debut = trim(@$d[0]);
-        $date_fin = trim(@$d[1]);
+        $debut = str_replace('/', '-', trim(@$d[0]));
+        $fin =  str_replace('/', '-', trim(@$d[1]));
+        // var_dump($date_fin, $date_debut);
+        // die;
         $devise = $this->input->get('devise', true);
+
 
         $this->db->select("paiement.idpaiement, paiement.date, etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, frais.numeroCompte, 
         frais.designation, promotion.intitulePromotion, faculte.nomFaculte, paiement.montant, devise.nomDevise");
 
+        $this->db->where('cast(paiement.date as date) >=', $debut);
+        $this->db->where('cast(paiement.date as date) <=', $fin);
+        
         $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
         $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
         $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
@@ -61,6 +67,7 @@ class Ajax extends CI_Controller
         $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
+        
 
         // var_dump($_GET);
         // die;
@@ -207,7 +214,7 @@ class Ajax extends CI_Controller
         $promotion = $this->input->get('promotion', true);
         $option = $this->input->get('option', true);
 
-        $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, 
+        $this->db->select("etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, 
             etudiant.matricule, etudiant.adresse, etudiant.email, faculte.nomFaculte faculte, 
             promotion.intitulePromotion promotion, etudiant.telephone ");
         $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion', 'left');
@@ -253,6 +260,10 @@ class Ajax extends CI_Controller
         $type = $this->input->get('type', true);
         $this->checktype($type);
         $iduniv = (int) $this->input->get('universite', true);
+        $date = $this->input->get('date', true);
+        $date = explode('-', $date);
+        $debut = str_replace('/', '-', $date[0]);
+        $fin = str_replace('/', '-', $date[1]);
 
         $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, 
         etudiant.matricule, etudiant.email, faculte.nomFaculte faculte, promotion.intitulePromotion promotion, options.intituleOptions option,
@@ -269,6 +280,9 @@ class Ajax extends CI_Controller
         $this->db->join('devise', 'devise.iddevise=frais.iddevise');
         $this->db->group_by('paiement.idpaiement');
 
+        $this->db->where('cast(paiement.date as date) >=', $debut);
+        $this->db->where('cast(paiement.date as date) <=', $fin);
+
         $universite = '';
         if ($iduniv) {
             $this->db->where('universite.iduniversite', $iduniv);
@@ -279,13 +293,14 @@ class Ajax extends CI_Controller
             // penser a filtre selon les annees academiques
             $total_paiement = $this->db->query("SELECT SUM(paiement.montant) total, SUM(commission) commission, nomDevise devise, devise.iddevise 
             FROM paiement join devise on devise.iddevise=paiement.iddevise join frais on paiement.idfrais=frais.idfrais 
-            WHERE frais.iduniversite=$iduniv 
+            WHERE frais.iduniversite=$iduniv and cast(paiement.date as date) >='$debut' and cast(paiement.date as date) <='$fin'
             GROUP BY paiement.iddevise ")->result();
             $universite = ($this->db->where('iduniversite', $iduniv)->get('universite')->result())[0]->nomUniversite;
         } else {
             // penser a filtre selon les annees academiques
             $total_paiement = $this->db->query("SELECT SUM(paiement.montant) total, SUM(commission) commission, nomDevise devise, devise.iddevise 
              FROM paiement join devise on devise.iddevise=paiement.iddevise join frais on paiement.idfrais=frais.idfrais 
+             where cast(paiement.date as date) >='$debut' and cast(paiement.date as date) <='$fin'
              GROUP BY paiement.iddevise ")->result();
         }
 

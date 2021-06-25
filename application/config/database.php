@@ -75,12 +75,11 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	// 'hostname' => 'localhost',
+	'hostname' => 'localhost',
 	// 'username' => 'root',
 	// 'password' => '',
 	// 'database' => 'mbangupay',
 	
-	'hostname' => 'www.mbangu-it.com',
 	'username' => 'u589673144_mukunday02',
 	'password' => 'S@malta771982an',
 	'database' => 'u589673144_mukunday02',

@@ -134,30 +134,9 @@
                     </div>
                     <div class="col-lg-3">
                       <div class="row mt-5">
-                        <div class="col-7 col-xl-7 mb-3">Total customers</div>
-                        <div class="col-5 col-xl-5 mb-3">
-                          <span class="text-big">8,257</span>
-                          <sup class="col-green">+09%</sup>
-                        </div>
-                        <div class="col-7 col-xl-7 mb-3">Total Income</div>
-                        <div class="col-5 col-xl-5 mb-3">
-                          <span class="text-big">$9,857</span>
-                          <sup class="text-danger">-18%</sup>
-                        </div>
-                        <div class="col-7 col-xl-7 mb-3">Project completed</div>
-                        <div class="col-5 col-xl-5 mb-3">
-                          <span class="text-big">28</span>
-                          <sup class="col-green">+16%</sup>
-                        </div>
-                        <div class="col-7 col-xl-7 mb-3">Total expense</div>
-                        <div class="col-5 col-xl-5 mb-3">
-                          <span class="text-big">$6,287</span>
-                          <sup class="col-green">+09%</sup>
-                        </div>
-                        <div class="col-7 col-xl-7 mb-3">New Customers</div>
-                        <div class="col-5 col-xl-5 mb-3">
-                          <span class="text-big">684</span>
-                          <sup class="col-green">+22%</sup>
+                        <div class="col-7 col-xl-7 mb-3">
+                          <h6>Légende</h6>
+                          <h6 id='legende'></h6>
                         </div>
                       </div>
                     </div>
@@ -313,6 +292,7 @@
   <script>
     $(function() {
 
+      colors = ["#786BED", "#ff7694", "#21b0ff"];
       var options = {
         chart: {
           height: 300,
@@ -329,7 +309,7 @@
             show: false
           }
         },
-        colors: ["#786BED", "#999b9c"],
+        colors: colors,
         dataLabels: {
           enabled: true
         },
@@ -395,12 +375,17 @@
         }, function(d) {
           d = JSON.parse(d)
           var tab_data = [];
+          leg = '';
+          var c = 0;
           $.each(d, function(i, j) {
             tab_data.push({
               name: i,
               data: j
-            })
+            });
+            leg += `<span class="badge text-white" style="background: ${colors[c]}">${i}</span>`;
+            c++;
           })
+          $('#legende').html(leg);
           chart.updateSeries(tab_data)
         })
       }

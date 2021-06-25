@@ -78,6 +78,7 @@
                             <th>Email</th>
                             <th>Adresse</th>
                             <th>Téléphone</th>
+                            <th></th>
                           </tr>
                         </thead>
                         <tbody></tbody>
@@ -210,6 +211,7 @@
           var str = '',
             data = d.data;
           $(data).each(function(i, data) {
+						var url = "<?= site_url('banque/detail-etudiant/') ?>" + data.idetudiant;
             str += `
 						<tr>
 							<td>${i+1}</td>
@@ -222,6 +224,7 @@
 							<td>${data.email ? data.email : ''}</td>
 							<td>${data.adresse ? data.adresse : ''}</td>
 							<td>${data.telephone ? data.telephone : ''}</td>
+							<td style="text-align:center"><a href="${url}"><i class="fa fa-eye"></i> Détail</a></td>
 						</tr>
 						`;
           })

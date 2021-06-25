@@ -16,18 +16,20 @@
           <div class="row ">
             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
               <div class="card">
-                <div class="card-statistic-4">
+                <div class="card-statistic-4" style="height: 200px">
                   <div class="align-items-center justify-content-between">
                     <div class="row ">
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
                         <div class="card-content">
-                          <h5 class="font-15">Faculté</h5>
-                          <h2 class="mb-3 font-18">258</h2>
+                          <h5 class="font-15">Universités</h5>
+                          <h2 class="mb-3 small"><?= count($universites)  ?></h2>
+                          <h5 class="font-15">Facultés</h5>
+                          <h2 class="mb-3 small"><?= $nb_faculte ?></h2>
                         </div>
                       </div>
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
                         <div class="banner-img">
-                          <img src="assets/img/banner/1.png" alt="">
+                          <img src="<?= site_url("assets/img/banner/1.png") ?>" alt="">
                         </div>
                       </div>
                     </div>
@@ -37,13 +39,13 @@
             </div>
             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
               <div class="card">
-                <div class="card-statistic-4">
+                <div class="card-statistic-4" style="height: 200px">
                   <div class="align-items-center justify-content-between">
                     <div class="row ">
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
                         <div class="card-content">
-                          <h5 class="font-15"> Etudiant</h5>
-                          <h2 class="mb-3 font-18">1,287</h2>
+                          <h5 class="font-15"> Etudiants</h5>
+                          <h2 class="mb-3 small"><?= $nb_etudiant ?></h2>
                         </div>
                       </div>
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
@@ -58,13 +60,19 @@
             </div>
             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
               <div class="card">
-                <div class="card-statistic-4">
+                <div class="card-statistic-4" style="height: 200px">
                   <div class="align-items-center justify-content-between">
                     <div class="row ">
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
                         <div class="card-content">
                           <h5 class="font-15">CA du jour</h5>
-                          <h2 class="mb-3 font-18">128</h2>
+                          <?php if (count($nb_ca_jour)) {
+                            foreach ($nb_ca_jour as $ca) { ?>
+                              <h6 class="mb-3 small"><?= "Total : $ca->montant $ca->devise <br> Commision : $ca->commission $ca->devise" ?></h6>
+                            <?php }
+                          } else { ?>
+                            <h2 class="mb-3 danger">Aucune information</h2>
+                          <?php } ?>
                         </div>
                       </div>
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
@@ -79,13 +87,19 @@
             </div>
             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
               <div class="card">
-                <div class="card-statistic-4">
+                <div class="card-statistic-4" style="height: 200px">
                   <div class="align-items-center justify-content-between">
                     <div class="row ">
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
                         <div class="card-content">
-                          <h5 class="font-15">CA de l'année</h5>
-                          <h2 class="mb-3 font-18">$48,697</h2>
+                          <h5 class="font-15">CA mensuel</h5>
+                          <?php if (count($nb_ca_mensuel)) {
+                            foreach ($nb_ca_mensuel as $ca) { ?>
+                              <h6 class="mb-3 small"><?= "Total : $ca->montant $ca->devise <br> Commision : $ca->commission $ca->devise" ?></h6>
+                            <?php }
+                          } else { ?>
+                            <h2 class="mb-3 danger">Aucune information</h2>
+                          <?php } ?>
                         </div>
                       </div>
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
@@ -132,30 +146,9 @@
                     </div>
                     <div class="col-lg-3">
                       <div class="row mt-5">
-                        <div class="col-7 col-xl-7 mb-3">Total customers</div>
-                        <div class="col-5 col-xl-5 mb-3">
-                          <span class="text-big">8,257</span>
-                          <sup class="col-green">+09%</sup>
-                        </div>
-                        <div class="col-7 col-xl-7 mb-3">Total Income</div>
-                        <div class="col-5 col-xl-5 mb-3">
-                          <span class="text-big">$9,857</span>
-                          <sup class="text-danger">-18%</sup>
-                        </div>
-                        <div class="col-7 col-xl-7 mb-3">Project completed</div>
-                        <div class="col-5 col-xl-5 mb-3">
-                          <span class="text-big">28</span>
-                          <sup class="col-green">+16%</sup>
-                        </div>
-                        <div class="col-7 col-xl-7 mb-3">Total expense</div>
-                        <div class="col-5 col-xl-5 mb-3">
-                          <span class="text-big">$6,287</span>
-                          <sup class="col-green">+09%</sup>
-                        </div>
-                        <div class="col-7 col-xl-7 mb-3">New Customers</div>
-                        <div class="col-5 col-xl-5 mb-3">
-                          <span class="text-big">684</span>
-                          <sup class="col-green">+22%</sup>
+                        <div class="col-7 col-xl-7 mb-3">
+                          <h6>Légende</h6>
+                          <h6 id='legende'></h6>
                         </div>
                       </div>
                     </div>
@@ -318,6 +311,8 @@
 
   <script>
     $(function() {
+
+      colors = ["#786BED", "#ff7694", "#21b0ff"];
       var options = {
         chart: {
           height: 300,
@@ -334,7 +329,7 @@
             show: false
           }
         },
-        colors: ["#786BED", "#999b9c"],
+        colors: colors,
         dataLabels: {
           enabled: true
         },
@@ -397,12 +392,17 @@
         $.get("<?= site_url('ajax/chart-data') ?>", "type=admin&" + form.serialize(), function(d) {
           d = JSON.parse(d)
           var tab_data = [];
+          leg = '';
+          var c = 0;
           $.each(d, function(i, j) {
             tab_data.push({
               name: i,
               data: j
-            })
+            });
+            leg += `<span class="badge text-white" style="background: ${colors[c]}">${i}</span>`;
+            c++;
           })
+          $('#legende').html(leg);
           chart.updateSeries(tab_data)
         })
       }

@@ -48,6 +48,10 @@
 												<div class="col-5 col-xl-5 mb-3">
 													<span class="badge badge-primary"> <b><?= $etudiant_pas_paie ?></b> </span>
 												</div>
+												<div class="col-7 col-xl-7 mb-3">
+													<h6>Légende</h6>
+													<h6 id='legende'></h6>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -141,7 +145,7 @@
 														<th>Promotion</th>
 														<th>Faculté</th>
 														<th>Montant</th>
-														<th></th>
+														\
 													</tr>
 												</thead>
 												<tbody></tbody>
@@ -282,7 +286,6 @@
 					var str = '',
 						data = d.data;
 					$(data).each(function(i, data) {
-						var url = "<?= site_url('banque/detail-etudiant/') ?>" + data.idetudiant;
 						str += `
 						<tr>
 							<td> ${data.date}</td>
@@ -295,7 +298,6 @@
 							<td style="text-align:center">${data.intitulePromotion}</td>
 							<td>${data.nomFaculte}</td>
 							<td style="text-align:right">${data.montant} ${data.nomDevise}</td>
-							<td style="text-align:center"><a href="${url}"><i class="fa fa-eye"></i> Détail</a></td>
 						</tr>
 						`;
 					})
@@ -331,6 +333,7 @@
 				}
 			})
 
+			colors = ["#786BED", "#ff7694", "#21b0ff"];
 			var options = {
 				chart: {
 					height: 300,
@@ -347,7 +350,7 @@
 						show: false
 					}
 				},
-				colors: ["#786BED", "#999b9c"],
+				colors: colors,
 				dataLabels: {
 					enabled: true
 				},
@@ -375,7 +378,6 @@
 				},
 				xaxis: {
 					categories: ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"],
-
 					labels: {
 						style: {
 							colors: "#9aa0ac"
@@ -409,12 +411,18 @@
 				}, function(d) {
 					d = JSON.parse(d)
 					var tab_data = [];
+					leg = '';
+					var c = 0;
 					$.each(d, function(i, j) {
 						tab_data.push({
 							name: i,
 							data: j
-						})
+						});
+						leg += `<span class="badge text-white" style="background: ${colors[c]}">${i}</span>`;
+						c++;
 					})
+
+					$('#legende').html(leg);
 					chart.updateSeries(tab_data)
 				})
 			}

@@ -25,7 +25,10 @@
                   <div class="card-header-action">
                     <form class="form-inline form">
                       <div class="form-group p-1 ">
-                        <select name="universite" class="custom-select universite">
+                        <input type="text" class="form-control p-3 datepicker data rounded-0 w-100" name="date">
+                      </div>
+                      <div class="form-group p-1 ">
+                        <select name="universite" class="custom-select">
                           <option value="">Choisissez l'universite</option>
                           <?php foreach ($universites as $de) : ?>
                             <option value="<?= $de->iduniversite ?>"><?= $de->nomUniversite ?></option>
@@ -169,11 +172,18 @@
   </div>
   </div>
   <?php include("footer.php"); ?>
-
+  <script type="text/javascript" src="<?= base_url('assets/js/daterangepicker/moment.js') ?>"></script>
+	<script type="text/javascript" src="<?= base_url('assets/js/daterangepicker/daterangepicker.js') ?>"></script>
+	<link rel="stylesheet" type="text/css" href="<?= base_url('assets/js/daterangepicker/daterangepicker.css') ?>" />
 
   <script>
     $(function() {
       form = $('.form');
+      $('.datepicker').daterangepicker({
+				locale: {
+					format: 'YYYY/MM/DD'
+				}
+			});
       opt = {
         dom: 'Bfrtip',
         buttons: [

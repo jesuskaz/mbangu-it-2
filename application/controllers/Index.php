@@ -39,7 +39,7 @@ class Index extends CI_Controller
 
         if ($iduniv = (int) $this->session->userdata("universite_session")) {
 
-            $data["promotions"] = $this->Manager->getPromotion($this->session->universite_session);
+            $data["promotions"] = $this->db->where('iduniversite',$this->session->universite_session)->get('promotion')->result_array();
             $data["faculte"] = count($this->db->get_where('faculte', ["iduniversite" => $this->session->universite_session])->result());
             $data["selectFaculte"] = $this->db->get_where('faculte', ["iduniversite" => $this->session->universite_session])->result_array();
 
