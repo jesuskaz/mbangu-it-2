@@ -24,10 +24,10 @@
                     <h4>Liste des etudiant</h4>
                   </div>
                   <div class="card-header">
-                    <form id='form-change' method="">
+                    <form method="">
                       <div class="form-inline">
                         <div class="form-group m-2">
-                          <select name="faculte" style="width:130px" class="custom-select">
+                          <select name="faculte" style="width:130px" class="custom-select form-change">
                             <option value="">Faculte</option>
                             <?php foreach ($facultes as $faculte) {
                             ?>
@@ -37,7 +37,7 @@
                           </select>
                         </div>
                         <div class="form-group m-2">
-                          <select name="promotion" style="width:130px" class="custom-select">
+                          <select name="promotion" style="width:130px" class="custom-select form-change">
                             <option value="">Promotion</option>
                             <?php
                             foreach ($promotions as $promotion) {
@@ -47,13 +47,8 @@
                           </select>
                         </div>
                         <div class="form-group m-2">
-                          <select name="option" style="width:130px" class="custom-select">
+                          <select name="option" style="width:130px" class="custom-select form-change">
                             <option value="">Option</option>
-                            <?php foreach ($options as $option) { ?>
-                              <option value="<?php echo $option['idoptions'] ?>"><?php echo $option['intituleOptions'] ?></option>
-                            <?php
-                            }
-                            ?>
                           </select>
                         </div>
                       </div>
@@ -193,7 +188,7 @@
       };
 
       table = $('#table-r');
-      form = $('#form-change');
+      form = $('.form-change');
 
       table.DataTable().destroy()
       table.DataTable(opt);
@@ -249,9 +244,10 @@
               $(d).each(function(i, j) {
                 var _o = j.intituleOptions;
                 var _v = j.idoptions;
-                str += `<option value="${j.idoptions}">${j.intituleOptions}</option>`;
+								str += `<option value="${j.idoptions}">${j.intituleOptions} (${j.promotion})</option>`;
               })
             }
+						$('select[name=option]').html(str);
             $('select').attr('disabled', true);
             data()
           })

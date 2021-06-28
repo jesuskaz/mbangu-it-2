@@ -18,6 +18,33 @@
             <div class="row">
               <div class="col-12">
                 <div class="card">
+                  <div class="boxs mail_listing">
+                    <div class="p-3" style="background: whitesmoke;">
+                      Ajouter une faculté <br>
+                      <b class="text-<?= $this->session->classe; ?>"><?php echo $this->session->message; ?></b>
+                    </div>
+                    <div class="row">
+                      <form class="composeForm" action="<?php echo site_url("Faculte/createFaculte"); ?>" method="POST">
+                        <div class="col-lg-12">
+                          <div class="form-group">
+                            <div class="form-line">
+                              <input type="text" id="email_address" class="form-control" name="faculte" placeholder="Faculté">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-12">
+                          <div class="m-l-25 m-b-20">
+                            <button type="submit" class="btn btn-info btn-border-radius waves-effect">Créer</button>
+                          </div>
+
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="card">
                   <div class="card-header">
                     <h4>Liste de Faculté</h4>
                   </div>

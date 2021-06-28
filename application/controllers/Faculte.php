@@ -77,13 +77,13 @@ class Faculte extends CI_Controller
 
         $this->load->view("universite/liste-options", $data);
     }
-    public function ajouterFaculte()
-    {
-        if (!$this->session->universite_session) {
-            redirect();
-        }
-        $this->load->view("universite/ajouter-faculte");
-    }
+    // public function ajouterFaculte()
+    // {
+    //     if (!$this->session->universite_session) {
+    //         redirect();
+    //     }
+    //     $this->load->view("universite/ajouter-faculte");
+    // }
     public function promotion()
     {
         if (!$this->session->universite_session) {
@@ -258,15 +258,18 @@ class Faculte extends CI_Controller
 
             $insert = $this->FaculteModel->faculteCreate($data);
             if ($insert) {
-                $message["success"] = "La faculté a été créée avec succès";
-                $this->load->view("universite/ajouter-faculte", $message);
+                $message["message"] = "La faculté a été créée avec succès";
+                $message["classe"] = "success";
             } else {
-                $message["error"] = "La faculté n'a pas été créée, vérifiez vos données";
-                $this->load->view("universite/ajouter-faculte", $message);
+                $message["message"] = "La faculté n'a pas été créée, vérifiez vos données";
+                $message["classe"] = "danger";
             }
         } else {
-            $message["existe"] = "La faculté " . strtoupper($faculte) . " existe déjà";
-            $this->load->view("universite/ajouter-faculte", $message);
+            $message["message"] = "La faculté " . strtoupper($faculte) . " existe déjà";
+            $message["classe"] = "danger";
         }
+
+        $this->session->set_flashdata($message);
+        redirect('faculte/listefaculte');
     }
 }

@@ -263,21 +263,92 @@ class Banque extends CI_Controller
 
     function detail_etudiant($idetudiant = null)
     {
-        if (!$this->session->universite_session) {
+        if (!$iduniv = $this->session->universite_session) {
             redirect();
         }
         $idetudiant = (int) $idetudiant;
-        if (!count($et = $this->db->where('idetudiant', $idetudiant)->get('etudiant')->result())) {
+        $ann = (int)  $this->session->annee_academique;
+        $where = [
+            'etudiant.idetudiant' => $idetudiant,
+            'anneeAcademique.idanneeAcademique' => $ann,
+            'anneeAcademique.iduniversite' => $iduniv,
+        ];
+        $this->db->join('anneeAcademique', 'etudiant.idanneeAcademique=anneeAcademique.idanneeAcademique');
+        $this->db->join('promotion', 'etudiant.idpromotion=promotion.idpromotion');
+        $this->db->join('options', 'promotion.idpromotion=options.idpromotion');
+        $this->db->join('faculte', 'options.idfaculte=faculte.idfaculte');
+        $this->db->group_by('etudiant.idetudiant');
+        if (!count($et = $this->db->where($where)->get('etudiant')->result())) {
             redirect('index/login');
         }
-        $et = $et[0];
-        $data['etudiant'] = "$et->nom $et->postnom $et->prenom | Matricule : $et->matricule";
+        
+        // $this->db->select('paiement.idpaiement,paiement.idetudiant, frais.idfrais, 
+        // frais.montant montant_frais, paiement.montant montant_paye, 
+        // frais.designation frais, devise.nomDevise devise, date,
+        // devise.iddevise
+        // ');
+        // $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+        // $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+        // $this->db->where('paiement.idetudiant', $idetudiant);
+        // $this->db->group_by('paiement.idpaiement');
 
-        $this->db->select('paiement.idpaiement,paiement.idetudiant, frais.idfrais, frais.montant montant_frais, paiement.montant montant_paye, frais.designation frais, devise.nomDevise devise, commission, date');
-        $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
-        $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
-        $this->db->where('paiement.idetudiant', $idetudiant);
-        $data['paiements'] = $this->db->get('paiement')->result();
+        // $data['paiements'] = $paie = $this->db->get('paiement')->result();
+        $data['etudiant'] = $et[0];
+
+        // SELECT
+        // date,
+        // montant,
+        //     (
+        //     SELECT
+        //         SUM(f2.montant)
+        //     FROM
+        //         paiement f2
+        //     WHERE
+        //         f2.idpaiement <= paiement.idpaiement
+        // ) AS "montant cumule"
+        // FROM
+        //     paiement
+        // ORDER BY
+        //     idpaiement
+
+        $sql = "SELECT paiement.idpaiement,paiement.idetudiant, frais.idfrais, 
+            frais.montant montant_frais, paiement.montant montant_paye, 
+            frais.designation frais, devise.nomDevise devise, date,
+            devise.iddevise,
+            (
+                SELECT sum(f2.montant) from paiement f2 where f2.idpaiement <= paiement.idpaiement and 
+                idetudiant = $idetudiant 
+                group by idetudiant
+            ) cumule
+            from paiement
+            join frais on frais.idfrais=paiement.idfrais 
+            join devise on devise.iddevise=paiement.iddevise 
+            where paiement.idetudiant = $idetudiant group by paiement.idpaiement, paiement.iddevise
+        ";
+        $data['paiements'] = $paie = $this->db->query($sql)->result();
+        // var_dump($paie);
+        // die;
+
+        $devise = $this->db->get('devise')->result();
+        $final = [];
+        foreach ($devise as $dev) {
+            $tab = [];
+            foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as $mois) {
+                $montantPaie = 0;
+                foreach ($paie as $p) {
+                    $date = explode('-', $p->date);
+                    $_mois = (int) $date[1];
+                    if ($mois == $_mois and $dev->iddevise == $p->iddevise) {
+                        $montantPaie += $p->montant_paye;
+                    }
+                }
+                array_push($tab, $montantPaie);
+            }
+            $final[$dev->nomDevise] = $tab;
+        }
+
+        $data['graph'] = json_encode($final);
+
         $this->load->view("universite/detail_etudiant", $data);
     }
 
@@ -318,5 +389,14 @@ class Banque extends CI_Controller
         $data['paie'] = @$p[0];
 
         $this->load->view("universite/print", $data);
+    }
+
+    function profil()
+    {
+        if (!$iduniv = $this->session->universite_session) {
+            redirect();
+        }
+        $u = $this->db->where('iduniversite', $iduniv)->get('universite')->result()[0];
+        $this->load->view("universite/profil", ['univ' => $u]);
     }
 }

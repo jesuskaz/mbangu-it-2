@@ -19,7 +19,6 @@
       <ul class="dropdown-menu">
         <li><a class="nav-link" href="<?php echo site_url("Faculte/anneeAcademique"); ?>">Annee Academique</a></li>
         <li><a class="nav-link" href="<?php echo site_url("Faculte/listeFaculte"); ?>">Liste de faculté</a></li>
-        <li><a class="nav-link" href="<?php echo site_url("Faculte/ajouterFaculte"); ?>">Ajouter faculté</a></li>
         <li><a class="nav-link" href="<?php echo site_url("Faculte/promotion"); ?>">Ajouter promotion</a></li>
         <li><a class="nav-link" href="<?php echo site_url("Faculte/option"); ?>">Ajouter option</a></li>
       </ul>
@@ -34,6 +33,12 @@
       <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="copy"></i><span>Rapport</span></a>
       <ul class="dropdown-menu">
         <li><a class="nav-link" href="<?php echo site_url("Banque/listeRapport"); ?>">Liste de paiement</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#" class="menu-toggle nav-link has-dropdown"><i data-feather="shopping-bag"></i><span>Autres</span></a>
+      <ul class="dropdown-menu">
+        <li><a class="nav-link" href="<?php echo site_url("banque/profil"); ?>">Profil</a></li>
       </ul>
     </li>
     <li class="dropdown">

@@ -17,43 +17,82 @@
             <div class="row">
               <div class="col-12">
                 <div class="card">
-                  <div class="card-header d-flex justify-content-between">
-                    <h4>Détail Etudiant : <b> <?= $etudiant ?></b></h4>
-                    <button class="btn btn-success float-right rounded-0" onclick="history.back()">
-                      <i class="fa fa-arrow-left"></i>
-                    </button>
-                  </div>
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table table-striped table-hover" style="width:100%;">
-                        <thead>
-                          <tr>
-                            <th>N°</th>
-                            <th>Frais</th>
-                            <th>Montant à payer</th>
-                            <th>Montant payé</th>
-                            <th>Commission</th>
-                            <th>Date Paiement</th>
-                            <th></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php $n = 1;
-                          foreach ($paiements as $paie) { ?>
-                            <tr>
-                              <td><?= $n++ ?></td>
-                              <td><?= $paie->frais ?></td>
-                              <td><?= "$paie->montant_frais $paie->devise" ?></td>
-                              <td><?= "$paie->montant_paye $paie->devise" ?></td>
-                              <td><?= "$paie->commission $paie->devise" ?></td>
-                              <td><?= $paie->date ?></td>
-                              <td> <a href="<?= site_url('banque/print/' . "$paie->idetudiant-$paie->idpaiement") ?>" class="btn btn-info"><i class="fa fa-print"></i></a> </td>
-                            </tr>
-                          <?php } ?>
-                        </tbody>
-                      </table>
+                  <div class="row">
+                    <div class="col-lg-9">
+                      <div id="graph"></div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="row mt-5">
+                        <div class="col-7 col-xl-7 mb-3">
+                          <h6>Légende</h6>
+                          <h6 id='legende'></h6>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="invoice">
+                  <div class="invoice-print" id="print">
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div class="row justify-content-between">
+                          <div class="p-3">
+                            <address>
+                              <?= "$etudiant->nom $etudiant->postnom $etudiant->prenom" ?><br>
+                              Faculté : <?= $etudiant->nomFaculte ?><br>
+                              Promotion : <?= $etudiant->intitulePromotion ?><br>
+                              Options : <?= $etudiant->intituleOptions ?><br>
+                              Matricule : <?= $etudiant->matricule ?><br>
+                              Adresse : <?= $etudiant->adresse ?>
+                            </address>
+                          </div>
+                          <div class=" text-md-right">
+                            <address>
+                              N° Facture : <?= $etudiant->idetudiant ?><br>
+                            </address>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row mt-4">
+                      <div class="col-md-12">
+                        <div class="table-responsive">
+                          <table class="table table-striped table-hover" style="width:100%;">
+                            <thead>
+                              <tr>
+                                <th>N°</th>
+                                <th>Frais</th>
+                                <th>Montant à payer</th>
+                                <th>Montant payé</th>
+                                <th>Total payé</th>
+                                <th>Reste</th>
+                                <th>Date Paiement</th>
+                                <th></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <?php $n = 1;
+                              foreach ($paiements as $paie) { ?>
+                                <tr>
+                                  <td><?= $n++ ?></td>
+                                  <td><?= $paie->frais ?></td>
+                                  <td><?= "$paie->montant_frais $paie->devise" ?></td>
+                                  <td><?= "$paie->montant_paye $paie->devise" ?></td>
+                                  <td><?= "$paie->cumule $paie->devise" ?></td>
+                                  <td><?= ($paie->montant_frais - $paie->cumule) . " $paie->devise" ?></td>
+                                  <td><?= $paie->date ?></td>
+                                  <td> <a href="<?= site_url('banque/print/' . "$paie->idetudiant-$paie->idpaiement") ?>" class="btn btn-info"><i class="fa fa-print"></i></a> </td>
+                                </tr>
+                              <?php } ?>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <hr>
                 </div>
               </div>
             </div>
@@ -150,7 +189,104 @@
     </div>
   </div>
   <?php include("footer.php"); ?>
+  <script>
+    $(function() {
+      opt = {
+        dom: 'Bfrtip',
+        buttons: [
+          'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+      };
 
+      colors = ["#786BED", "#ff7694", "#21b0ff"];
+      var options = {
+        chart: {
+          height: 300,
+          type: "line",
+          shadow: {
+            enabled: true,
+            color: "#000",
+            top: 18,
+            left: 7,
+            blur: 10,
+            opacity: 1
+          },
+          toolbar: {
+            show: false
+          }
+        },
+        colors: colors,
+        dataLabels: {
+          enabled: true
+        },
+        stroke: {
+          curve: "smooth"
+        },
+        series: [{
+            name: "High - 2019",
+            data: []
+          },
+          {
+            name: "Low - 2019",
+            data: []
+          }
+        ],
+        grid: {
+          borderColor: "#e7e7e7",
+          row: {
+            colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
+            opacity: 0.0
+          }
+        },
+        markers: {
+          size: 6
+        },
+        xaxis: {
+          categories: ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"],
+          labels: {
+            style: {
+              colors: "#9aa0ac"
+            }
+          }
+        },
+        yaxis: {
+          labels: {
+            style: {
+              color: "#9aa0ac"
+            }
+          },
+        },
+        legend: {
+          position: "top",
+          horizontalAlign: "right",
+          floating: true,
+          offsetY: -25,
+          offsetX: -5
+        }
+      };
+      var chart = new ApexCharts(document.querySelector("#graph"), options);
+      chart.render();
+
+      update()
+
+      function update() {
+        var tab = <?= $graph ?>;
+        var leg = '';
+        var c = 0;
+        var tab_data = [];
+        $.each(tab, function(i, j) {
+          tab_data.push({
+            name: i,
+            data: j
+          });
+          leg += `<span class="badge text-white" style="background: ${colors[c]}">${i}</span>`;
+          c++;
+        })
+        $('#legende').html(leg);
+        chart.updateSeries(tab_data)
+      }
+    })
+  </script>
 </body>
 
 </html>

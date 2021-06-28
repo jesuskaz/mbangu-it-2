@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+
+
 <?php include("heade.php"); ?>
 
 <body>
@@ -12,77 +14,33 @@
         <?php include("sidebar.php"); ?>
       </div>
       <div class="main-content">
-        <section class="section">
-          <div class="section-body">
-            <div class="invoice">
-              <div class="invoice-print" id="print">
-                <div class="row">
-                  <div class="col-lg-12">
-                    <div class="invoice-title d-flex p-0 justify-content-center">
-                      <h6 class="text-warning">Facturette</h6>
-                    </div>
-                    <hr>
-                    <div class="row justify-content-between">
-                      <div class="">
-                        <address>
-                          <?= "$etudiant->nom $etudiant->postnom $etudiant->prenom" ?><br>
-                          Faculté : <?= $etudiant->nomFaculte ?><br>
-                          Promotion : <?= $etudiant->intitulePromotion ?><br>
-                          Options : <?= $etudiant->intituleOptions ?><br>
-                          Matricule : <?= $etudiant->matricule ?><br>
-                          Adresse : <?= $etudiant->adresse ?>
-                        </address>
-                      </div>
-                      <div class=" text-md-right">
-                        <?php $d = explode(' ', $paie->date);
-                        ?>
-                        <address>
-                          N° Facture : <?= $etudiant->idetudiant ?><br>
-                          Date : <?= @$d[0] ?><br>
-                          Heure : <?= @$d[1] ?><br>
-                          Universté : <?= $paie->nomUniversite ?><br>
-                          Compte : <?= $paie->numeroCompte ?><br>
-                        </address>
-                      </div>
+        <div class="card">
+          <div class="boxs mail_listing">
+            <div class="p-3" style="background: whitesmoke;">
+              Ajouter une faculté <br>
+              <b><?php if (isset($success)) echo $success; ?></b>
+              <b><?php if (isset($error)) echo $error; ?></b>
+              <b><?php if (isset($existe)) echo $existe; ?></b>
+            </div>
+            <div class="row">
+              <form class="composeForm" action="<?php echo site_url("Faculte/createFaculte"); ?>" method="POST">
+                <div class="col-lg-12">
+                  <div class="form-group">
+                    <div class="form-line">
+                      <input type="text" id="email_address" class="form-control" name="faculte" placeholder="Faculté">
                     </div>
                   </div>
                 </div>
-                <div class="row mt-4">
-                  <div class="col-md-12">
-                    <div class="table-responsive">
-                      <table class="table table-striped table-hover table-md">
-                        <thead>
-                          <tr>
-                            <th>Frais</th>
-                            <th class="text-center">Montant à payer</th>
-                            <th class="text-right">Montant payé</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td><?= $paie->designation ?></td>
-                            <td class="text-center"><?= "$paie->montant_frais $paie->nomDevise" ?></td>
-                            <td class="text-right"><?= " $paie->montant_paye $paie->nomDevise" ?></td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                <div class="col-lg-12">
+                  <div class="m-l-25 m-b-20">
+                    <button type="submit" class="btn btn-info btn-border-radius waves-effect">Créer</button>
                   </div>
+
                 </div>
-                <div class="row justify-content-center">
-                  <img width="100" height="100" src="<?= base_url($univ->logo) ?>" alt="">
-                </div>
-              </div>
-              <hr>
-              <div class="row">
-                <div class="col-12 justify-content-between">
-                  <button onclick="history.back()" class="btn btn-danger btn-icon "><i class="fas fa-arrow-left"></i> Retour</button>
-                  <button class="btn btn-warning btn-icon print"><i class="fas fa-print"></i> Imprimer</button>
-                </div>
-              </div>
+              </form>
             </div>
           </div>
-        </section>
+        </div>
         <div class="settingSidebar">
           <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
           </a>
@@ -174,18 +132,6 @@
     </div>
   </div>
   <?php include("footer.php"); ?>
-  <script src="<?php echo base_url() . 'assets/js/printThis.js'; ?>"></script>
-  <script>
-    $(function() {
-      $('.table').DataTable().destroy()
-      $('.print').click(function() {
-        $("#print").printThis({
-          importCSS: true,
-        });
-      })
-    })
-  </script>
-
 </body>
 
 </html>

@@ -59,7 +59,7 @@ class Ajax extends CI_Controller
 
         $this->db->where('cast(paiement.date as date) >=', $debut);
         $this->db->where('cast(paiement.date as date) <=', $fin);
-        
+
         $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
         $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
         $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
@@ -67,7 +67,7 @@ class Ajax extends CI_Controller
         $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
-        
+
 
         // var_dump($_GET);
         // die;
@@ -189,7 +189,7 @@ class Ajax extends CI_Controller
         $faculte = (int) $this->input->get('faculte');
         $promotion = (int) $this->input->get('promotion');
 
-        $this->db->select('options.idoptions,options.idfaculte,options.idpromotion, intituleOptions');
+        $this->db->select('options.idoptions,options.idfaculte,options.idpromotion, intituleOptions, promotion.intitulePromotion promotion');
         if ($faculte) {
             $where['options.idfaculte'] = $faculte;
         }
@@ -197,6 +197,7 @@ class Ajax extends CI_Controller
             $where['options.idpromotion'] = $promotion;
         }
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
         $where['faculte.iduniversite'] = $this->session->universite_session;
         $this->db->group_by('options.idoptions');
         $r = $this->db->where($where)->get('options')->result();
@@ -235,7 +236,7 @@ class Ajax extends CI_Controller
         if ($option) {
             $this->db->where('options.idoptions', $option);
         }
-
+        $this->db->group_by('etudiant.idetudiant');
         $r = $this->db->get('etudiant')->result();
         echo json_encode(['data' => $r]);
     }
@@ -305,5 +306,34 @@ class Ajax extends CI_Controller
         }
 
         echo json_encode(['data' => $r, 'paiement' => $total_paiement, 'universite' => $universite]);
+    }
+
+    function update_logo()
+    {
+        $this->checktype('univ');
+        $path =  "upload/logo/";
+        $config = array(
+            'upload_path' => $path,
+            'overwrite' => TRUE,
+            'allowed_types' => "jpg|jpeg|png|gif"
+        );
+
+        $this->load->library('upload', $config);
+
+        if ($this->upload->do_upload('logo')) {
+            $d = $this->upload->data();
+            $nomFichier = $path . $d['file_name'];
+            $where = ['iduniversite' => $this->session->universite_session];
+            $r = $this->db->where($where)->get('universite')->result()[0];
+            @unlink($r->logo);
+            $this->db->update('universite', ['logo' => $nomFichier], $where);
+            $reponse['status'] = true;
+            $reponse['message'] = 'logo ajouté.';
+            $reponse['logo'] = base_url($nomFichier);
+        } else {
+            $reponse['status'] = false;
+            $reponse['message'] = 'Echec, vérifiez le fichier séléctionné.';
+        }
+        echo json_encode($reponse);
     }
 }

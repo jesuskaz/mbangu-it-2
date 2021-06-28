@@ -68,10 +68,10 @@
                           <h5 class="font-15">CA du jour</h5>
                           <?php if (count($nb_ca_jour)) {
                             foreach ($nb_ca_jour as $ca) { ?>
-                              <h6 class="mb-3 small"><?= "Total : $ca->montant $ca->devise <br> Commision : $ca->commission $ca->devise" ?></h6>
+                              <h6 class="mb-3 small"><?= "Total : " . round($ca->montant, 2) . " $ca->devise <br> Commision : $ca->commission $ca->devise" ?></h6>
                             <?php }
                           } else { ?>
-                            <h2 class="mb-3 danger">Aucune information</h2>
+                            <h2 class="mb-3 danger small">Aucune information</h2>
                           <?php } ?>
                         </div>
                       </div>
@@ -95,10 +95,10 @@
                           <h5 class="font-15">CA mensuel</h5>
                           <?php if (count($nb_ca_mensuel)) {
                             foreach ($nb_ca_mensuel as $ca) { ?>
-                              <h6 class="mb-3 small"><?= "Total : $ca->montant $ca->devise <br> Commision : $ca->commission $ca->devise" ?></h6>
+                              <h6 class="mb-3 small"><?= "Total : " . round($ca->montant, 2) . " $ca->devise <br> Commision : " . round($ca->commission, 2) . " $ca->devise" ?></h6>
                             <?php }
                           } else { ?>
-                            <h2 class="mb-3 danger">Aucune information</h2>
+                            <h2 class="mb-3 danger small">Aucune information</h2>
                           <?php } ?>
                         </div>
                       </div>

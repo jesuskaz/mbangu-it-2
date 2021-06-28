@@ -67,10 +67,10 @@
 										<h4>Rapport de tous les étudiants</h4>
 									</div>
 									<div class="card-header">
-										<form id='form-change' method="">
+										<form class='' method="">
 											<div class="form-inline">
 												<div class="form-group m-2">
-													<select name="faculte" style="width:130px" class="custom-select">
+													<select name="faculte" style="width:130px" class="custom-select form-change">
 														<option value="">Faculte</option>
 														<?php foreach ($selectFaculte as $facultes) {
 														?>
@@ -80,7 +80,7 @@
 													</select>
 												</div>
 												<div class="form-group m-2">
-													<select name="promotion" style="width:130px" class="custom-select">
+													<select name="promotion" style="width:130px" class="custom-select form-change">
 														<option value="">Promotion</option>
 														<?php
 														foreach ($promotions as $promotion) {
@@ -90,21 +90,16 @@
 													</select>
 												</div>
 												<div class="form-group m-2">
-													<select name="option" style="width:130px" class="custom-select">
+													<select name="option" style="width:130px" class="custom-select form-change">
 														<option value="">Option</option>
-														<?php foreach ($options as $option) { ?>
-															<option value="<?php echo $option['idoptions'] ?>"><?php echo $option['intituleOptions'] ?></option>
-														<?php
-														}
-														?>
 													</select>
 												</div>
 
 												<div class="form-group m-2">
-													<input type="text" class="form-control p-3 datepicker data rounded-0 w-100" name="date">
+													<input type="text" class="form-control form-change p-3 datepicker data rounded-0 w-100" name="date">
 												</div>
 												<div class="form-group m-2">
-													<select class="custom-select data" name="devise">
+													<select class="custom-select form-change data" name="devise">
 														<option value="" selected>Choisissez la devise</option>
 														<?php foreach ($devises as $dev) { ?>
 															<option value="<?php echo $dev->iddevise ?>"><?php echo $dev->nomDevise ?></option>
@@ -145,7 +140,6 @@
 														<th>Promotion</th>
 														<th>Faculté</th>
 														<th>Montant</th>
-														\
 													</tr>
 												</thead>
 												<tbody></tbody>
@@ -269,7 +263,7 @@
 			};
 
 			table = $('#table-r');
-			form = $('#form-change');
+			form = $('.form-change');
 			table.DataTable().destroy()
 			table.DataTable(opt);
 			var s_promotion = $('select[name=promotion]');
@@ -308,7 +302,7 @@
 				})
 			}
 
-			form.change(function(r) {
+			form.change(function() {
 				var name = $(this).attr('name');
 				$('select').attr('disabled', true);
 
@@ -322,9 +316,10 @@
 							$(d).each(function(i, j) {
 								var _o = j.intituleOptions;
 								var _v = j.idoptions;
-								str += `<option value="${j.idoptions}">${j.intituleOptions}</option>`;
+								str += `<option value="${j.idoptions}">${j.intituleOptions} (${j.promotion})</option>`;
 							})
 						}
+						$('select[name=option]').html(str);
 						$('select').attr('disabled', true);
 						data()
 					})
