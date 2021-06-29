@@ -16,7 +16,7 @@ class Index extends CI_Controller
     function deconnexion()
     {
         $this->session->sess_destroy();
-        redirect();
+        redirect('index/login');
     }
 
     public function contact()
@@ -36,10 +36,14 @@ class Index extends CI_Controller
 
     public function login()
     {
+        $this->load->view('first/login');
+    }
 
+    function home()
+    {
         if ($iduniv = (int) $this->session->userdata("universite_session")) {
 
-            $data["promotions"] = $this->db->where('iduniversite',$this->session->universite_session)->get('promotion')->result_array();
+            $data["promotions"] = $this->db->where('iduniversite', $this->session->universite_session)->get('promotion')->result_array();
             $data["faculte"] = count($this->db->get_where('faculte', ["iduniversite" => $this->session->universite_session])->result());
             $data["selectFaculte"] = $this->db->get_where('faculte', ["iduniversite" => $this->session->universite_session])->result_array();
 
@@ -58,7 +62,16 @@ class Index extends CI_Controller
             $data["devises"] = $this->db->get('devise')->result();
             $this->load->view("universite/index", $data);
         } else {
-            redirect("AdminCredential");
+            redirect("index/login");
+        }
+    }
+
+    function solde()
+    {
+        if ($iduniv = (int) $this->session->userdata("universite_session")) {
+            $this->load->view("universite/solde");
+        } else {
+            redirect("index/login");
         }
     }
 

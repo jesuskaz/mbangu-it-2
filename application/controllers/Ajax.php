@@ -12,6 +12,45 @@ class Ajax extends CI_Controller
         $this->load->model("Manager");
     }
 
+    function login()
+    {
+        $this->load->library('form_validation');
+        $validation  = new CI_Form_validation();
+        $validation->set_rules('login', '', 'required', ['required' => "Votre login est requis."]);
+        $validation->set_rules('code', '', 'required', ['required' => "Votre mot de passe est requis."]);
+
+        $re['status'] = false;
+        if ($validation->run()) {
+            $login = $this->input->post('login', true);
+            $code = $this->input->post('code', true);
+
+            if (count($r = $this->db->where(['login' => $login, 'password' => $code])->get('admin')->result())) {
+                $re['status'] = true;
+                $re['url'] = site_url('manager');
+                $this->session->set_userdata(['isadmin' => true]);
+            } else if (count($r = $this->db->where(['login' => $login, 'password' => $code])->get('banque')->result())) {
+                $re['status'] = true;
+                $re['url'] = site_url('banquee');
+                $r = $r[0];
+                $this->session->set_userdata(['bank_session' =>  $r->idbanque]);
+            } else if (count($r = $this->db->where(['login' => $login, 'code' => $code])->get('universite')->result())) {
+                $r = $r[0];
+                $re['status'] = true;
+                $re['url'] = site_url('index/home');
+                // $this->session->set_userdata("login", $login);
+                $this->session->set_userdata(['universite_session' =>  $r->iduniversite]);
+                $r = @$this->db->where(['iduniversite' => $r->iduniversite, 'actif' => 1])->get('anneeAcademique')->result()[0];
+                $this->session->set_userdata(['annee_academique' =>  $r->idanneeAcademique]);
+            } else {
+                $re['message'] = 'login ou mot de passe incorrect.';
+            }
+        } else {
+            $re['error'] = $validation->error_array();
+        }
+
+        echo json_encode($re);
+    }
+
     function checktype($type)
     {
         if (!in_array($type, ['univ', 'admin', 'banque'])) {
@@ -335,5 +374,68 @@ class Ajax extends CI_Controller
             $reponse['message'] = 'Echec, vérifiez le fichier séléctionné.';
         }
         echo json_encode($reponse);
+    }
+
+    function update_pass()
+    {
+        $type = $this->input->post('type', true);
+        $this->checktype($type);
+
+        $this->load->library('form_validation');
+        $validation  = new CI_Form_validation();
+        $validation->set_rules('pass', '', 'required', ['required' => "Tapez le mot de passe actuel."]);
+        $validation->set_rules('new', '', 'required', ['required' => "Tapez votre nouveau mot de passe"]);
+        $validation->set_rules('cnew', '', 'required|matches[new]', ['required' => "Confirmer votre nouveau mot de passe", 'matches' => "les deux mots de passe sont différents."]);
+
+        $re['status'] = false;
+        if ($validation->run()) {
+            if ($type == 'univ') {
+                $pass = $this->input->post('pass');
+                $newpass = $this->input->post('new');
+                $iduniv = $this->session->universite_session;
+
+                if (count($this->db->where(['code' => $pass, 'iduniversite' => $iduniv])->get('universite')->result())) {
+                    $this->db->update('universite', ['code' => $newpass], ['iduniversite' => $iduniv]);
+                    $re['message'] = 'Le mot de passe a été mis à jour.';
+                    $re['status'] = true;
+                } else {
+                    $re['message'] = 'Le mot de passe actuel que vous avez saisi est incorrect.';
+                }
+            }
+        } else {
+            $re['error'] = $validation->error_array();
+        }
+
+        echo json_encode($re);
+    }
+
+    function update_profil()
+    {
+        $type = $this->input->post('type', true);
+        $this->checktype($type);
+
+        $this->load->library('form_validation');
+        $validation  = new CI_Form_validation();
+        $validation->set_rules('universite', '', 'required', ['required' => "Tapez le nom de votre université."]);
+
+        $re['status'] = false;
+        if ($validation->run()) {
+            if ($type == 'univ') {
+                $univ = $this->input->post('universite');
+                $iduniv = $this->session->universite_session;
+
+                if (!count($this->db->where(['nomUniversite' => $univ, 'iduniversite !=' => $iduniv])->get('universite')->result())) {
+                    $this->db->update('universite', ['nomUniversite' => $univ], ['iduniversite' => $iduniv]);
+                    $re['message'] = 'Le nom de votre université a été mis à jour.';
+                    $re['status'] = true;
+                } else {
+                    $re['message'] = "Vous ne pouvez pas utiliser ce nom  < <i>$univ</i> >.";
+                }
+            }
+        } else {
+            $re['error'] = $validation->error_array();
+        }
+
+        echo json_encode($re);
     }
 }

@@ -21,30 +21,71 @@
 
 						<div class="col-12">
 							<div class="card">
-								<div class="card-body">
-									<h5>Université : <?= $univ->nomUniversite ?></h5>
-									<h5>Login : <?= $univ->login ?> </h5>
-
-									<?php if (!empty($univ->logo)) { ?>
-										<p image>
-											<img width="100" height="100" src="<?= base_url($univ->logo) ?>" alt="">
-										</p>
-									<?php } ?>
-									<hr>
-									<p>Ajouter un logo (.jpg, .png, .gif)</p>
-
-									<form id="f-logo" method="post" enctype="multipart/form-data" action="">
-										<div class="form-group">
-											<input required accept=".jpg,.png,.gif" class="form-control" type="file" name="logo" id="">
+								<div class="card-header">
+									<h5>Université : <span univ><?= $univ->nomUniversite ?></span> | Login : <?= $univ->login ?> </h5>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<div class="p-3">
+											<form id="f-profil" method="post">
+												<input type="hidden" name="type" value="univ">
+												<div class="form-group">
+													<input value="<?= $univ->nomUniversite ?>" class="form-control" type="text" name="universite" placeholder="Université">
+													<em class="text-danger" name='universite'></em>
+												</div>
+												<p class="m-0 p-0"><em msg3></em></p>
+												<div class="form-group">
+													<button class="btn btn-primary"><i class="fa fa-edit"></i> Modifier le nom</button>
+												</div>
+											</form>
+											<form action="" method="post" id="f-pass">
+												<input type="hidden" name="type" value="univ">
+												<div class="form-group">
+													<input class="form-control" type="password" name="pass" placeholder="Mot de passe actuel">
+													<em class="text-danger" name='pass'></em>
+												</div>
+												<div class="form-group">
+													<input class="form-control" type="password" name="new" placeholder="Nouveau mot passe actuel">
+													<em class="text-danger" name='new'></em>
+												</div>
+												<div class="form-group">
+													<input class="form-control" type="password" name="cnew" placeholder="Confirmer">
+													<em class="text-danger" name='cnew'></em>
+												</div>
+												<p><em msg2></em></p>
+												<div class="form-group">
+													<button class="btn btn-primary"><i class="fa fa-edit"></i> Modifier le mot de passe</button>
+												</div>
+											</form>
 										</div>
-										<div class="form-group">
-											<em msg></em>
-										</div>
-										<div class="form-group">
-											<button class="btn btn-info"> <i class="fa fa-upload"></i> Ajouter</button>
-										</div>
-									</form>
 
+									</div>
+									<div class="col-md-6">
+										<div class="card-body">
+											<div class="mb-3">
+												<div image class="d-flex justify-content-center">
+													<?php if (!empty($univ->logo)) { ?>
+														<img width="100" height="100" src="<?= base_url($univ->logo) ?>" alt="">
+													<?php } ?>
+												</div>
+											</div>
+											<div class="">
+												<p class="d-flex justify-content-center m-2 ">Ajouter un logo (.jpg, .png, .gif)</p>
+												<form id="f-logo" method="post" enctype="multipart/form-data" action="">
+													<div class="form-group">
+														<input id="file" style="display: none" required accept=".jpg,.png,.gif" class="form-control" type="file" name="logo" id="">
+													</div>
+													<div class="form-group m-0 p-0 d-flex justify-content-center">
+														<em msg></em>
+													</div>
+													<div class="form-group d-flex justify-content-center">
+														<label for='file' class="btn btn-info"> <i class="fa fa-upload"></i> Ajouter</label>
+													</div>
+												</form>
+											</div>
+
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -145,24 +186,30 @@
 
 	<script>
 		$(function() {
-			$('#f-logo').submit(function(e) {
-				e.preventDefault();
-				var form = $(this);
-				var btn = $(':submit', form);
-				btn.attr('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+
+			form = $('#f-logo');
+
+			form.change(function() {
+				upload();
+			})
+
+			function upload() {
+				var btn = $('label[for="file"]', form);
+				btn.html('<i class="fa fa-spinner fa-spin"></i>');
 				txt = '<i class="fa fa-upload"></i> Ajouter';
 				$.ajax({
 					url: '<?= site_url('ajax/update-logo') ?>',
 					type: 'POST',
-					data: new FormData(this),
+					data: new FormData(form[0]),
 					processData: false,
 					contentType: false,
 					success: function(res) {
 						btn.attr('disabled', false).html(txt);
 						form.get(0).reset();
 						res = $.parseJSON(res);
+						var img = `<img width="100" height="100" src="${res.logo}" alt="">`;
 						if (res.status) {
-							$('p[image]').find('img').attr('src', res.logo);
+							$('div[image]').html(img);
 							$('em[msg]').removeClass().addClass('text-success').html(res.message).fadeIn().delay(5000).fadeOut();
 						} else {
 							$('em[msg]').removeClass().addClass('text-danger').html(res.message).fadeIn().delay(5000).fadeOut();
@@ -173,8 +220,61 @@
 						$('em[msg]').removeClass().addClass('text-danger').html('erreur').fadeIn();
 					}
 				})
+			}
 
-			})
+			$('#f-pass').submit(function(e) {
+				e.preventDefault();
+				var form = $(this);
+				var btn = $(':submit', form);
+				var cl = btn.find('i').prop('class');
+				btn.attr('disabled', true).find('i').removeClass().addClass('fa fa-spinner fa-spin');
+				$(`em[name]`).html('');
+				$(`em[msg2]`).html('');
+
+				$.post('<?= site_url('ajax/update-pass') ?>', form.serialize(), function(data) {
+					data = JSON.parse(data);
+					if (data.status) {
+						$(`em[msg2]`).removeClass().addClass('text-success small').html(data.message);
+						form.get(0).reset();
+					} else {
+						var err = data.error;
+						for (i in err) {
+							$(`em[name=${i}]`).html(err[i]);
+						}
+						$(`em[msg2]`).removeClass().addClass('text-danger small').html(data.message);
+					}
+					btn.attr('disabled', false).find('i').removeClass().addClass(cl);
+				})
+			});
+
+			$('#f-profil').submit(function(e) {
+				e.preventDefault();
+				var form = $(this);
+				var btn = $(':submit', form);
+				var cl = btn.find('i').prop('class');
+				btn.attr('disabled', true).find('i').removeClass().addClass('fa fa-spinner fa-spin');
+				$(`em[name]`).html('');
+				$(`em[msg3]`).html('');
+
+				$.post('<?= site_url('ajax/update-profil') ?>', form.serialize(), function(data) {
+					data = JSON.parse(data);
+					if (data.status) {
+						$(`em[msg3]`).removeClass().addClass('text-success small').html(data.message);
+						var n = $(':input[name=universite]', form).val();
+						$('span[univ]').html(n)
+						
+					} else {
+						var err = data.error;
+						for (i in err) {
+							$(`em[name=${i}]`).html(err[i]);
+						}
+						$(`em[msg3]`).removeClass().addClass('text-danger small').html(data.message);
+					}
+					btn.attr('disabled', false).find('i').removeClass().addClass(cl);
+				})
+			});
+
+
 		})
 	</script>
 </body>

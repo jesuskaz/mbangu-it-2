@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php include("heade.php"); ?>
-</script>
 
 <body>
 	<div id="app">
