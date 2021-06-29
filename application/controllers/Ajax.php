@@ -438,4 +438,34 @@ class Ajax extends CI_Controller
 
         echo json_encode($re);
     }
+
+    function solde()
+    {
+        $this->checktype('univ');
+        $frais = (int) $this->input->get('frais');
+        $d = $this->input->get('date', true);
+        $d = explode('-', $d);
+        $debut = str_replace('/', '-', trim(@$d[0]));
+        $fin =  str_replace('/', '-', trim(@$d[1]));
+
+        $iduniv = $this->session->universite_session;
+        $annee = $this->session->annee_academique;
+
+        $this->db->where(['frais.iduniversite' => $iduniv, 'frais.idanneeAcademique' => $annee]);
+
+        $this->db->where('cast(paiement.date as date) >=', $debut);
+        $this->db->where('cast(paiement.date as date) <=', $fin);
+
+        if ($frais) {
+            $this->db->where('frais.idfrais', $frais);
+        }
+
+        $this->db->select("sum(paiement.montant) total, nomDevise devise, frais.designation frais");
+
+        $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+        $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+        $this->db->group_by('paiement.iddevise');
+        $r = $this->db->get('paiement')->result();
+        echo json_encode($r);
+    }
 }

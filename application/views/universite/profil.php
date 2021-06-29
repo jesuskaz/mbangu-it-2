@@ -13,7 +13,6 @@
 				<?php include("sidebar.php"); ?>
 			</div>
 		</div>
-
 		<div class="main-content">
 			<section class="section">
 				<div class="section-body">

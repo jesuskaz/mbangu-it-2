@@ -50,7 +50,18 @@
                           </div>
                           <div class=" text-md-right">
                             <address>
-                              N° Facture : <?= $etudiant->idetudiant ?><br>
+                              <?php if (file_exists($etudiant->picture)) { ?>
+                                <a href="<?= base_url($etudiant->picture) ?>">
+                                  <img width="200" height="200" src=" <?= base_url($etudiant->picture) ?>" alt="">
+                                </a>
+
+                              <?php } ?>
+                              <?php if (file_exists($etudiant->carte)) { ?>
+                                <br> <br>
+                                <a class="mt-2" href="<?= base_url($etudiant->carte) ?>">
+                                  <i class="fa fa-file fa-2x "></i>
+                                </a>
+                              <?php } ?>
                             </address>
                           </div>
                         </div>

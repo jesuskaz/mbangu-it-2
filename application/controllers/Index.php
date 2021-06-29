@@ -69,67 +69,47 @@ class Index extends CI_Controller
     function solde()
     {
         if ($iduniv = (int) $this->session->userdata("universite_session")) {
-            $this->load->view("universite/solde");
+            $ann = $this->session->annee_academique;
+            $data['frais'] = $this->db->where(['iduniversite' => $iduniv, 'idanneeAcademique' => $ann])->get('frais')->result();
+            $this->load->view("universite/solde", $data);
         } else {
             redirect("index/login");
         }
     }
 
-    // function getallrapport()
-    // {
-    //     $faculte = $this->input->get('faculte', true);
-    //     $promotion = $this->input->get('promotion', true);
-    //     $option = $this->input->get('option', true);
-    //     $d = $this->input->get('date', true);
-    //     $d = explode('-', $d);
-    //     $date_debut = trim(@$d[0]);
-    //     $date_fin = trim(@$d[1]);
-    //     $devise = $this->input->get('devise', true);
+    function detail_solde($idfrais = null)
+    {
+        if ($iduniv = (int) $this->session->userdata("universite_session")) {
+            if (is_null(($idfrais))) {
+                redirect('index/solde');
+            }
 
-    //     $login = $this->session->userdata("login");
-    //     $denomination = $this->Manager->rapportPayement($login);
-    //     $where = ['universite' => $denomination];
-    //     if(!empty($faculte)){
-    //         $where['faculte'] = $faculte;
-    //     }
-    //     if(!empty($promotion)){
-    //         $where['promotion'] = $promotion;
-    //     }
-    //     if(!empty($option)){
-    //         $where['options'] = $option;
-    //     }
-    //     $r = $this->Manager->getAllRapport($where);
-    //     // $r = $this->Manager->getAllRapport($denomination);
-    //     // var_dump($denomination);
-    //     // die;
-    //     // var_dump(empty($faculte), $where,$faculte, $promotion, $option, $date_debut, $date_fin, $devise);
-    //     // die;
-    //     echo json_encode([
-    //         'data' => $r
-    //     ]);
-    // }
+            if (!count($fr =  $this->db->where(['idfrais' => $idfrais, 'iduniversite' => $iduniv])->get('frais')->result())) {
+                redirect('index/solde');
+            }
+            $fr = $fr[0];
+            $ann = $this->session->annee_academique;
+            $data['frais'] = $fr->designation;
 
-    // public function getSchoolChart($devise)
-    // {
-    //     $login = $this->session->userdata("login");
-    //     $idEcole = $this->Manager->getIdSchool($login);
+            $this->db->select('etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule ,numeroCompte compte, promotion.intitulePromotion promotion, nomFaculte faculte, date, paiement.montant, nomDevise devise ');
 
-    //     $query = $this->Manager->getDataGraphe($idEcole, $devise);
-    //     if ($query) {
-    //         foreach ($query[0] as $value => $key) {
-    //             $mois[] = $value;
-    //             $somme[] = $key;
-    //         }
-    //         $maxValue = max($somme);
-    //         $excedent = (int)($maxValue / 4);
+            $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+            $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+            $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
+            $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
+            $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+            $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+            $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
+            $this->db->group_by('paiement.idpaiement');
 
-    //         $resultat = $maxValue + $excedent;
+            $this->db->where('frais.idfrais', $idfrais);
 
-    //         $all[] = $somme;
-    //         $all[] = $mois;
-    //         $all[] = array($resultat);
+            $data['paiement'] = $this->db->where(['frais.iduniversite' => $iduniv, 'frais.idanneeAcademique' => $ann])->get('paiement')->result();
 
-    //         echo json_encode($all);
-    //     }
-    // }
+            $this->load->view("universite/detail_solde", $data);
+        } else {
+            redirect("index/login");
+        }
+    }
+
 }

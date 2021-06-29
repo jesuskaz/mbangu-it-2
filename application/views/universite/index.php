@@ -13,7 +13,7 @@
 			<div class="main-content">
 				<section class="section">
 					<div class="row">
-						<div class="col-12 col-sm-12 col-lg-12">
+						<div class="col-md-12">
 							<div class="card ">
 								<div class="card-header">
 									<h4>Statistiques de paiement</h4>
@@ -93,7 +93,6 @@
 														<option value="">Option</option>
 													</select>
 												</div>
-
 												<div class="form-group m-2">
 													<input type="text" class="form-control form-change p-3 datepicker data rounded-0 w-100" name="date">
 												</div>
