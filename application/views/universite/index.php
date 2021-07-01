@@ -47,10 +47,7 @@
 												<div class="col-5 col-xl-5 mb-3">
 													<span class="badge badge-primary"> <b><?= $etudiant_pas_paie ?></b> </span>
 												</div>
-												<div class="col-7 col-xl-7 mb-3">
-													<h6>Légende</h6>
-													<h6 id='legende'></h6>
-												</div>
+												<div class="col-12 mb-3">Légende :<b><span class="ml-2" id='legende'></span></b></div>
 											</div>
 										</div>
 									</div>
@@ -411,7 +408,7 @@
 							name: i,
 							data: j
 						});
-						leg += `<span class="badge text-white" style="background: ${colors[c]}">${i}</span>`;
+						leg += `<span class="badge text-white m-1" style="background: ${colors[c]}">${i}</span>`;
 						c++;
 					})
 

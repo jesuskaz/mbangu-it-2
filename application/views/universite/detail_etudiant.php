@@ -23,10 +23,7 @@
                     </div>
                     <div class="col-lg-3">
                       <div class="row mt-5">
-                        <div class="col-7 col-xl-7 mb-3">
-                          <h6>Légende</h6>
-                          <h6 id='legende'></h6>
-                        </div>
+                        <div class="col-12 mb-3">Légende :<b><span class="ml-2" id='legende'></span></b></div>
                       </div>
                     </div>
                   </div>
@@ -59,7 +56,7 @@
                               <?php if (file_exists($etudiant->carte)) { ?>
                                 <br> <br>
                                 <a class="mt-2" href="<?= base_url($etudiant->carte) ?>">
-                                  <i class="fa fa-file fa-2x "></i>
+                                  Pièce d'identité<i class="ml-1 fa fa-file fa-2x "></i>
                                 </a>
                               <?php } ?>
                             </address>
@@ -68,6 +65,9 @@
                       </div>
                     </div>
                     <div class="row mt-4">
+                      <div class="col-12">
+                        <?php  var_dump($paiements);?>
+                      </div>
                       <div class="col-md-12">
                         <div class="table-responsive">
                           <table class="table table-striped table-hover" style="width:100%;">
@@ -89,11 +89,11 @@
                                 <tr>
                                   <td><?= $n++ ?></td>
                                   <td><?= $paie->frais ?></td>
-                                  <td><?= "$paie->montant_frais $paie->devise" ?></td>
-                                  <td><?= "$paie->montant_paye $paie->devise" ?></td>
-                                  <td><?= "$paie->cumule $paie->devise" ?></td>
-                                  <td><?= ($paie->montant_frais - $paie->cumule) . " $paie->devise" ?></td>
-                                  <td><?= $paie->date ?></td>
+                                  <td class="text-right" ><?= "$paie->montant_frais $paie->devise" ?></td>
+                                  <td class="text-right" ><?= "$paie->montant_paye $paie->devise" ?></td>
+                                  <td class="text-right" ><?= "$paie->cumule $paie->devise" ?></td>
+                                  <td class="text-right" ><?= ($paie->montant_frais - $paie->cumule) . " $paie->devise" ?></td>
+                                  <td class="text-right" ><?= $paie->date ?></td>
                                   <td> <a href="<?= site_url('banque/print/' . "$paie->idetudiant-$paie->idpaiement") ?>" class="btn btn-info"><i class="fa fa-print"></i></a> </td>
                                 </tr>
                               <?php } ?>

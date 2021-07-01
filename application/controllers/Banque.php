@@ -281,7 +281,7 @@ class Banque extends CI_Controller
         if (!count($et = $this->db->where($where)->get('etudiant')->result())) {
             redirect('index/login');
         }
-        
+
         // $this->db->select('paiement.idpaiement,paiement.idetudiant, frais.idfrais, 
         // frais.montant montant_frais, paiement.montant montant_paye, 
         // frais.designation frais, devise.nomDevise devise, date,
@@ -326,7 +326,28 @@ class Banque extends CI_Controller
             where paiement.idetudiant = $idetudiant group by paiement.idpaiement, paiement.iddevise
         ";
         $data['paiements'] = $paie = $this->db->query($sql)->result();
-        // var_dump($paie);
+
+        // $listfrais = $this->db->where(['iduniversite' => $iduniv, 'idanneeAcademique' => $ann])->get('frais')->result();
+
+        // $final = [];
+        // foreach ($listfrais as $lf) {
+        //     $sql = "SELECT paiement.idpaiement, paiement.idetudiant, frais.idfrais, 
+        //         frais.montant montant_frais, paiement.montant montant_paye, 
+        //         frais.designation frais, devise.nomDevise devise, date,
+        //         devise.iddevise,
+        //         (
+        //             SELECT sum(f2.montant) from paiement f2 where f2.idpaiement <= paiement.idpaiement and 
+        //             idetudiant = $idetudiant 
+        //             group by idetudiant
+        //         ) cumule
+        //         from paiement
+        //         join frais on frais.idfrais=paiement.idfrais 
+        //         join devise on devise.iddevise=paiement.iddevise 
+        //         where paiement.idetudiant = $idetudiant and frais.idfrais=$lf->idfrais group by paiement.idpaiement, paiement.iddevise
+        //     ";
+        //     $paie = $this->db->query($sql)->result();
+        // }
+        // var_dump($listfrais);
         // die;
 
         $devise = $this->db->get('devise')->result();

@@ -21,10 +21,8 @@
                     <div class="row ">
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
                         <div class="card-content">
-                          <h5 class="font-15">Universités</h5>
-                          <h2 class="mb-3 small"><?= count($universites)  ?></h2>
-                          <h5 class="font-15">Facultés</h5>
-                          <h2 class="mb-3 small"><?= $nb_faculte ?></h2>
+                          <h5 class="font-15">Universités : <?= count($universites)  ?></h5>
+                          <h5 class="font-15">Facultés : <?= $nb_faculte ?></h5>
                         </div>
                       </div>
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
@@ -44,8 +42,7 @@
                     <div class="row ">
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
                         <div class="card-content">
-                          <h5 class="font-15"> Etudiants</h5>
-                          <h2 class="mb-3 small"><?= $nb_etudiant ?></h2>
+                          <h5 class="font-15"> Etudiants : <?= $nb_etudiant ?></h5>
                         </div>
                       </div>
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
@@ -68,7 +65,7 @@
                           <h5 class="font-15">CA du jour</h5>
                           <?php if (count($nb_ca_jour)) {
                             foreach ($nb_ca_jour as $ca) { ?>
-                              <h6 class="mb-3 small"><?= "Total : " . round($ca->montant, 2) . " $ca->devise <br> Commision : $ca->commission $ca->devise" ?></h6>
+                              <h6 class="mb-3 small"><?= "Total : " . round($ca->montant, 2) . " $ca->devise <br> Commision : " . round($ca->commission, 2) . " $ca->devise" ?></h6>
                             <?php }
                           } else { ?>
                             <h2 class="mb-3 danger small">Aucune information</h2>
@@ -146,10 +143,7 @@
                     </div>
                     <div class="col-lg-3">
                       <div class="row mt-5">
-                        <div class="col-7 col-xl-7 mb-3">
-                          <h6>Légende</h6>
-                          <h6 id='legende'></h6>
-                        </div>
+                        <div class="col-12 mb-3">Légende :<b><span class="ml-2" id='legende'></span></b></div>
                       </div>
                     </div>
                   </div>

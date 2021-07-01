@@ -134,10 +134,7 @@
                     </div>
                     <div class="col-lg-3">
                       <div class="row mt-5">
-                        <div class="col-7 col-xl-7 mb-3">
-                          <h6>Légende</h6>
-                          <h6 id='legende'></h6>
-                        </div>
+                        <div class="col-12 mb-3">Légende :<b><span class="ml-2" id='legende'></span></b></div>
                       </div>
                     </div>
                   </div>

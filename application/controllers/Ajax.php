@@ -39,8 +39,20 @@ class Ajax extends CI_Controller
                 $re['url'] = site_url('index/home');
                 // $this->session->set_userdata("login", $login);
                 $this->session->set_userdata(['universite_session' =>  $r->iduniversite]);
-                $r = @$this->db->where(['iduniversite' => $r->iduniversite, 'actif' => 1])->get('anneeAcademique')->result()[0];
-                $this->session->set_userdata(['annee_academique' =>  @$r->idanneeAcademique]);
+                $r2 = $this->db->where(['iduniversite' => $r->iduniversite, 'actif' => 1])->get('anneeAcademique')->result();
+                if (!count($r2)) {
+                    $debut =  (new DateTime('first day of this month'))->format('Y-m-d');
+                    $fin =  date('Y-m-d', strtotime((new DateTime('last day of this month'))->format('Y-m-d') . " + 365 day"));
+                    $this->db->insert('anneeAcademique', [
+                        'actif' => 1,
+                        'iduniversite' => $r->iduniversite,
+                        'annee' => "$debut $fin"
+                    ]);
+                    $ida = $this->db->insert_id();
+                } else {
+                    $ida = $r2[0]->idanneeAcademique;
+                }
+                $this->session->set_userdata(['annee_academique' =>  $ida]);
             } else {
                 $re['message'] = 'login ou mot de passe incorrect.';
             }
@@ -351,10 +363,19 @@ class Ajax extends CI_Controller
     {
         $this->checktype('univ');
         $path =  "upload/logo/";
+        $f = $_FILES['logo']['name'] ?? '';
+            $f = explode('.', $f);
+            if (count($f) >= 2) {
+                $exe = end($f);
+                $f = time() . rand(1, 1000) . '.' . $exe;
+            } else {
+                $f = '';
+            }
         $config = array(
             'upload_path' => $path,
             'overwrite' => TRUE,
-            'allowed_types' => "jpg|jpeg|png|gif"
+            'allowed_types' => "jpg|jpeg|png|gif",
+            'file_name' => $f
         );
 
         $this->load->library('upload', $config);

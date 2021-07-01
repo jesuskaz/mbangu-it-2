@@ -173,17 +173,17 @@
   </div>
   <?php include("footer.php"); ?>
   <script type="text/javascript" src="<?= base_url('assets/js/daterangepicker/moment.js') ?>"></script>
-	<script type="text/javascript" src="<?= base_url('assets/js/daterangepicker/daterangepicker.js') ?>"></script>
-	<link rel="stylesheet" type="text/css" href="<?= base_url('assets/js/daterangepicker/daterangepicker.css') ?>" />
+  <script type="text/javascript" src="<?= base_url('assets/js/daterangepicker/daterangepicker.js') ?>"></script>
+  <link rel="stylesheet" type="text/css" href="<?= base_url('assets/js/daterangepicker/daterangepicker.css') ?>" />
 
   <script>
     $(function() {
       form = $('.form');
       $('.datepicker').daterangepicker({
-				locale: {
-					format: 'YYYY/MM/DD'
-				}
-			});
+        locale: {
+          format: 'YYYY/MM/DD'
+        }
+      });
       opt = {
         dom: 'Bfrtip',
         buttons: [
@@ -219,8 +219,8 @@
 							<td>${data.frais}</td>
 							<td>${data.compte}</td>
 							<td>${data.banque}</td>
-							<td>${data.montant + ' '+ data.devise }</td>
-							<td>${data.commission + ' '+ data.devise }</td>
+							<td class='text-right'>${data.montant + ' '+ data.devise }</td>
+							<td class='text-right'>${data.commission + ' '+ data.devise }</td>
 						</tr>
 						`;
           });
@@ -228,8 +228,8 @@
           var l = c = '';
           if (d.paiement.length > 0) {
             $(d.paiement).each(function(i, p) {
-              l += `<h6 class="text-danger">${p.total } ${p.devise}</h6>`;
-              c += `<h6 class="text-danger">${p.commission } ${p.devise}</h6>`;
+              l += `<h6 class="text-danger">${Number(p.total).toFixed(2) } ${p.devise}</h6>`;
+              c += `<h6 class="text-danger">${Number(p.commission).toFixed(2) } ${p.devise}</h6>`;
             })
           } else {
             l += `<h6 class="text-danger">Aucun paiement</h6>`;

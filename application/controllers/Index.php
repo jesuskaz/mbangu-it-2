@@ -111,5 +111,4 @@ class Index extends CI_Controller
             redirect("index/login");
         }
     }
-
 }

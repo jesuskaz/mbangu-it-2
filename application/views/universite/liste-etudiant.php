@@ -70,9 +70,6 @@
                             <th>Faculté</th>
                             <th>Pomotion</th>
                             <th>Matricule</th>
-                            <th>Email</th>
-                            <th>Adresse</th>
-                            <th>Téléphone</th>
                             <th></th>
                           </tr>
                         </thead>
@@ -216,9 +213,6 @@
 							<td>${data.faculte}</td>
 							<td>${data.promotion}</td>
               <td>${data.matricule ? data.matricule : ''}</td>
-							<td>${data.email ? data.email : ''}</td>
-							<td>${data.adresse ? data.adresse : ''}</td>
-							<td>${data.telephone ? data.telephone : ''}</td>
 							<td style="text-align:center"><a href="${url}"><i class="fa fa-eye"></i> Détail</a></td>
 						</tr>
 						`;
