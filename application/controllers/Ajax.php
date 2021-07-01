@@ -40,7 +40,7 @@ class Ajax extends CI_Controller
                 // $this->session->set_userdata("login", $login);
                 $this->session->set_userdata(['universite_session' =>  $r->iduniversite]);
                 $r = @$this->db->where(['iduniversite' => $r->iduniversite, 'actif' => 1])->get('anneeAcademique')->result()[0];
-                $this->session->set_userdata(['annee_academique' =>  $r->idanneeAcademique]);
+                $this->session->set_userdata(['annee_academique' =>  @$r->idanneeAcademique]);
             } else {
                 $re['message'] = 'login ou mot de passe incorrect.';
             }
