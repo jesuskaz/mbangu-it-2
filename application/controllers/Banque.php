@@ -311,44 +311,52 @@ class Banque extends CI_Controller
         // ORDER BY
         //     idpaiement
 
-        $sql = "SELECT paiement.idpaiement,paiement.idetudiant, frais.idfrais, 
-            frais.montant montant_frais, paiement.montant montant_paye, 
-            frais.designation frais, devise.nomDevise devise, date,
-            devise.iddevise,
-            (
-                SELECT sum(f2.montant) from paiement f2 where f2.idpaiement <= paiement.idpaiement and 
-                idetudiant = $idetudiant 
-                group by idetudiant
-            ) cumule
-            from paiement
-            join frais on frais.idfrais=paiement.idfrais 
-            join devise on devise.iddevise=paiement.iddevise 
-            where paiement.idetudiant = $idetudiant group by paiement.idpaiement, paiement.iddevise
-        ";
-        $data['paiements'] = $paie = $this->db->query($sql)->result();
+        // $sql = "SELECT paiement.idpaiement,paiement.idetudiant, frais.idfrais, 
+        //     frais.montant montant_frais, paiement.montant montant_paye, 
+        //     frais.designation frais, devise.nomDevise devise, date,
+        //     devise.iddevise,
+        //     (
+        //         SELECT sum(f2.montant) from paiement f2 where f2.idpaiement <= paiement.idpaiement and 
+        //         idetudiant = $idetudiant 
+        //         group by idetudiant
+        //     ) cumule
+        //     from paiement
+        //     join frais on frais.idfrais=paiement.idfrais 
+        //     join devise on devise.iddevise=paiement.iddevise 
+        //     where paiement.idetudiant = $idetudiant group by paiement.idpaiement, paiement.iddevise
+        // ";
+        // $data['paiements'] = $paie = $this->db->query($sql)->result();
 
-        // $listfrais = $this->db->where(['iduniversite' => $iduniv, 'idanneeAcademique' => $ann])->get('frais')->result();
+        $listfrais = $this->db->where(['iduniversite' => $iduniv, 'idanneeAcademique' => $ann])->get('frais')->result();
 
-        // $final = [];
-        // foreach ($listfrais as $lf) {
-        //     $sql = "SELECT paiement.idpaiement, paiement.idetudiant, frais.idfrais, 
-        //         frais.montant montant_frais, paiement.montant montant_paye, 
-        //         frais.designation frais, devise.nomDevise devise, date,
-        //         devise.iddevise,
-        //         (
-        //             SELECT sum(f2.montant) from paiement f2 where f2.idpaiement <= paiement.idpaiement and 
-        //             idetudiant = $idetudiant 
-        //             group by idetudiant
-        //         ) cumule
-        //         from paiement
-        //         join frais on frais.idfrais=paiement.idfrais 
-        //         join devise on devise.iddevise=paiement.iddevise 
-        //         where paiement.idetudiant = $idetudiant and frais.idfrais=$lf->idfrais group by paiement.idpaiement, paiement.iddevise
-        //     ";
-        //     $paie = $this->db->query($sql)->result();
-        // }
-        // var_dump($listfrais);
+        $tabpaie = [];
+        foreach ($listfrais as $lf) {
+            $sql = "SELECT paiement.idpaiement, paiement.idetudiant, frais.idfrais, 
+                frais.montant montant_frais, paiement.montant montant_paye, 
+                frais.designation frais, devise.nomDevise devise, date,
+                devise.iddevise,
+                (
+                    SELECT sum(f2.montant) from paiement f2 where f2.idpaiement <= paiement.idpaiement and 
+                    idetudiant = $idetudiant and f2.idfrais=$lf->idfrais
+                    group by idetudiant order by f2.idfrais
+                ) cumule
+                from paiement
+                join frais on frais.idfrais=paiement.idfrais 
+                join devise on devise.iddevise=paiement.iddevise 
+                where paiement.idetudiant = $idetudiant and frais.idfrais=$lf->idfrais 
+                group by paiement.idpaiement order by paiement.idfrais
+
+            ";
+            $paie = $this->db->query($sql)->result();
+            foreach ($paie as $p) {
+                array_push($tabpaie, $p);
+            }
+            // var_dump($paie);
+            // die;
+        }
+        // var_dump($final);
         // die;
+        $data['paiements'] = $paie = $tabpaie;
 
         $devise = $this->db->get('devise')->result();
         $final = [];

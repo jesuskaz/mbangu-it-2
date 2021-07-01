@@ -65,9 +65,6 @@
                       </div>
                     </div>
                     <div class="row mt-4">
-                      <div class="col-12">
-                        <?php  var_dump($paiements);?>
-                      </div>
                       <div class="col-md-12">
                         <div class="table-responsive">
                           <table class="table table-striped table-hover" style="width:100%;">
