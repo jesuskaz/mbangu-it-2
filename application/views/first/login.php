@@ -19,7 +19,7 @@
 	</div>
 	<div id="page">
 		<?php include 'nav.php' ?>
-		<div class="container">
+		<div class="container mb-5">
 			<div class="row">
 				<div class="col-md-4">
 					<form method="POST" class="fh5co-form animate-box" data-animate-effect="fadeInLeft">

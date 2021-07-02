@@ -18,8 +18,8 @@
 								<div class="card-header">
 									<h4>Statistiques de paiement</h4>
 									<div class="card-header-action">
-										<div class="form-group p-0 ">
-											<select class="custom-select devise">
+										<div class="form-group form-group-sm p-0 m-0 ">
+											<select class="custom-select custom-select-sm  devise  m-0">
 												<option value="">Choisissez la devise</option>
 												<?php foreach ($devises as $de) : ?>
 													<option value="<?= $de->iddevise ?>"><?= $de->nomDevise ?></option>
@@ -37,15 +37,15 @@
 											<div class="row mt-5">
 												<div class="col-7 col-xl-7 mb-3">Total Etudiant</div>
 												<div class="col-5 col-xl-5 mb-3">
-													<span class="badge badge-primary"> <b><?= $tot_etudiant ?></b> </span>
+													<span class="text-big"> <?= $tot_etudiant ?> </span>
 												</div>
 												<div class="col-7 col-xl-7 mb-3">Etudiants ayant payés</div>
 												<div class="col-5 col-xl-5 mb-3">
-													<span class="badge badge-primary"> <b><?= $etudiant_paie ?></b> </span>
+													<span class="text-big"> <?= $etudiant_paie ?> </span>
 												</div>
 												<div class="col-7 col-xl-7 mb-3">Etudiants n'ayant pas payés</div>
 												<div class="col-5 col-xl-5 mb-3">
-													<span class="badge badge-primary"> <b><?= $etudiant_pas_paie ?></b> </span>
+													<span class="text-big"> <?= $etudiant_pas_paie ?> </span>
 												</div>
 												<div class="col-12 mb-3">Légende :<b><span class="ml-2" id='legende'></span></b></div>
 											</div>
@@ -59,9 +59,6 @@
 						<div class="row">
 							<div class="col-12">
 								<div class="card">
-									<div class="card-header">
-										<h4>Rapport de tous les étudiants</h4>
-									</div>
 									<div class="card-header">
 										<form class='' method="">
 											<div class="form-inline">
@@ -119,7 +116,9 @@
 							</div>
 							<div class="col-12">
 								<div class="card">
-
+									<div class="card-header">
+										<h4>Rapport de tous les étudiants</h4>
+									</div>
 									<div class="card-body">
 										<div class="table-responsive">
 											<table class="table table-striped table-hover" id='table-r' style="width:100%;">
@@ -408,7 +407,7 @@
 							name: i,
 							data: j
 						});
-						leg += `<span class="badge text-white m-1" style="background: ${colors[c]}">${i}</span>`;
+						leg += `<span class="badge text-white m-1" style="background: ${colors[c]}; margin: 5px">${i}</span>`;
 						c++;
 					})
 

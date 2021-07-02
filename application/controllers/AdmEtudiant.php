@@ -37,7 +37,7 @@ class AdmEtudiant extends CI_Controller
     public function listeEtudiant()
     {
         $this->db->select(
-            "
+            "etudiant.idetudiant,
         etudiant.nom, etudiant.postnom, etudiant.prenom, 
         etudiant.matricule, etudiant.email, faculte.nomFaculte, 
         promotion.intitulePromotion, etudiant.adresse, 

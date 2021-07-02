@@ -39,14 +39,21 @@ class AdmUniversite extends CI_Controller
         $insert = $this->AdmUniversiteModel->checkUniv($nom);
 
         if ($insert) {
-            $data["error"] = "L'université " . strtoupper($nom) . "  existe déjà";
-            $this->load->view("admin/adm-creeruniv", $data);
+            $data["message"] = "L'université " . strtoupper($nom) . "  existe déjà";
+            $data["classe"] = "danger";
+
         } else {
             $insert = $this->AdmUniversiteModel->addUniv($data);
             if ($insert) {
-                $data["success"] = "L'université " . strtoupper($nom) . " a été créée avec succès";
-                $this->load->view("admin/adm-creeruniv", $data);
+                $data["message"] = "L'université " . strtoupper($nom) . " a été créée avec succès";
+                $data["classe"] = "success";
+            }else{
+                $data["message"] = "erreur";
+                $data["classe"] = "danger"; 
             }
         }
+
+        $this->session->set_flashdata($data);
+        redirect('admuniversite/adduniversite');
     }
 }

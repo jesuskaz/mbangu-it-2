@@ -31,13 +31,12 @@
                           <th>N°</th>
                           <th>Nom</th>
                           <th>Post-nom</th>
-                          <th>Prénom</th>
                           <th>Matricule</th>
                           <th>Faculté</th>
                           <th>Promotion</th>
-                          <th>Adresse</th>
                           <th>Email</th>
                           <th>Téléphone</th>
+                          <th>Détails</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -51,13 +50,12 @@
                               <td><?php echo $i; ?></td>
                               <td><?php echo $etudiant->nom  ?></td>
                               <td><?php echo $etudiant->postnom  ?></td>
-                              <td><?php echo $etudiant->prenom  ?></td>
                               <td><?php echo $etudiant->matricule  ?></td>
                               <td><?php echo $etudiant->nomFaculte  ?></td>
                               <td><?php echo $etudiant->intitulePromotion  ?></td>
-                              <td><?php echo $etudiant->adresse  ?></td>
                               <td><?php echo $etudiant->email  ?></td>
                               <td><?php echo $etudiant->telephone ?></td>
+                              <td></td>
                             </tr>
                         <?php
                           }

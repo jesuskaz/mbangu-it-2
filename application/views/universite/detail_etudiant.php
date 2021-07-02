@@ -29,41 +29,78 @@
                   </div>
                 </div>
               </div>
-              <div class="col-12">
-                <div class="invoice">
-                  <div class="invoice-print" id="print">
-                    <div class="row">
-                      <div class="col-lg-12">
-                        <div class="row justify-content-between">
-                          <div class="p-3">
-                            <address>
-                              <?= "$etudiant->nom $etudiant->postnom $etudiant->prenom" ?><br>
-                              Faculté : <?= $etudiant->nomFaculte ?><br>
-                              Promotion : <?= $etudiant->intitulePromotion ?><br>
-                              Options : <?= $etudiant->intituleOptions ?><br>
-                              Matricule : <?= $etudiant->matricule ?><br>
-                              Adresse : <?= $etudiant->adresse ?>
-                            </address>
-                          </div>
-                          <div class=" text-md-right">
-                            <address>
-                              <?php if (file_exists($etudiant->picture)) { ?>
-                                <a href="<?= base_url($etudiant->picture) ?>">
-                                  <img width="200" height="200" src=" <?= base_url($etudiant->picture) ?>" alt="">
-                                </a>
 
-                              <?php } ?>
-                              <?php if (file_exists($etudiant->carte)) { ?>
-                                <br> <br>
-                                <a class="mt-2" href="<?= base_url($etudiant->carte) ?>">
-                                  Pièce d'identité<i class="ml-1 fa fa-file fa-2x "></i>
-                                </a>
-                              <?php } ?>
-                            </address>
-                          </div>
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header d-flex justify-content-between">
+                    <h4>Identité de l'etudiant</h4>
+                    <h4>Pièce d'identité</h4>
+                    <h4 class="pr-5">Portrait étudiant</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="row justify-content-between">
+                      <div class="col-md-4">
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-3">Nom </div>
+                          <div class="col-9"> : <?= "$etudiant->nom $etudiant->postnom $etudiant->prenom" ?></div>
                         </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-3">Faculté </div>
+                          <div class="col-9"> : <?= "$etudiant->nomFaculte" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-3">Promotion </div>
+                          <div class="col-9"> : <?= "$etudiant->intitulePromotion" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-3">Option </div>
+                          <div class="col-9"> : <?= "$etudiant->intituleOptions" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-3">Matricule </div>
+                          <div class="col-9"> : <?= "$etudiant->matricule" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-3">Tel </div>
+                          <div class="col-9"> : <?= "$etudiant->telephone" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-3">Email </div>
+                          <div class="col-9"> : <?= "$etudiant->email" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-3">Adresse </div>
+                          <div class="col-9"> : <?= "$etudiant->adresse" ?></div>
+                        </div>
+
+                      </div>
+                      <div class="col-md-4 d-flex justify-content-center">
+                        <?php if (file_exists($etudiant->carte)) { ?>
+                          <a href="<?= base_url($etudiant->carte) ?>">
+                            <img class="user-img-radious-style" width="100" height="100" style="umargin-left: -60px; border-radius: 5px;" src=" <?= base_url($etudiant->carte) ?>" alt="">
+                          </a>
+                        <?php } ?>
+                      </div>
+                      <div class="col-md-4 d-flex justify-content-end pr-5">
+                        <address>
+                          <?php if (file_exists($etudiant->picture)) { ?>
+                            <a href="<?= base_url($etudiant->picture) ?>">
+                              <img class="user-img-radious-style" width="100" height="100" style="border-radius: 100%;" src=" <?= base_url($etudiant->picture) ?>" alt="">
+                            </a>
+                          <?php } ?>
+                        </address>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Historique de paiement</h4>
+                  </div>
+                  <div class="card-body" id="print">
                     <div class="row mt-4">
                       <div class="col-md-12">
                         <div class="table-responsive">
@@ -77,7 +114,7 @@
                                 <th>Total payé</th>
                                 <th>Reste</th>
                                 <th>Date Paiement</th>
-                                <th></th>
+                                <th>Impression</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -86,11 +123,11 @@
                                 <tr>
                                   <td><?= $n++ ?></td>
                                   <td><?= $paie->frais ?></td>
-                                  <td class="text-right" ><?= "$paie->montant_frais $paie->devise" ?></td>
-                                  <td class="text-right" ><?= "$paie->montant_paye $paie->devise" ?></td>
-                                  <td class="text-right" ><?= "$paie->cumule $paie->devise" ?></td>
-                                  <td class="text-right" ><?= ($paie->montant_frais - $paie->cumule) . " $paie->devise" ?></td>
-                                  <td class="text-right" ><?= $paie->date ?></td>
+                                  <td class="text-right"><?= "$paie->montant_frais $paie->devise" ?></td>
+                                  <td class="text-right"><?= "$paie->montant_paye $paie->devise" ?></td>
+                                  <td class="text-right"><?= "$paie->cumule $paie->devise" ?></td>
+                                  <td class="text-right"><?= ($paie->montant_frais - $paie->cumule) . " $paie->devise" ?></td>
+                                  <td class="text-right"><?= $paie->date ?></td>
                                   <td> <a href="<?= site_url('banque/print/' . "$paie->idetudiant-$paie->idpaiement") ?>" class="btn btn-info"><i class="fa fa-print"></i></a> </td>
                                 </tr>
                               <?php } ?>
@@ -287,7 +324,7 @@
             name: i,
             data: j
           });
-          leg += `<span class="badge text-white" style="background: ${colors[c]}">${i}</span>`;
+          leg += `<span class="badge text-white" style="background: ${colors[c]}; margin: 5px">${i}</span>`;
           c++;
         })
         $('#legende').html(leg);

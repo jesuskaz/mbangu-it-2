@@ -13,43 +13,45 @@
       </div>
       <div class="main-content">
         <div class="row justify-content-center">
-          <div class="col-md-6">
+          <div class="col-md-12">
             <div class="card">
-              <div class="card-header" style="background: whitesmoke;">
-                <div class="inbox-header">
-                  Création Univercité
-                  <center><b><?php if (isset($success)) echo $success; ?></b></center>
-                  <center><b><?php if (isset($error)) echo $error; ?></b></center>
+              <div class="card-header">
+                <h4>Création Univercité</h4>
+                <center><b class="text-<?= $this->session->classe ?>"><?= $this->session->message ?></b></center>
+              </div>
+              <div class="row justify-content-center">
+                <div class="col-md-4">
+                  <form action="<?php echo site_url('AdmUniversite/univCreate'); ?>" method="POST">
+                    <div class="card-body">
+                      <div class="form-group">
+                        <label>Nom de l'univercité</label>
+                        <input type="text" class="form-control" name="nom" required autofocus>
+                        <div class="invalid-feedback">
+                          Veuillez remplir ce champ svp
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Nom de utilisateur</label>
+                        <input type="text" class="form-control" name="login" required autofocus>
+                        <div class="invalid-feedback">
+                          Veuillez remplir ce champ svp
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Mot de pass</label>
+                        <input type="password" class="form-control" name="password" required autofocus>
+                        <div class="invalid-feedback">
+                          Veuillez remplir ce champ svp
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-footer text-right">
+                      <button class="btn btn-primary">Submit</button>
+                    </div>
+                  </form>
                 </div>
               </div>
-              <form action="<?php echo site_url('AdmUniversite/univCreate'); ?>" method="POST">
-                <div class="card-body">
-                  <div class="form-group">
-                    <label>Nom de l'univercité</label>
-                    <input type="text" class="form-control" name="nom" required autofocus>
-                    <div class="invalid-feedback">
-                      Veuillez remplir ce champ svp
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label>Nom de utilisateur</label>
-                    <input type="text" class="form-control" name="login" required autofocus>
-                    <div class="invalid-feedback">
-                      Veuillez remplir ce champ svp
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label>Mot de pass</label>
-                    <input type="password" class="form-control" name="password" required autofocus>
-                    <div class="invalid-feedback">
-                      Veuillez remplir ce champ svp
-                    </div>
-                  </div>
-                </div>
-                <div class="card-footer text-right">
-                  <button class="btn btn-primary">Submit</button>
-                </div>
-              </form>
+
             </div>
             </form>
           </div>

@@ -34,7 +34,7 @@
 												</div>
 												<p class="m-0 p-0"><em msg3></em></p>
 												<div class="form-group">
-													<button class="btn btn-primary"><i class="fa fa-edit"></i> Modifier le nom</button>
+													<button class="btn btn-warning text-white"><i class="fa fa-edit"></i> Modifier le nom</button>
 												</div>
 											</form>
 											<form action="" method="post" id="f-pass">
@@ -53,7 +53,7 @@
 												</div>
 												<p><em msg2></em></p>
 												<div class="form-group">
-													<button class="btn btn-primary"><i class="fa fa-edit"></i> Modifier le mot de passe</button>
+													<button class="btn btn-warning text-white"><i class="fa fa-edit"></i> Modifier le mot de passe</button>
 												</div>
 											</form>
 										</div>
@@ -78,7 +78,7 @@
 														<em msg></em>
 													</div>
 													<div class="form-group d-flex justify-content-center">
-														<label for='file' class="btn btn-info"> <i class="fa fa-upload"></i> Ajouter</label>
+														<label for='file' class="btn btn-warning text-white"> <i class="fa fa-upload"></i> Ajouter</label>
 													</div>
 												</form>
 											</div>
@@ -261,7 +261,7 @@
 						$(`em[msg3]`).removeClass().addClass('text-success small').html(data.message);
 						var n = $(':input[name=universite]', form).val();
 						$('span[univ]').html(n)
-						
+
 					} else {
 						var err = data.error;
 						for (i in err) {

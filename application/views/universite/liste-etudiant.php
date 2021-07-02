@@ -21,9 +21,6 @@
               <div class="col-12">
                 <div class="card">
                   <div class="card-header">
-                    <h4>Liste des etudiant</h4>
-                  </div>
-                  <div class="card-header">
                     <form method="">
                       <div class="form-inline">
                         <div class="form-group m-2">
@@ -58,6 +55,9 @@
               </div>
               <div class="col-12">
                 <div class="card">
+                  <div class="card-header">
+                    <h4>Liste des etudiant</h4>
+                  </div>
                   <div class="card-body">
                     <div class="table-responsive">
                       <table id="table-r" class="table table-striped table-hover" style="width:100%;">
@@ -66,11 +66,11 @@
                             <th>N°</th>
                             <th>Nom</th>
                             <th>Post-nom</th>
-                            <th>Prénom</th>
+                            <!-- <th>Prénom</th> -->
                             <th>Faculté</th>
                             <th>Pomotion</th>
                             <th>Matricule</th>
-                            <th></th>
+                            <th>Détails</th>
                           </tr>
                         </thead>
                         <tbody></tbody>
@@ -203,13 +203,12 @@
           var str = '',
             data = d.data;
           $(data).each(function(i, data) {
-						var url = "<?= site_url('banque/detail-etudiant/') ?>" + data.idetudiant;
+            var url = "<?= site_url('banque/detail-etudiant/') ?>" + data.idetudiant;
             str += `
 						<tr>
 							<td>${i+1}</td>
 							<td>${data.nom}</td>
 							<td>${data.postnom}</td>
-							<td>${data.prenom}</td>
 							<td>${data.faculte}</td>
 							<td>${data.promotion}</td>
               <td>${data.matricule ? data.matricule : ''}</td>
@@ -238,10 +237,10 @@
               $(d).each(function(i, j) {
                 var _o = j.intituleOptions;
                 var _v = j.idoptions;
-								str += `<option value="${j.idoptions}">${j.intituleOptions} (${j.promotion})</option>`;
+                str += `<option value="${j.idoptions}">${j.intituleOptions} (${j.promotion})</option>`;
               })
             }
-						$('select[name=option]').html(str);
+            $('select[name=option]').html(str);
             $('select').attr('disabled', true);
             data()
           })

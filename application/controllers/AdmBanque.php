@@ -46,18 +46,24 @@ class AdmBanque extends CI_Controller
         $checkBanque = $this->AdmBanqueModel->checkBanque($banque);
         if ($checkLogin || $checkBanque) {
             if ($checkBanque) {
-                $data["error"] = "La banque " . strtoupper($banque) . " existe déjà";
-                $this->load->view("admin/adm-creerbanque", $data);
+                $data["message"] = "La banque " . strtoupper($banque) . " existe déjà";
+                $data["classe"] = "danger";
             } else if ($checkLogin) {
-                $data["error"] = "Le nom d'utilisateur " . strtoupper($login) . " existe déjà";
-                $this->load->view("admin/adm-creerbanque", $data);
+                $data["message"] = "Le nom d'utilisateur " . strtoupper($login) . " existe déjà";
+                $data["classe"] = "danger";
             }
         } else {
             $insert = $this->AdmBanqueModel->createBanque($data);
             if ($insert) {
-                $data["success"] = "La banque " . strtoupper($banque) . " a été créée avec succès";
-                $this->load->view("admin/adm-creerbanque", $data);
+                $data["message"] = "La banque " . strtoupper($banque) . " a été créée avec succès";
+                $data["classe"] = "success";
+            }else{
+                $data["message"] = "erreur";
+                $data["classe"] = "danger"; 
             }
         }
+
+        $this->session->set_flashdata($data);
+        redirect('admbanque/addbanque');
     }
 }

@@ -13,27 +13,28 @@
       </div>
       <!-- Main Content -->
       <div class="main-content">
-        <div class="row justify-content-center">
-          <div class="col-md-8">
+        <div class="row">
+          <div class="col-md-12">
             <div class="card">
-              <div class="card-header" style="background: whitesmoke;">
-                <div class="inbox-header">
-                  Ajouter devises
-                  <center><b><?php if (isset($success)) print_r($success); ?></b></center>
-                  <center><b><?php if (isset($error)) print_r($error); ?></b></center>
-                </div>
+              <div class="card-header">
+                <h4>Ajouter devises</h4>
+                <center><b class="text-<?= $this->session->classe ?>"><?= $this->session->message ?></b></center>
               </div>
               <div class="card-body">
-                <form name="add_name" method="POST" action="<?= site_url('Manager/addDevise') ?>">
-                  <div class="form-group">
-                    <input type="text" name="devise" placeholder="Entrez Devise" class="form-control name_list" required="" />
+                <div class="row justify-content-center">
+                  <div class="col-md-4">
+                    <form name="add_name" method="POST" action="<?= site_url('Manager/addDevise') ?>">
+                      <div class="form-group">
+                        <input type="text" name="devise" placeholder="Entrez Devise" class="form-control name_list" required="" />
+                      </div>
+                      <div class="form-group d-flex justify-content-center">
+                        <button type="submit" name="submit" id="submit" class="btn btn-warning" value="Submit">Ajouter</button>
+                      </div>
+                    </form>
                   </div>
-                  <div class="form-group d-flex justify-content-center">
-                    <button type="submit" name="submit" id="submit" class="btn btn-info" value="Submit">Ajouter</button>
-                  </div>
+                </div>
               </div>
             </div>
-            </form>
           </div>
         </div>
 

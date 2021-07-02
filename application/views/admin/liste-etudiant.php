@@ -31,13 +31,12 @@
                             <th>N°</th>
                             <th>Nom</th>
                             <th>Post-nom</th>
-                            <th>Prénom</th>
                             <th>Matricule</th>
                             <th>Université</th>
                             <th>Faculté</th>
                             <th>Promotion</th>
-                            <th>Adresse</th>
                             <th>Téléphone</th>
+                            <th>Détails</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -51,13 +50,16 @@
                                 <td><?php echo $i; ?></td>
                                 <td><?php echo $etudiant->nom  ?></td>
                                 <td><?php echo $etudiant->postnom  ?></td>
-                                <td><?php echo $etudiant->prenom  ?></td>
                                 <td><?php echo $etudiant->matricule  ?></td>
                                 <td><?php echo $etudiant->universite  ?></td>
                                 <td><?php echo $etudiant->nomFaculte  ?></td>
                                 <td><?php echo $etudiant->intitulePromotion  ?></td>
-                                <td><?php echo $etudiant->adresse  ?></td>
                                 <td><?php echo $etudiant->telephone  ?></td>
+                                <td>
+                                  <a href="<?= site_url('manager/detail-etudiant/' . $etudiant->idetudiant) ?>">
+                                    <i class="fa fa-eye"></i> Détails
+                                  </a>
+                                </td>
                               </tr>
                           <?php
                             }

@@ -52,12 +52,12 @@ class Manager extends CI_Controller
         );
         $query = $this->db->insert('devise', $data);
         if ($query) {
-            $message = array("success" => "Devise $devise ajoutee avec succes");
-            $this->load->view('devise', $message);
+            $message = array("message" => "Devise $devise ajoutee avec succes", 'classe' => 'success');
         } else {
-            $message = array('error' => 'La sauvegarde a echoue');
-            $this->load->view('devise', $message);
+            $message = array('message' => 'La sauvegarde a echoue', 'classe' => 'error');
         }
+        $this->session->set_flashdata($message);
+        redirect('manager/devise');
     }
     public function checkdata()
     {

@@ -13,12 +13,9 @@
             </div>
             <div class="main-content">
                 <div class="card">
-                    <div class="boxs mail_listing">
-                        <div class="inbox-header p-3" style="background: whitesmoke;">
-                            Villes de chaque province
-                            <center><b><?php if (isset($success)) echo $success; ?></b></center>
-                            <center><b><?php if (isset($error)) echo $error; ?></b></center>
-                        </div>
+                    <div class="card-header">
+                        <h4>Villes de chaque province</h4>
+                        <center><b class="text-<?= $this->session->classe ?>"><?= $this->session->message ?></b></center>
                     </div>
                     <div class="row">
                         <div class="col-lg-12">
@@ -28,8 +25,8 @@
                                         <table class=" tabl" id="dynamic_field">
                                             <tr>
                                                 <td>
-                                                    <select name="province" class="custom-select" id="province">
-                                                        <option selected>Choisissez la province</option>
+                                                    <select required name="province" class="custom-select" id="province">
+                                                        <option value="">Choisissez la province</option>
                                                         <?php
                                                         if (isset($provinces)) {
 
@@ -66,8 +63,7 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="m-l-25 m-b-20 mt-3">
-                                            <button type="submit" id="submit" class="btn btn-info" value="Submit">Créer</button>
-                                            <button type="button" class="btn btn-danger btn-border-radius waves-effect">Annuler</button>
+                                            <button type="submit" id="submit" class="btn btn-warning" value="Submit">Créer</button>
                                         </div>
                                     </div>
                                 </div>

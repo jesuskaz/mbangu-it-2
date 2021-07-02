@@ -31,7 +31,6 @@
                           <th>N°</th>
                           <th>Nom</th>
                           <th>Post-nom</th>
-                          <th>Prénom</th>
                           <th>Matricule</th>
                           <th>Faculté</th>
                           <th>Promotion</th>
@@ -52,7 +51,6 @@
                               <td><?php echo $i; ?></td>
                               <td><?php echo $paie->nom  ?></td>
                               <td><?php echo $paie->postnom  ?></td>
-                              <td><?php echo $paie->prenom  ?></td>
                               <td><?php echo $paie->matricule  ?></td>
                               <td><?php echo $paie->nomFaculte  ?></td>
                               <td tyle="text-align:center"><?php echo $paie->intitulePromotion  ?></td>

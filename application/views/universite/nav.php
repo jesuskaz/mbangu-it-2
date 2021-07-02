@@ -15,7 +15,8 @@
                 $img = !empty($i = $univ->logo) ? base_url($i) : base_url('assets/img/bangu.png');
                 ?>
              <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-                 <img width="50" height="50" alt="image" src="<?= $img ?>" class="user-img-radious-style">
+                 <span class="text-muted"><i class="fa fa-university"></i> <?= $univ->nomUniversite ?></span>
+                 <img alt="image" src="<?= $img ?>" class="user-img-radious-style" width="30" height="30">
                  <span class="d-sm-none d-lg-inline-block"></span>
              </a>
              <div class="dropdown-menu dropdown-menu-right pullDown">

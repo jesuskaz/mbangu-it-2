@@ -1,7 +1,7 @@
-<footer id="fh5co-footer" role="contentinfo" style="background-image: url(<?= base_url('first/images/img_bg_4.jpg'); ?>);">
+<footer id="fh5co-footer" class="p-0" role="contentinfo" style="background-image: url(<?= base_url('first/images/img_bg_4.jpg'); ?>);">
 	<div class="overlay"></div>
 	<div class="container">
-		<div class="row row-pb-md">
+		<div class="row">
 			<div class="col-md-3 fh5co-widget">
 				<h3>A Propos de Mbangu pay </h3>
 				<p>Mbangupay est une solution informatique qui répondra correctement aux besoins des étudiants et élèves, de la banque aussi bien des universités, Instituts supérieurs, Ecoles… .</p>
@@ -15,7 +15,6 @@
 					<li><a href="<?= site_url('AdminCredential/loginAdmin'); ?>">Admin1</a></li>
 				</ul> -->
 			</div>
-
 			<div class="col-md-2 col-sm-4 col-xs-6 col-md-push-1 fh5co-widget">
 				<h3>Mbangu pay</h3>
 				<ul class="fh5co-footer-links">
@@ -26,7 +25,6 @@
 				</ul>
 			</div>
 		</div>
-
 		<div class="row copyright">
 			<div class="col-md-12 text-center">
 				<p>

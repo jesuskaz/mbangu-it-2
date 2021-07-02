@@ -31,14 +31,12 @@ class Province extends CI_Controller
         }
 
         if ($data) {
-            $data = array("provinces" => $this->db->get("province")->result_array());
-            $data = array("success" => "Ville ajoutee avec success");
-            $this->load->view("admin/ville", $data);
+            $data = array("message" => "Ville ajoutee avec success", 'classe' => 'success');
         } else {
-            $data = array("provinces" => $this->db->get("province")->result_array());
-            $data = array("success" => "Erreur");
-            $this->load->view("admin/ville", $data);
+            $data = array("message" => "erreur", 'classe' => 'danger');
         }
+        $this->session->set_flashdata($data);
+        redirect('province/ville');
     }
 
     public function addProvince()
@@ -49,11 +47,11 @@ class Province extends CI_Controller
             $data = $this->db->insert('province', $p);
         }
         if ($data) {
-            $data = array("success" => "Province ajoutee avec succes");
-            $this->load->view("admin/province", $data);
+            $data = array("message" => "Province ajoutee avec succes", 'classe' => "success");
         } else {
-            $data = array("error" => "Erreur");
-            $this->load->view("admin/province", $data);
+            $data = array("message" => "erreur", 'classe' => "danger");
         }
+        $this->session->set_flashdata($data);
+        redirect('province');
     }
 }

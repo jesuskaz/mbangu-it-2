@@ -61,11 +61,11 @@
 									<h4>Solde : <span frais></span></h4>
 									<div class="card-header-action">
 										<form id="f-solde" class="form-inline">
-											<div class="form-group m-2">
+											<div class="form-group form-form-group-sm ">
 												<input type="text" class="form-control form-change p-3 datepicker data rounded-0 w-100" name="date">
 											</div>
-											<div class="form-group p-0 ">
-												<select name="frais" class="custom-select devise">
+											<div class="form-group form-group-sm p-0 ">
+												<select name="frais" class="custom-select ml-1 m-0  custom-select-sm devise">
 													<option value="">Choisissez le frais</option>
 													<?php foreach ($frais as $de) : ?>
 														<option value="<?= $de->idfrais ?>"><?= $de->designation ?></option>
@@ -77,7 +77,13 @@
 								</div>
 								<div class="card-body">
 									<div class="row">
-										<div class="col-md-12 p-5" style="background: whitesmoke">
+										<div class="col-md-6">
+											<h6 class="text-muted">Situation année académique <?= str_replace('| AA - ', '', $an) ?> </h6>
+											<div class="">
+												.
+											</div>
+										</div>
+										<div class="col-md-6 p-5">
 											<div id="res">
 												<div class="text-center"><i class="spinner-border"></i></div>
 											</div>
@@ -288,7 +294,7 @@
 							str += `<h3 class="text-center" >${f[i].devise} ${f[i].total} </h3>`;
 						}
 					} else {
-						str = '<h1 class="text-center text-danger small" >Aucune information </h1>'
+						str = '<h1 class="text-center text-muted small" >Aucune information </h1>'
 					}
 
 					if (sel.val() != '' && f.length > 0) {

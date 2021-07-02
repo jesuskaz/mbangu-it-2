@@ -379,7 +379,7 @@
               name: i,
               data: j
             });
-            leg += `<span class="badge text-white" style="background: ${colors[c]}">${i}</span>`;
+            leg += `<span class="badge text-white" style="background: ${colors[c]}; margin: 5px">${i}</span>`;
             c++;
           })
           $('#legende').html(leg);

@@ -50,6 +50,7 @@ class Banquee extends CI_Controller
         $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
         $this->db->join('banque', 'banque.idbanque=frais.idbanque');
         $this->db->join('devise', 'devise.iddevise=frais.iddevise');
+        $this->db->group_by('paiement.idpaiement');
 
         $data["paies"] = $r = $this->db->get('paiement')->result();
 
@@ -67,6 +68,8 @@ class Banquee extends CI_Controller
         $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
         $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+        $this->db->group_by('etudiant.idetudiant');
+
         $data["etudiants"] =  $this->db->get('etudiant')->result();
         $this->load->view("banque/bk-etudiant", $data);
     }

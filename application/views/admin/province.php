@@ -13,12 +13,9 @@
             </div>
             <div class="main-content">
                 <div class="card">
-                    <div class="boxs mail_listing">
-                        <div class="inbox-header p-3" style="background: whitesmoke;">
-                            Provinces
-                            <center><b><?php if (isset($success)) echo $success; ?></b></center>
-                            <center><b><?php if (isset($error)) echo $error; ?></b></center>
-                        </div>
+                    <div class="card-header">
+                        <h4>Provinces</h4>
+                        <center><b class="text-<?= $this->session->classe ?>"><?= $this->session->message ?></b></center>
                     </div>
                     <div class="row">
                         <div class="col-lg-12">
@@ -31,10 +28,7 @@
                                         </tr>
                                     </table>
                                     <div class="col-lg-12 mt-3">
-                                        <div class="m-l-25 m-b-20">
-                                            <button type="submit" name="submit" id="submit" class="btn btn-info" value="Submit">Créer</button>
-                                            <button type="button" class="btn btn-danger btn-border-radius waves-effect">Annuler</button>
-                                        </div>
+                                        <button type="submit" name="submit" id="submit" class="btn btn-warning" value="Submit">Créer</button>
                                     </div>
                                 </div>
                             </form>

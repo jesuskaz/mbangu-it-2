@@ -32,12 +32,14 @@ class Faculte extends CI_Controller
 
         $query = $this->db->insert('anneeAcademique', $data);
         if ($query) {
-            $message = array("success" => "L'annee scolare ajoute avec succes");
-            $this->load->view("universite/anneAcademique", $message);
+            $message["message"] = "L'année ajoutée avec succès ";
+            $message["classe"] = "success";
         } else {
-            $message = array("error" => "La sauvegarde a echouee");
-            $this->load->view("universite/anneAcademique", $message);
+            $message["message"] = "erreur ";
+            $message["classe"] = "danger";
         }
+        $this->session->set_flashdata($message);
+        redirect('faculte/anneeacademique');
     }
     public function anneeAcademique()
     {
@@ -147,13 +149,25 @@ class Faculte extends CI_Controller
         $listeOption = $this->input->post("addmore");
         $idFaculte = $this->input->post("faculte");
 
-        $now = date("Y-m-d H:i:s");
-
         //Getting Promotion data
 
         $promotionChooses = $this->input->post("promotionChose");
         $state = "error";
 
+        if (!is_array($listeOption)) {
+            $message["message"] = "Aucune option sélectionnée. ";
+            $message["classe"] = "danger";
+            $this->session->set_flashdata($message);
+            redirect('faculte/option');
+        }
+        if (!is_array($promotionChooses)) {
+            $message["message"] = "Aucune promotion sélectionnée. ";
+            $message["classe"] = "danger";
+            $this->session->set_flashdata($message);
+            redirect('faculte/option');
+        }
+
+        $message = [];
         if (!empty($listeOption) && !empty($idFaculte)) {
             foreach ($listeOption as $key => $value) {
                 foreach ($promotionChooses as $choose) {
@@ -180,21 +194,33 @@ class Faculte extends CI_Controller
                 if ($faculte) {
                     $promotion = $this->FaculteModel->getPromotion($this->id);
                     if ($faculte || $promotion) {
-                        $data["success"] = "Options ajoutees avec succes";
-                        $data["facultes"] = $faculte;
-                        $data["promotions"] = $promotion;
-                        $this->load->view("universite/ajouter-promotion", $data);
+                        $message["message"] = "Option ajoutée avec succès ";
+                        $message["classe"] = "success";
+
+                        // $data["success"] = "Options ajoutees avec succes";
+                        // $data["facultes"] = $faculte;
+                        // $data["promotions"] = $promotion;
+                        // $this->load->view("universite/ajouter-promotion", $data);
                     } else {
-                        $data["error"] = "Vide";
-                        $this->load->view("universite/ajouter-promotion", $data);
+                        // Options
+                        // $data["error"] = "Vide";
+                        // $this->load->view("universite/ajouter-promotion", $data);
+                        $message["message"] = "champ vide ";
+                        $message["classe"] = "danger";
                     }
                 } else {
-                    $data["facultes"] = $faculte;
-                    $data["error"] = "Erreur";
-                    $this->load->view("universite/ajouter-promotion", $data);
+                    $message["message"] = "champ vide ";
+                    $message["classe"] = "danger";
+
+                    // $data["facultes"] = $faculte;
+                    // $data["error"] = "Erreur";
+                    // $this->load->view("universite/ajouter-promotion", $data);
                 }
             }
         }
+
+        $this->session->set_flashdata($message);
+        redirect('faculte/option');
     }
 
     public function addOption()

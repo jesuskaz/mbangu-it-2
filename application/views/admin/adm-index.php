@@ -166,14 +166,12 @@
                             <th>N°</th>
                             <th>Nom</th>
                             <th>Post-nom</th>
-                            <th>Prénom</th>
                             <th>Matricule</th>
                             <th>Faculté</th>
                             <th>Promotion</th>
-                            <th>Adresse</th>
                             <th>Email</th>
                             <th>Téléphone</th>
-                            <th></th>
+                            <th>Détails</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -187,16 +185,16 @@
                                 <td><?php echo $i; ?></td>
                                 <td><?php echo $etudiant->nom  ?></td>
                                 <td><?php echo $etudiant->postnom  ?></td>
-                                <td><?php echo $etudiant->prenom  ?></td>
                                 <td><?php echo $etudiant->matricule  ?></td>
                                 <td><?php echo $etudiant->nomFaculte  ?></td>
                                 <td><?php echo $etudiant->intitulePromotion  ?></td>
-                                <td><?php echo $etudiant->adresse  ?></td>
                                 <td><?php echo $etudiant->email  ?></td>
                                 <td><?php echo $etudiant->telephone  ?></td>
-                                <td> <a href="<?= site_url('manager/detail-etudiant/' . $etudiant->idetudiant) ?>">
+                                <td>
+                                  <a href="<?= site_url('manager/detail-etudiant/' . $etudiant->idetudiant) ?>">
                                     <i class="fa fa-eye"></i> Détails
-                                  </a> </td>
+                                  </a>
+                                </td>
                               </tr>
                           <?php
                             }
@@ -393,7 +391,7 @@
               name: i,
               data: j
             });
-            leg += `<span class="badge text-white" style="background: ${colors[c]}">${i}</span>`;
+            leg += `<span class="badge text-white" style="background: ${colors[c]}; margin: 5px">${i}</span>`;
             c++;
           })
           $('#legende').html(leg);

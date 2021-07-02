@@ -110,7 +110,6 @@
 													<th>Matricule</th>
 													<th>Nom</th>
 													<th>PostNom</th>
-													<th>Prénom</th>
 													<th>Compte</th>
 													<th>Frais</th>
 													<th>Promotion</th>
@@ -128,7 +127,6 @@
 															<td><?php echo $rapport["matricule"]; ?></td>
 															<td><?php echo $rapport["nom"]; ?></td>
 															<td><?php echo $rapport["postnom"]; ?></td>
-															<td><?php echo $rapport["prenom"]; ?></td>
 															<td><?php echo $rapport["numeroCompte"]; ?></td>
 															<td><?php echo $rapport["designation"]; ?></td>
 															<td style="text-align:center"><?php echo $rapport["intitulePromotion"]; ?></td>
