@@ -9,4 +9,26 @@
             </li>
         </ul>
     </div>
+    <ul class="navbar-nav navbar-right">
+         <li class="dropdown">
+             <?php
+                $img = !empty($i = $bank->logo) ? base_url($i) : base_url('assets/img/bangu.png');
+                ?>
+             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+                 <span class="text-muted"><i class="fa fa-university"></i> <?= $bank->denomination ?></span>
+                 <img alt="image" src="<?= $img ?>" class="user-img-radious-style" width="30" height="30">
+                 <span class="d-sm-none d-lg-inline-block"></span>
+             </a>
+             <div class="dropdown-menu dropdown-menu-right pullDown">
+                 <div class="dropdown-title"><?= $bank->denomination ?></div>
+                 <a href="<?= site_url('banque/profil') ?>" class="dropdown-item has-icon">
+                     <i class="far fa-user"></i> Profil
+                 </a>
+                 <div class="dropdown-divider"></div>
+                 <a href="<?= site_url('index/deconnexion') ?>" class="dropdown-item has-icon text-danger"> <i class="fas fa-sign-out-alt"></i>
+                     Déconnexion
+                 </a>
+             </div>
+         </li>
+     </ul>
 </nav>

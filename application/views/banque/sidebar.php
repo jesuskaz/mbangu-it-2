@@ -29,6 +29,12 @@
       </ul>
     </li>
     <li class="dropdown">
+      <a href="#" class="menu-toggle nav-link has-dropdown"><i class=" fa fa-cog"></i><span>Paramètres</span></a>
+      <ul class="dropdown-menu">
+        <li><a class="nav-link" href="<?php echo site_url("banquee/profil"); ?>">Profil</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
       <a href="<?php echo site_url('Index'); ?>" class="menu-toggle nav-link has-dropdown"><i class="fa fa-sign-out-alt"></i><span>Se déconnecter</span></a>
       <ul class="dropdown-menu">
         <li><a class="nav-link" href="<?php echo site_url('Index/deconnexion'); ?>">déconnexion</a></li>
