@@ -71,6 +71,7 @@
 											<div class="">
 												<p class="d-flex justify-content-center m-2 ">Ajouter un logo (.jpg, .png, .gif)</p>
 												<form id="f-logo" method="post" enctype="multipart/form-data" action="">
+													<input type="hidden" name="type" value="univ">
 													<div class="form-group">
 														<input id="file" style="display: none" required accept=".jpg,.png,.gif" class="form-control" type="file" name="logo" id="">
 													</div>

@@ -21,6 +21,22 @@
             <div class="col-12">
               <div class="card">
                 <div class="card-header">
+                  <div class="w-100 p-3 d-flex justify-content-between">
+                    <div class="">
+                      <h4 class="mb-2">Total paiement <i univ></i></h4>
+                      <span paie></span>
+                    </div>
+                    <div class=" text-right">
+                      <h4 class="mb-2">Total Comission <i univ></i></h4>
+                      <span commission></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">
                   <h4>Liste de paiement</h4>
                   <div class="card-header-action">
                     <form class="form-inline form">
@@ -38,19 +54,7 @@
                     </form>
                   </div>
                 </div>
-                <div class="card-header">
-                  <div class="jumbotron w-100 p-3 d-flex justify-content-between">
-                    <div class="">
-                      <h4 class="mb-2">Total paiement <i univ></i></h4>
-                      <span paie></span>
-                    </div>
-                    <div class=" text-right">
-                      <h4 class="mb-2">Total Comission <i univ></i></h4>
-                      <span commission></span>
-                    </div>
 
-                  </div>
-                </div>
                 <div class="card-body">
                   <div class="table-responsive">
                     <table id="table-r" class="table table-striped table-hover" style="width:100%;">

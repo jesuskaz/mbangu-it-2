@@ -25,6 +25,7 @@ class Banquee extends CI_Controller
         $this->db->group_by('etudiant.idetudiant');
 
         $data["etudiants"] =  $this->db->get('etudiant')->result();
+        $data["nb_univ"] =  count($this->db->get('universite')->result());
         $data["devises"] = $this->db->get('devise')->result();
 
         $this->load->view("banque/bk-index", $data);
@@ -73,5 +74,11 @@ class Banquee extends CI_Controller
         $data["etudiants"] =  $this->db->get('etudiant')->result();
         $this->load->view("banque/bk-etudiant", $data);
     }
-    
+
+    function profil()
+    {
+        $idbank = $this->session->bank_session;
+        $u = $this->db->where('idbanque', $idbank)->get('banque')->result()[0];
+        $this->load->view("banque/profil", ['bank' => $u]);
+    }
 }

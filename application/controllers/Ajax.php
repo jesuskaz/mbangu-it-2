@@ -14,7 +14,7 @@ class Ajax extends CI_Controller
 
     function login()
     {
-        $this->load->library('form_validation');   
+        $this->load->library('form_validation');
         $validation  = new CI_Form_validation();
         $validation->set_rules('login', '', 'required', ['required' => "Votre login est requis."]);
         $validation->set_rules('code', '', 'required', ['required' => "Votre mot de passe est requis."]);
@@ -361,16 +361,18 @@ class Ajax extends CI_Controller
 
     function update_logo()
     {
-        $this->checktype('univ');
+        $type = $this->input->post('type', true);
+        $this->checktype($type);
+
         $path =  "upload/logo/";
         $f = $_FILES['logo']['name'] ?? '';
-            $f = explode('.', $f);
-            if (count($f) >= 2) {
-                $exe = end($f);
-                $f = time() . rand(1, 1000) . '.' . $exe;
-            } else {
-                $f = '';
-            }
+        $f = explode('.', $f);
+        if (count($f) >= 2) {
+            $exe = end($f);
+            $f = time() . rand(1, 1000) . '.' . $exe;
+        } else {
+            $f = '';
+        }
         $config = array(
             'upload_path' => $path,
             'overwrite' => TRUE,
@@ -383,10 +385,19 @@ class Ajax extends CI_Controller
         if ($this->upload->do_upload('logo')) {
             $d = $this->upload->data();
             $nomFichier = $path . $d['file_name'];
-            $where = ['iduniversite' => $this->session->universite_session];
-            $r = $this->db->where($where)->get('universite')->result()[0];
-            @unlink($r->logo);
-            $this->db->update('universite', ['logo' => $nomFichier], $where);
+
+            if ($type == 'univ') {
+                $where = ['iduniversite' => $this->session->universite_session];
+                $r = $this->db->where($where)->get('universite')->result()[0];
+                @unlink($r->logo);
+                $this->db->update('universite', ['logo' => $nomFichier], $where);
+            } else if ($type == 'banque') {
+                $where = ['idbanque' => $this->session->bank_session];
+                $r = $this->db->where($where)->get('banque')->result()[0];
+                @unlink($r->logo);
+                $this->db->update('banque', ['logo' => $nomFichier], $where);
+            }
+
             $reponse['status'] = true;
             $reponse['message'] = 'logo ajouté.';
             $reponse['logo'] = base_url($nomFichier);
@@ -422,6 +433,18 @@ class Ajax extends CI_Controller
                 } else {
                     $re['message'] = 'Le mot de passe actuel que vous avez saisi est incorrect.';
                 }
+            } else if ($type == 'banque') {
+                $pass = $this->input->post('pass');
+                $newpass = $this->input->post('new');
+                $idbank = $this->session->bank_session;
+
+                if (count($this->db->where(['password' => $pass, 'idbanque' => $idbank])->get('banque')->result())) {
+                    $this->db->update('banque', ['password' => $newpass], ['idbanque' => $idbank]);
+                    $re['message'] = 'Le mot de passe a été mis à jour.';
+                    $re['status'] = true;
+                } else {
+                    $re['message'] = 'Le mot de passe actuel que vous avez saisi est incorrect.';
+                }
             }
         } else {
             $re['error'] = $validation->error_array();
@@ -437,7 +460,14 @@ class Ajax extends CI_Controller
 
         $this->load->library('form_validation');
         $validation  = new CI_Form_validation();
-        $validation->set_rules('universite', '', 'required', ['required' => "Tapez le nom de votre université."]);
+
+        if ($type == 'univ') {
+            $validation->set_rules('universite', '', 'required', ['required' => "Tapez le nom de votre université."]);
+        } elseif ($type == 'banque') {
+            $validation->set_rules('banque', '', 'required', ['required' => "Tapez le nom de votre banue."]);
+        } else {
+            die;
+        }
 
         $re['status'] = false;
         if ($validation->run()) {
@@ -451,6 +481,17 @@ class Ajax extends CI_Controller
                     $re['status'] = true;
                 } else {
                     $re['message'] = "Vous ne pouvez pas utiliser ce nom  < <i>$univ</i> >.";
+                }
+            } else if ($type == 'banque') {
+                $banque = $this->input->post('banque');
+                $idbanque = $this->session->bank_session;
+
+                if (!count($this->db->where(['denomination' => $banque, 'idbanque !=' => $idbanque])->get('banque')->result())) {
+                    $this->db->update('banque', ['denomination' => $banque], ['idbanque' => $idbanque]);
+                    $re['message'] = 'Le nom de votre banque a été mis à jour.';
+                    $re['status'] = true;
+                } else {
+                    $re['message'] = "Vous ne pouvez pas utiliser ce nom  < <i>$banque</i> >.";
                 }
             }
         } else {

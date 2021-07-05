@@ -71,6 +71,17 @@ class Index extends CI_Controller
         if ($iduniv = (int) $this->session->userdata("universite_session")) {
             $ann = $this->session->annee_academique;
             $data['frais'] = $this->db->where(['iduniversite' => $iduniv, 'idanneeAcademique' => $ann])->get('frais')->result();
+
+            $annee = $this->session->annee_academique;
+
+            $this->db->where(['frais.iduniversite' => $iduniv, 'frais.idanneeAcademique' => $annee]);
+            $this->db->select("sum(paiement.montant) total, nomDevise devise, frais.designation frais");
+            $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+            $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+            $this->db->group_by('paiement.iddevise');
+
+            $data['solde'] = $this->db->get('paiement')->result();
+
             $this->load->view("universite/solde", $data);
         } else {
             redirect("index/login");

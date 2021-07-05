@@ -21,7 +21,7 @@
              </a>
              <div class="dropdown-menu dropdown-menu-right pullDown">
                  <div class="dropdown-title"><?= $bank->denomination ?></div>
-                 <a href="<?= site_url('banque/profil') ?>" class="dropdown-item has-icon">
+                 <a href="<?= site_url('banquee/profil') ?>" class="dropdown-item has-icon">
                      <i class="far fa-user"></i> Profil
                  </a>
                  <div class="dropdown-divider"></div>

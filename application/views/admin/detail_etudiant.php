@@ -18,21 +18,88 @@
               <div class="col-12">
                 <div class="card">
                   <div class="card-header d-flex justify-content-between">
-                    <h4>Détail Etudiant : <b> <?= $etudiant ?></b></h4>
+                    <h4>Identité de l'etudiant</h4>
+                    <h4>Pièce d'identité</h4>
+                    <h4 class="pr-5">Portrait étudiant</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="row justify-content-between">
+                      <div class="col-md-4">
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-4">Nom </div>
+                          <div class="col-8"> : <?= "$etudiant->nom $etudiant->postnom $etudiant->prenom" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-4">Faculté </div>
+                          <div class="col-8"> : <?= "$etudiant->nomFaculte" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-4">Promotion </div>
+                          <div class="col-8"> : <?= "$etudiant->intitulePromotion" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-4">Option </div>
+                          <div class="col-8"> : <?= "$etudiant->intituleOptions" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-4">Matricule </div>
+                          <div class="col-8"> : <?= "$etudiant->matricule" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-4">Tel </div>
+                          <div class="col-8"> : <?= "$etudiant->telephone" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-4">Email </div>
+                          <div class="col-8"> : <?= "$etudiant->email" ?></div>
+                        </div>
+                        <div class="row d-flexi justify-content-betweeni">
+                          <div class="col-4">Adresse </div>
+                          <div class="col-8"> : <?= "$etudiant->adresse" ?></div>
+                        </div>
+
+                      </div>
+                      <div class="col-md-4 d-flex justify-content-center">
+                        <?php if (file_exists($etudiant->carte)) { ?>
+                          <a href="<?= base_url($etudiant->carte) ?>">
+                            <img class="user-img-radious-style" width="100" height="100" style="umargin-left: -60px; border-radius: 5px;" src=" <?= base_url($etudiant->carte) ?>" alt="">
+                          </a>
+                        <?php } ?>
+                      </div>
+                      <div class="col-md-4 d-flex justify-content-end pr-5">
+                        <address>
+                          <?php if (file_exists($etudiant->picture)) { ?>
+                            <a href="<?= base_url($etudiant->picture) ?>">
+                              <img class="user-img-radious-style" width="100" height="100" style="border-radius: 100%;" src=" <?= base_url($etudiant->picture) ?>" alt="">
+                            </a>
+                          <?php } ?>
+                        </address>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header d-flex justify-content-between">
+                    <h4>Compte</h4>
                     <button class="btn btn-success float-right rounded-0" onclick="history.back()">
                       <i class="fa fa-arrow-left"></i>
                     </button>
                   </div>
-                  <div class="card-header">
-                    <div class="jumbotron w-100 p-3">
-                      <h4 class="mb-2">Compte</h4>
-                      <?php if(count($comptes)) { foreach ($comptes as $c) { ?>
+                  <div class="card-body">
+                    <?php if (count($comptes)) {
+                      foreach ($comptes as $c) { ?>
                         <h6 class="text-danger"><?= "$c->montant $c->devise" ?></h6>
-                      <?php  } } else {
-                        echo ' <h6 class="text-danger">Aucun approvisionnement</h6>';
-                      } ?>
-                    </div>
+                    <?php  }
+                    } else {
+                      echo ' <h6 class="text-danger">Aucun approvisionnement</h6>';
+                    } ?>
                   </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="card">
                   <div class="card-body">
                     <div class="table-responsive">
                       <table class="table table-striped table-hover" style="width:100%;">

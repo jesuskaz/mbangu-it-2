@@ -1,6 +1,6 @@
 <aside id="sidebar-wrapper">
   <div class="sidebar-brand">
-    <a href="#"> <img alt="image" src="<?php echo base_url() . 'assets/img/bangu.png' ?>" class="header-logo" /> <span class="logo-name">MBANGU PAY</span>
+    <a href="<?php echo site_url('banquee'); ?>"> <img alt="image" src="<?php echo base_url() . 'assets/img/bangu.png' ?>" class="header-logo" /> <span class="logo-name">MBANGUPAY</span>
     </a>
   </div>
   <ul class="sidebar-menu">
@@ -9,7 +9,7 @@
       <a href="<?php echo site_url('banquee'); ?>" class="nav-link"><i class="fa fa-home"></i><span>Accueil</span></a>
     </li>
     <li class="dropdown">
-      <a href="<?php echo site_url('Index'); ?>" class="menu-toggle nav-link has-dropdown"><i class="fa fa-university"></i><span>Univercité</span></a>
+      <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-university"></i><span>Univercité</span></a>
       <ul class="dropdown-menu">
         <li><a class="nav-link" href="<?php echo site_url('banquee/universite'); ?>">Liste des universités</a></li>
       </ul>
@@ -35,7 +35,7 @@
       </ul>
     </li>
     <li class="dropdown">
-      <a href="<?php echo site_url('Index'); ?>" class="menu-toggle nav-link has-dropdown"><i class="fa fa-sign-out-alt"></i><span>Se déconnecter</span></a>
+      <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-sign-out-alt"></i><span>Se déconnecter</span></a>
       <ul class="dropdown-menu">
         <li><a class="nav-link" href="<?php echo site_url('Index/deconnexion'); ?>">déconnexion</a></li>
       </ul>

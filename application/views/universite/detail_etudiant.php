@@ -41,36 +41,36 @@
                     <div class="row justify-content-between">
                       <div class="col-md-4">
                         <div class="row d-flexi justify-content-betweeni">
-                          <div class="col-3">Nom </div>
-                          <div class="col-9"> : <?= "$etudiant->nom $etudiant->postnom $etudiant->prenom" ?></div>
+                          <div class="col-4">Nom </div>
+                          <div class="col-8"> : <?= "$etudiant->nom $etudiant->postnom $etudiant->prenom" ?></div>
                         </div>
                         <div class="row d-flexi justify-content-betweeni">
-                          <div class="col-3">Faculté </div>
-                          <div class="col-9"> : <?= "$etudiant->nomFaculte" ?></div>
+                          <div class="col-4">Faculté </div>
+                          <div class="col-8"> : <?= "$etudiant->nomFaculte" ?></div>
                         </div>
                         <div class="row d-flexi justify-content-betweeni">
-                          <div class="col-3">Promotion </div>
-                          <div class="col-9"> : <?= "$etudiant->intitulePromotion" ?></div>
+                          <div class="col-4">Promotion </div>
+                          <div class="col-8"> : <?= "$etudiant->intitulePromotion" ?></div>
                         </div>
                         <div class="row d-flexi justify-content-betweeni">
-                          <div class="col-3">Option </div>
-                          <div class="col-9"> : <?= "$etudiant->intituleOptions" ?></div>
+                          <div class="col-4">Option </div>
+                          <div class="col-8"> : <?= "$etudiant->intituleOptions" ?></div>
                         </div>
                         <div class="row d-flexi justify-content-betweeni">
-                          <div class="col-3">Matricule </div>
-                          <div class="col-9"> : <?= "$etudiant->matricule" ?></div>
+                          <div class="col-4">Matricule </div>
+                          <div class="col-8"> : <?= "$etudiant->matricule" ?></div>
                         </div>
                         <div class="row d-flexi justify-content-betweeni">
-                          <div class="col-3">Tel </div>
-                          <div class="col-9"> : <?= "$etudiant->telephone" ?></div>
+                          <div class="col-4">Tel </div>
+                          <div class="col-8"> : <?= "$etudiant->telephone" ?></div>
                         </div>
                         <div class="row d-flexi justify-content-betweeni">
-                          <div class="col-3">Email </div>
-                          <div class="col-9"> : <?= "$etudiant->email" ?></div>
+                          <div class="col-4">Email </div>
+                          <div class="col-8"> : <?= "$etudiant->email" ?></div>
                         </div>
                         <div class="row d-flexi justify-content-betweeni">
-                          <div class="col-3">Adresse </div>
-                          <div class="col-9"> : <?= "$etudiant->adresse" ?></div>
+                          <div class="col-4">Adresse </div>
+                          <div class="col-8"> : <?= "$etudiant->adresse" ?></div>
                         </div>
 
                       </div>

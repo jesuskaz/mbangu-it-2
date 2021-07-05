@@ -35,11 +35,11 @@
 										</div>
 										<div class="col-lg-3">
 											<div class="row mt-5">
-												<div class="col-7 col-xl-7 mb-3">Total Etudiant</div>
+												<div class="col-7 col-xl-7 mb-3"><a href="<?= site_url('banque/listeetudiant') ?>">Total Etudiant</a></div>
 												<div class="col-5 col-xl-5 mb-3">
 													<span class="text-big"> <?= $tot_etudiant ?> </span>
 												</div>
-												<div class="col-7 col-xl-7 mb-3">Etudiants ayant payés</div>
+												<div class="col-7 col-xl-7 mb-3"><a href="<?= site_url('banque/listerapport') ?>">Etudiants ayant payés</a></div>
 												<div class="col-5 col-xl-5 mb-3">
 													<span class="text-big"> <?= $etudiant_paie ?> </span>
 												</div>

@@ -80,7 +80,12 @@
 										<div class="col-md-6">
 											<h6 class="text-muted">Situation année académique <?= str_replace('| AA - ', '', $an) ?> </h6>
 											<div class="">
-												.
+												<?php if (count($solde)) : foreach ($solde as $so) : ?>
+														<h3><?= "$so->devise" . round($so->total, 2) ?></h3>
+													<?php endforeach;
+												else : ?>
+													<h1 class="text-center text-muted small">Aucune information </h1>
+												<?php endif ?>
 											</div>
 										</div>
 										<div class="col-md-6 p-5">
@@ -291,7 +296,7 @@
 					var lab = '';
 					if (f.length > 0) {
 						for (i in f) {
-							str += `<h3 class="text-center" >${f[i].devise} ${f[i].total} </h3>`;
+							str += `<h3 class="" >${f[i].devise} ${f[i].total} </h3>`;
 						}
 					} else {
 						str = '<h1 class="text-center text-muted small" >Aucune information </h1>'

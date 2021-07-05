@@ -83,11 +83,15 @@ class Manager extends CI_Controller
     {
 
         $idetudiant = (int) $idetudiant;
+        $this->db->join('anneeAcademique', 'etudiant.idanneeAcademique=anneeAcademique.idanneeAcademique');
+        $this->db->join('promotion', 'etudiant.idpromotion=promotion.idpromotion');
+        $this->db->join('options', 'promotion.idpromotion=options.idpromotion');
+        $this->db->join('faculte', 'options.idfaculte=faculte.idfaculte');
+        $this->db->group_by('etudiant.idetudiant');
         if (!count($et = $this->db->where('idetudiant', $idetudiant)->get('etudiant')->result())) {
             redirect('manager');
         }
-        $et = $et[0];
-        $data['etudiant'] = "$et->nom $et->postnom $et->prenom | Matricule : $et->matricule";
+        $data['etudiant'] =  $et[0];
 
         $this->db->select('frais.montant montant_frais, paiement.montant montant_paye, frais.designation frais, devise.nomDevise devise, commission, date');
         $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
