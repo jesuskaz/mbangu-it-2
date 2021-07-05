@@ -7,6 +7,7 @@ class User extends CI_Controller
         parent::__construct();
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
         $this->load->model("UserModel");
+        $this->load->model("ApiParentModel");
     }
     public function index()
     {
@@ -19,7 +20,9 @@ class User extends CI_Controller
         $code = $this->input->post("code");
 
         $data = $this->UserModel->getPasswordChecking($matricule, $code);
-        if ($data) {
+       
+        if (count($data) > 0) 
+        {
             $resarr = array();
             array_push($resarr, array(
                 "id" => $data[0]["idetudiant"],
@@ -27,8 +30,23 @@ class User extends CI_Controller
                 "password" => $data[0]["password"]
             ));
             echo json_encode(array("result" => $resarr));
-        } else {
-            echo json_encode("false");
+        } 
+        else 
+        {
+            $constraint = [
+                "login" => $matricule,
+                "password" => $code
+            ];
+
+            $result = $this->ApiParentModel->read("parent", $constraint);
+            if($result)
+            {
+                echo json_encode("true");
+            }
+            else
+            {
+                echo json_encode("false");
+            }
         }
     }
 

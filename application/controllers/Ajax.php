@@ -14,7 +14,7 @@ class Ajax extends CI_Controller
 
     function login()
     {
-        $this->load->library('form_validation');
+        $this->load->library('form_validation');   
         $validation  = new CI_Form_validation();
         $validation->set_rules('login', '', 'required', ['required' => "Votre login est requis."]);
         $validation->set_rules('code', '', 'required', ['required' => "Votre mot de passe est requis."]);
