@@ -20,7 +20,8 @@ class Ajax extends CI_Controller
         $validation->set_rules('code', '', 'required', ['required' => "Votre mot de passe est requis."]);
 
         $re['status'] = false;
-        if ($validation->run()) {
+        if ($validation->run()) 
+        {
             $login = $this->input->post('login', true);
             $code = $this->input->post('code', true);
 
@@ -59,7 +60,6 @@ class Ajax extends CI_Controller
         } else {
             $re['error'] = $validation->error_array();
         }
-
         echo json_encode($re);
     }
 
