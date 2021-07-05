@@ -55,6 +55,11 @@ class UserModel extends CI_Model
         $query = $this->db->get_where("etudiant", ["matricule" => $matricule, "password" => $code])->result_array();
         return $query;
     }
+    public function read($table, $data)
+    {
+            $query = $this->db->get_where($table, $data)->result_array();
+            return $query;
+    }
 
     public function getUserChecking($matricule)
     {
