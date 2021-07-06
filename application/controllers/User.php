@@ -16,8 +16,8 @@ class User extends CI_Controller
 
     public function signInUser()
     {
-        $matricule = $this->input->post("matricule");
-        $code = $this->input->post("code");
+        $matricule = "bonjour"; //$this->input->post("matricule");
+        $code = "Bonjour"; //$this->input->post("code");
 
         $data = $this->UserModel->getPasswordChecking($matricule, $code);
        
@@ -27,7 +27,8 @@ class User extends CI_Controller
             array_push($resarr, array(
                 "id" => $data[0]["idetudiant"],
                 "matricule" => $data[0]["matricule"],
-                "password" => $data[0]["password"]
+                "password" => $data[0]["password"],
+                "status" => "etudiant"
             ));
             echo json_encode(array("result" => $resarr));
         } 
@@ -39,9 +40,18 @@ class User extends CI_Controller
             ];
 
             $result = $this->ApiParentModel->read("parent", $constraint);
+
             if($result)
             {
-                echo json_encode("true");
+                $arr = array();
+                array_push(
+                    $arr, array(
+                        "id" => $result[0]["idparent"],
+                        "login" => $result[0]["login"],
+                        "status" => "parent"
+                    )
+                    );
+                echo json_encode($arr);
             }
             else
             {
