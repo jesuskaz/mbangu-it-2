@@ -45,5 +45,29 @@
             $query = $this->ApiParentModel->read("parent", $constainst);
             echo json_encode($query);
         }
+
+        public function updateData()
+        {
+            $login = "bonjour";//$this->input->post("login");
+            $index = 2; //$this->input->post("index");
+            $data = "cool"; //$this->input->post("data");
+
+            if($index == 1)
+            {
+                $collection = ["adresse" => $data];
+                $query = $this->apiParentModel->updateData($collection, $login);
+
+            }
+            else if($index == 2)
+            {
+                $collection = ["telephone" => $data];
+                $query = $this->apiParentModel->updateData($collection, $login);
+            }
+            else if($index == 3)
+            {
+                $collection = ["email" => $data];
+                $query = $this->apiParentModel->updateData($collection, $login);
+            }
+        }
     }
 ?>
