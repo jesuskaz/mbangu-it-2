@@ -37,26 +37,13 @@
                 echo json_encode("false");
             }
         }
-        public function login()
+        public function getHeadData($login)
         {
-            $login = $this->input->post("login");
-            $pwd = $this->input->post("password");
-
-            $constraint = [
-                "login" => $login,
-                "password" => $pwd
+            $constainst = [
+                "login" => $login
             ];
-
-            $result = $this->ApiParentModel->read("parent", $constraint);
-
-            if($result)
-            {
-                echo json_encode("true");
-            }
-            else
-            {
-                echo json_encode("false");
-            }
+            $query = $this->ApiParentModel->read("parent", $constainst);
+            echo json_encode($query);
         }
     }
 ?>
