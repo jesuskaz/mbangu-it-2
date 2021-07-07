@@ -4,7 +4,6 @@
     </a>
   </div>
   <ul class="sidebar-menu">
-    <li class="menu-header">Main</li>
     <li class="dropdown">
       <a href="<?php echo site_url('banquee'); ?>" class="nav-link"><i class="fa fa-home"></i><span>Accueil</span></a>
     </li>

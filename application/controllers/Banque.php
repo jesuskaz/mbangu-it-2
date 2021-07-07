@@ -30,7 +30,6 @@ class Banque extends CI_Controller
             redirect();
         }
         $login = $this->session->userdata("universite_session");
-        $idEcole = $this->BanqueModel->getIdEcole($login);
         $iduniv = $this->session->universite_session;
 
         $this->db->join('banque', 'banque.idbanque=frais.idbanque');
@@ -41,15 +40,6 @@ class Banque extends CI_Controller
         $data['banques'] = $this->db->get('banque')->result();
 
         $this->load->view("universite/liste-compte", $data);
-
-        // $login = $this->session->userdata("login");
-        // $idEcole = $this->BanqueModel->getIdEcole($login);
-        // $idUversite = $this->session->universite_session;
-
-        // $data["frais"] = $this->db->where([])->get('frais');
-
-        // $this->load->view("universite/liste-compte", $data);
-
     }
 
     function edit_f($id_frais = null)
@@ -73,7 +63,7 @@ class Banque extends CI_Controller
         $data['idfrais'] = $id_frais;
         $data['nom_f'] = $et->designation;
         $data['compte'] = $et->numeroCompte;
-        $data['banque'] = $et->idbanque;
+        $data['idbanque'] = $et->idbanque;
         $data['montant'] = $et->montant;
         $data['devise'] = $et->iddevise;
         $data['annee'] = $et->idanneeAcademique;
@@ -109,6 +99,7 @@ class Banque extends CI_Controller
                     'idanneeAcademique' => $this->input->post('annee'),
                     'iddevise' => $this->input->post('devise'),
                     'numeroCompte' => $this->input->post('compte'),
+                    'idbanque' => $this->input->post('banque'),
                     'designation' => $this->input->post('frais'),
                     'montant' => $this->input->post('montant'),
                 ], ['idfrais' => $fr]);
@@ -137,19 +128,7 @@ class Banque extends CI_Controller
         }
         redirect('banque/listecompte');
     }
-    // public function listeBanque()
-    // {
-    //     $login = $this->session->userdata("login");
-    //     $nomEcole = $this->BanqueModel->getIdEcole($login);
-
-    //     $data["banques"] = $this->BanqueModel->getAllBanque($nomEcole);
-    //     if ($data) {
-    //         $this->load->view("universite/liste-banque", $data);
-    //     } else {
-    //         $data["error"] = "Aucune donnee";
-    //         $this->load->view("universite/liste-banque", $data);
-    //     }
-    // }
+    
 
     public function createBanque()
     {

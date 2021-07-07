@@ -20,8 +20,7 @@ class Ajax extends CI_Controller
         $validation->set_rules('code', '', 'required', ['required' => "Votre mot de passe est requis."]);
 
         $re['status'] = false;
-        if ($validation->run()) 
-        {
+        if ($validation->run()) {
             $login = $this->input->post('login', true);
             $code = $this->input->post('code', true);
 
@@ -54,6 +53,27 @@ class Ajax extends CI_Controller
                     $ida = $r2[0]->idanneeAcademique;
                 }
                 $this->session->set_userdata(['annee_academique' =>  $ida]);
+            } else if (count($r = $this->db->where(['login' => $login, 'password' => $code])->get('ecole')->result())) {
+                $r = $r[0];
+                $re['status'] = true;
+                $re['url'] = site_url('ecole');
+                $this->session->set_userdata(['ecole_session' =>  $r->idecole]);
+                $r2 = $this->db->where(['idecole' => $r->idecole, 'actif' => 1])->get('annee_scolaire_ecole')->result();
+                if (!count($r2)) {
+                    $debut =  (new DateTime('first day of this month'))->format('Y-m-d');
+                    $fin =  date('Y-m-d', strtotime((new DateTime('last day of this month'))->format('Y-m-d') . " + 365 day"));
+                    $this->db->insert('annee_scolaire_ecole', [
+                        'actif' => 1,
+                        'idecole' => $r->idecole,
+                        'date_debut' => $debut,
+                        'date_fin' => $fin
+                    ]);
+                    $ida = $this->db->insert_id();
+                } else {
+                    $ida = $r2[0]->idecole;
+                }
+                $this->session->set_userdata(['annee_scolaire' =>  $ida]);
+                $this->db->query("UPDATE ecole SET derniere_activite = CURRENT_TIMESTAMP where idecole=$ida");
             } else {
                 $re['message'] = 'login ou mot de passe incorrect.';
             }
@@ -65,8 +85,8 @@ class Ajax extends CI_Controller
 
     function checktype($type)
     {
-        if (!in_array($type, ['univ', 'admin', 'banque'])) {
-            echo json_encode(['ERROR']);
+        if (!in_array($type, ['univ', 'admin', 'banque', 'ecole'])) {
+            echo json_encode(['TYPE ERROR']);
             die;
         }
 
@@ -84,6 +104,11 @@ class Ajax extends CI_Controller
             echo json_encode(['ERROR NOT CONNECTED']);
             die;
         }
+
+        if ($type == 'ecole' and empty($this->session->userdata("ecole_session"))) {
+            echo json_encode(['ERROR NOT CONNECTED']);
+            die;
+        }
     }
 
     function getallrapport()
@@ -93,56 +118,92 @@ class Ajax extends CI_Controller
 
         // var_dump($_GET); die;
 
-        $faculte = $this->input->get('faculte', true);
-        $promotion = $this->input->get('promotion', true);
-        $option = $this->input->get('option', true);
         $d = $this->input->get('date', true);
         $d = explode('-', $d);
         $debut = str_replace('/', '-', trim(@$d[0]));
         $fin =  str_replace('/', '-', trim(@$d[1]));
-        // var_dump($date_fin, $date_debut);
-        // die;
+
         $devise = $this->input->get('devise', true);
 
+        if ($type != 'ecole') {
+            $faculte = $this->input->get('faculte', true);
+            $promotion = $this->input->get('promotion', true);
+            $option = $this->input->get('option', true);
 
-        $this->db->select("paiement.idpaiement, paiement.date, etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, frais.numeroCompte, 
-        frais.designation, promotion.intitulePromotion, faculte.nomFaculte, paiement.montant, devise.nomDevise");
+            $this->db->select("paiement.idpaiement, paiement.date, etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, frais.numeroCompte, 
+            frais.designation, promotion.intitulePromotion, faculte.nomFaculte, paiement.montant, devise.nomDevise");
 
-        $this->db->where('cast(paiement.date as date) >=', $debut);
-        $this->db->where('cast(paiement.date as date) <=', $fin);
+            $this->db->where('cast(paiement.date as date) >=', $debut);
+            $this->db->where('cast(paiement.date as date) <=', $fin);
 
-        $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
-        $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
-        $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
-        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
-        $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
+            $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+            $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+            $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
+            $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
+            $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+            $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+            $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
+
+            // var_dump($_GET);
+            // die;
 
 
-        // var_dump($_GET);
-        // die;
+            if ($type == 'univ') {
+                $this->db->where('universite.iduniversite', $this->session->userdata("universite_session"));
+            }
 
-        if ($type == 'univ') {
-            $this->db->where('universite.iduniversite', $this->session->userdata("universite_session"));
+            if (!empty($faculte)) {
+                $this->db->where('faculte.idfaculte', $faculte);
+            }
+            if (!empty($promotion)) {
+                $this->db->where('promotion.idpromotion', $promotion);
+            }
+            if (!empty($option)) {
+                $this->db->where('options.idoptions', $option);
+            }
+            if (!empty($devise)) {
+                $this->db->where('paiement.iddevise', $devise);
+            }
+
+            $this->db->group_by('paiement.idpaiement');
+            $r = $this->db->get('paiement')->result();
+        } else {
+            $section = (int) $this->input->get('section', true);
+            $option = (int) $this->input->get('option', true);
+            $classe = (int) $this->input->get('classe', true);
+
+            $this->db->select("paiement_ecole.idpaiement_ecole, paiement_ecole.date, eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, compte, 
+            intitulefrais frais, intituleclasse classe, intituleOption option, paiement_ecole.montant, devise.nomDevise devise");
+
+            $this->db->where('cast(paiement_ecole.date as date) >=', $debut);
+            $this->db->where('cast(paiement_ecole.date as date) <=', $fin);
+
+            if ($section) {
+                $this->db->where('section.idsection', $section);
+            }
+
+            if ($option) {
+                $this->db->where('optionecole.idoptionecole', $option);
+            }
+
+            if ($classe) {
+                $this->db->where('classe.idclasse', $classe);
+            }
+
+            if ($devise) {
+                $this->db->where('frais_ecole.iddevise', $devise);
+            }
+
+            $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
+            $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
+            $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
+            $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+            $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
+            $this->db->join('section', 'section.idsection=optionecole.idsection');
+
+            $this->db->group_by('paiement_ecole.idpaiement_ecole');
+            $r = $this->db->get('paiement_ecole')->result();
         }
-
-        if (!empty($faculte)) {
-            $this->db->where('faculte.idfaculte', $faculte);
-        }
-        if (!empty($promotion)) {
-            $this->db->where('promotion.idpromotion', $promotion);
-        }
-        if (!empty($option)) {
-            $this->db->where('options.idoptions', $option);
-        }
-        if (!empty($devise)) {
-            $this->db->where('paiement.iddevise', $devise);
-        }
-
-        $this->db->group_by('paiement.idpaiement');
-        $r = $this->db->get('paiement')->result();
-
         echo json_encode([
             'data' => $r
         ]);
@@ -190,15 +251,24 @@ class Ajax extends CI_Controller
 
         $devise = (int) $this->input->get('devise');
         if ($devise) {
-            $this->db->where('paiement.iddevise', $devise);
+            if ($type == 'ecole') {
+                $this->db->where('frais_ecole.iddevise', $devise);
+            } else {
+                $this->db->where('paiement.iddevise', $devise);
+            }
         }
-        $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+
+        if ($type == 'ecole') {
+            //
+        } else {
+            $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+        }
 
         if ($type == 'univ') {
             $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
             $this->db->where('frais.iduniversite', $this->session->userdata("universite_session"));
+            $this->db->where('frais.idanneeAcademique', $this->session->userdata("annee_academique"));
         }
-
         if ($type == 'admin') {
             $iduniv = (int) $this->input->get('universite');
             if ($iduniv) {
@@ -206,13 +276,22 @@ class Ajax extends CI_Controller
                 $this->db->where('frais.iduniversite', $iduniv);
             }
         }
+        if ($type == 'ecole') {
+            $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
+            $this->db->where('frais_ecole.idannee_scolaire_ecole', $this->session->userdata("annee_scolaire"));
+            $this->db->select('paiement_ecole.montant, paiement_ecole.date, paiement_ecole.iddevise');
+            $this->db->group_by('paiement_ecole.idpaiement_ecole');
+            $paie = $this->db->get('paiement_ecole')->result();
+        } else {
+            $this->db->select('paiement.montant, paiement.date, paiement.iddevise');
+            $this->db->group_by('paiement.idpaiement');
+            $paie = $this->db->get('paiement')->result();
+        }
 
-        $this->db->group_by('paiement.idpaiement');
-        $paie = $this->db->get('paiement')->result();
         $devise = $this->db->get('devise')->result();
 
-        // var_dump($paie);die;
-
+        // var_dump($paie);
+        // die;
         $final = [];
         foreach ($devise as $dev) {
             $tab = [];
@@ -221,6 +300,7 @@ class Ajax extends CI_Controller
                 foreach ($paie as $p) {
                     $date = explode('-', $p->date);
                     $_mois = (int) $date[1];
+
                     if ($mois == $_mois and $dev->iddevise == $p->iddevise) {
                         $montantPaie += $p->montant;
                     }
@@ -232,6 +312,7 @@ class Ajax extends CI_Controller
         }
 
         // var_dump($final);
+        // die;
         echo json_encode($final);
     }
 
@@ -257,7 +338,28 @@ class Ajax extends CI_Controller
         // die;
         echo json_encode($r);
     }
+    function select_data2()
+    {
+        $section = (int) $this->input->get('section');
+        $option = (int) $this->input->get('option');
+        $source =  $this->input->get('source');
 
+        if ($source == 'section') {
+            $this->db->select('idoptionecole id, intituleOption nom');
+            $this->db->where('idsection', $section);
+            $r = $this->db->get('optionecole')->result();
+            die(json_encode($r));
+        }
+
+        if ($source == 'option') {
+            $this->db->select('idclasse id, intituleclasse nom');
+            $this->db->where('idoptionecole', $option);
+            $r = $this->db->get('classe')->result();
+            die(json_encode($r));
+        }
+
+        // var_dump($_GET);
+    }
     function liste_etudiant()
     {
         $type = $this->input->get('type', true);
@@ -503,31 +605,56 @@ class Ajax extends CI_Controller
 
     function solde()
     {
-        $this->checktype('univ');
+        $type = $this->input->get('type');
+        $this->checktype($type);
+
         $frais = (int) $this->input->get('frais');
         $d = $this->input->get('date', true);
         $d = explode('-', $d);
         $debut = str_replace('/', '-', trim(@$d[0]));
         $fin =  str_replace('/', '-', trim(@$d[1]));
 
-        $iduniv = $this->session->universite_session;
-        $annee = $this->session->annee_academique;
+        if ($type == 'univ') {
+            $iduniv = $this->session->universite_session;
+            $annee = $this->session->annee_academique;
 
-        $this->db->where(['frais.iduniversite' => $iduniv, 'frais.idanneeAcademique' => $annee]);
+            $this->db->where(['frais.iduniversite' => $iduniv, 'frais.idanneeAcademique' => $annee]);
 
-        $this->db->where('cast(paiement.date as date) >=', $debut);
-        $this->db->where('cast(paiement.date as date) <=', $fin);
+            $this->db->where('cast(paiement.date as date) >=', $debut);
+            $this->db->where('cast(paiement.date as date) <=', $fin);
 
-        if ($frais) {
-            $this->db->where('frais.idfrais', $frais);
+            if ($frais) {
+                $this->db->where('frais.idfrais', $frais);
+            }
+
+            $this->db->select("sum(paiement.montant) total, nomDevise devise, frais.designation frais");
+
+            $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
+            $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
+            $this->db->group_by('paiement.iddevise');
+            $r = $this->db->get('paiement')->result();
+        } else if ($type == 'ecole') {
+            $annee = $this->session->annee_scolaire;
+
+            $this->db->where(['frais_ecole.idannee_scolaire_ecole' => $annee]);
+
+            $this->db->where('cast(paiement_ecole.date as date) >=', $debut);
+            $this->db->where('cast(paiement_ecole.date as date) <=', $fin);
+
+            if ($frais) {
+                $this->db->where('frais_ecole.idfrais_ecole', $frais);
+            }
+
+            $this->db->select("sum(paiement_ecole.montant) total, nomDevise devise, frais_ecole.intitulefrais frais");
+
+            $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
+            $this->db->join('devise', 'devise.iddevise=paiement_ecole.iddevise');
+            $this->db->group_by('paiement_ecole.iddevise');
+            $r = $this->db->get('paiement_ecole')->result();
+        } else {
+            die();
         }
 
-        $this->db->select("sum(paiement.montant) total, nomDevise devise, frais.designation frais");
-
-        $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
-        $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
-        $this->db->group_by('paiement.iddevise');
-        $r = $this->db->get('paiement')->result();
         echo json_encode($r);
     }
 }

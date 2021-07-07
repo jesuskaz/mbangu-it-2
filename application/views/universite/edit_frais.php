@@ -47,7 +47,7 @@
                                 <select type="text" name="banque" class="custom-select data" placeholder="Banque" required focus>
                                   <?php foreach ($banques as $banque) {
                                   ?>
-                                    <option <?= $banque->idbanque == $banque ? 'selected' : '' ?> value="<?php echo $banque->idbanque; ?>"><?php echo $banque->denomination; ?></option>
+                                    <option <?= $banque->idbanque == $idbanque ? 'selected' : '' ?> value="<?php echo $banque->idbanque; ?>"><?php echo $banque->denomination; ?></option>
                                   <?php
                                   }
                                   ?>

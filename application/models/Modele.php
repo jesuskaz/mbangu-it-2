@@ -8,7 +8,7 @@ class Modele extends CI_Model
 		parent::__construct();
 		$this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
 	}
-	
+
 	public function select($table, $clause = [], $ordre = null)
 	{
 		$this->db->order_by($ordre);

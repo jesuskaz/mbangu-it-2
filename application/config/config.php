@@ -26,8 +26,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 // $config['base_url'] = 'http://localhost/mbangupay/';
 $config['base_url'] = 'http://www.mbangu-it.com/';
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Index File

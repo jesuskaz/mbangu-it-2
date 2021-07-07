@@ -18,43 +18,6 @@
 			<section class="section">
 				<div class="section-body">
 					<div class="row">
-						<!-- <div class="col-md-12">
-							<div class="card ">
-								<div class="card-header">
-									<h4>Statistiques</h4>
-									<div class="card-header-action">
-										<div class="form-group p-0 ">
-											<select class="custom-select devise">
-												<option value="">Choisissez la devise</option>
-												<?php foreach ($devises as $de) : ?>
-													<option value="<?= $de->iddevise ?>"><?= $de->nomDevise ?></option>
-												<?php endforeach ?>
-											</select>
-										</div>
-									</div>
-								</div>
-								<div class="card-body">
-									<div class="row">
-										<div class="col-lg-9">
-											<div id="graph"></div>
-										</div>
-										<div class="col-lg-3">
-											<div class="row mt-5">
-												<div class="col-7 col-xl-7 mb-3">Total Etudiant</div>
-												<div class="col-5 col-xl-5 mb-3">
-													<span class="badge badge-primary"> <b></b> </span>
-												</div>
-
-												<div class="col-7 col-xl-7 mb-3">
-													<h6>Légende</h6>
-													<h6 id='legende'></h6>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div> -->
 						<div class="col-md-12">
 							<div class="card ">
 								<div class="card-header">
@@ -68,7 +31,7 @@
 												<select name="frais" class="custom-select ml-1 m-0  custom-select-sm devise">
 													<option value="">Choisissez le frais</option>
 													<?php foreach ($frais as $de) : ?>
-														<option value="<?= $de->idfrais ?>"><?= $de->designation ?></option>
+														<option value="<?= $de->idfrais_ecole ?>"><?= $de->intitulefrais ?></option>
 													<?php endforeach ?>
 												</select>
 											</div>
@@ -78,7 +41,7 @@
 								<div class="card-body">
 									<div class="row">
 										<div class="col-md-6">
-											<h6 class="text-muted">Situation année académique <?= str_replace('| AA - ', '', $an) ?> </h6>
+											<h6 class="text-muted">Situation année scolaire <?= str_replace('| AS - ', '', $an) ?> </h6>
 											<div class="">
 												<?php if (count($solde)) : foreach ($solde as $so) : ?>
 														<h3><?= "$so->devise " . round($so->total, 2) ?></h3>
@@ -290,7 +253,7 @@
 
 				lien = '<?= site_url('index/detail-solde/') ?>';
 
-				$.getJSON("<?= site_url('ajax/solde') ?>", "type=univ&" + form.serialize(), function(f) {
+				$.getJSON("<?= site_url('ajax/solde') ?>", "type=ecole&" + form.serialize(), function(f) {
 					var str = '';
 					var sel = $('select>option:selected', form);
 					var lab = '';
