@@ -5,13 +5,12 @@ class Ecole extends CI_Controller
     {
         parent::__construct();
         if (!$ide = $this->session->ecole_session) {
-            redirect();
+            redirect('index/login');
         }
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
         $this->idecole = $ide;
         $this->idannee = $this->session->annee_scolaire;
     }
-
 
     function index()
     {
@@ -57,7 +56,6 @@ class Ecole extends CI_Controller
 
     public function frais()
     {
-
         $this->db->join('banque', 'banque.idbanque=frais_ecole.idbanque');
         $this->db->join('devise', 'devise.iddevise = frais_ecole.iddevise');
         $data["frais"] = $this->db->where(['idannee_scolaire_ecole' => $this->idannee])->get('frais_ecole')->result_array();
@@ -219,5 +217,143 @@ class Ecole extends CI_Controller
         $this->session->set_flashdata(['message2' => "Année '$a' activée avec succès.",]);
         $this->session->set_flashdata(['classe2' => "success",]);
         redirect('ecole/anneescolaire');
+    }
+
+    function section()
+    {
+        $this->db->order_by('idsection', 'desc');
+        $data["sections"] = $this->db->get_where('section', ['idecole' => $this->idecole])->result();
+        $this->load->view("ecole/section", $data);
+    }
+
+    public function section_a()
+    {
+        $section = $this->input->post("section");
+
+        if (empty($section)) {
+            $message["message"] = "champ vide ";
+            $message["classe"] = "danger";
+            redirect('ecole/section');
+        }
+
+        $sections = explode(',', $section);
+
+        $ignoreliste = $addliste = '';
+        foreach ($sections as $sec) {
+            $sec = trim($sec);
+            $data = array(
+                "intitulesection" => $sec,
+                "idecole" => $this->idecole,
+            );
+
+            if (count($this->db->where($data)->get('section')->result())) {
+                $ignoreliste .= $sec . ', ';
+            } else {
+                if (!empty($sec)) {
+                    $this->db->insert('section', $data);
+                    $addliste .= $sec . ', ';
+                } else {
+                    $message["message3"] = "Format de données incorrect : $section";
+                    $message["classe3"] = "danger";
+                }
+            }
+        }
+
+        if (!empty($addliste)) {
+            $message["message"] = "Section(s) ajoutée(s) avec succès : " . substr($addliste, 0, -2);
+            $message["classe"] = "success";
+        }
+        if (!empty($ignoreliste)) {
+            $message["message3"] = "Section(s) existante(s) : " . substr($ignoreliste, 0, -2);
+            $message["classe3"] = "warning";
+        }
+
+        $this->session->set_flashdata($message ?? []);
+        redirect('ecole/section');
+    }
+
+    function delete_s($idsection = null)
+    {
+        $idsection = (int) $idsection;
+        if (!count($this->db->where(['idsection' => $idsection, 'idecole' => $this->idecole])->get('section')->result())) {
+            redirect();
+        }
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
+        if (count($this->db->where(['optionecole.idsection' => $idsection])->get('optionecole')->result())) {
+            $this->session->set_flashdata(['message2' => "Vous ne pouvez plus supprimer cette section, car elle contient une ou plusieurs options.", 'classe2' => 'danger']);
+        } else {
+            $this->db->delete('section', ['idsection' => $idsection]);
+            $this->session->set_flashdata(['message2' => "Section supprimée.", 'classe2' => 'success']);
+        }
+        redirect('ecole/section');
+    }
+
+    function option()
+    {
+        $this->db->order_by('idsection', 'desc');
+        $data["sections"] = $this->db->get_where('section', ['idecole' => $this->idecole])->result();
+        $this->load->view("ecole/option", $data);
+    }
+
+    public function option_a()
+    {
+        $option = $this->input->post("option");
+        $idsection = $this->input->post("section");
+
+        if (!count($this->db->where(['idsection' => $idsection, 'idecole' => $this->idecole])->get('section')->result())) {
+            redirect();
+        }
+
+        if (empty($option)) {
+            $message["message"] = "champ vide ";
+            $message["classe"] = "danger";
+            redirect('ecole/option');
+        }
+
+        $options = explode(',', $option);
+
+        $ignoreliste = $addliste = '';
+        foreach ($options as $opt) {
+            $opt = trim($opt);
+            $this->db->join('section', 'section.idsection=optionecole.idsection');
+            if (count($this->db->where(["section.idecole" => $this->idecole, 'optionecole.intituleOption' => $opt, 'optionecole.idsection' => $idsection])->get('optionecole')->result())) {
+                $ignoreliste .= $opt . ', ';
+            } else {
+                if (!empty($opt)) {
+                    $this->db->insert('optionecole', [
+                        'intituleOption' => $opt,
+                        'idsection' => $idsection
+                    ]);
+                    $addliste .= $opt . ', ';
+                } else {
+                    $message["message3"] = "Format de données incorrect : $option";
+                    $message["classe3"] = "danger";
+                }
+            }
+        }
+
+        if (!empty($addliste)) {
+            $message["message"] = "Option(s) ajoutée(s) avec succès : " . substr($addliste, 0, -2);
+            $message["classe"] = "success";
+        }
+        if (!empty($ignoreliste)) {
+            $message["message3"] = "Option(s) existante(s) : " . substr($ignoreliste, 0, -2);
+            $message["classe3"] = "warning";
+        }
+
+        $this->session->set_flashdata($message ?? []);
+        redirect('ecole/option');
+    }
+
+    public function classe($idoption = null)
+    {
+        $idoption = (int) $idoption;
+
+        // option verifier
+        $ann = $this->session->annee_scolaire;
+        $this->db->where(['idoptionecole' => $idoption, 'idannee_scolaire_ecole' => $ann]);
+        $data['classes'] = $this->db->get('classe')->result();
+
+        $this->load->view("ecole/classe", $data);
     }
 }

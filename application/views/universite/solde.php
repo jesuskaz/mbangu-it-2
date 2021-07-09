@@ -18,43 +18,6 @@
 			<section class="section">
 				<div class="section-body">
 					<div class="row">
-						<!-- <div class="col-md-12">
-							<div class="card ">
-								<div class="card-header">
-									<h4>Statistiques</h4>
-									<div class="card-header-action">
-										<div class="form-group p-0 ">
-											<select class="custom-select devise">
-												<option value="">Choisissez la devise</option>
-												<?php foreach ($devises as $de) : ?>
-													<option value="<?= $de->iddevise ?>"><?= $de->nomDevise ?></option>
-												<?php endforeach ?>
-											</select>
-										</div>
-									</div>
-								</div>
-								<div class="card-body">
-									<div class="row">
-										<div class="col-lg-9">
-											<div id="graph"></div>
-										</div>
-										<div class="col-lg-3">
-											<div class="row mt-5">
-												<div class="col-7 col-xl-7 mb-3">Total Etudiant</div>
-												<div class="col-5 col-xl-5 mb-3">
-													<span class="badge badge-primary"> <b></b> </span>
-												</div>
-
-												<div class="col-7 col-xl-7 mb-3">
-													<h6>Légende</h6>
-													<h6 id='legende'></h6>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div> -->
 						<div class="col-md-12">
 							<div class="card ">
 								<div class="card-header">

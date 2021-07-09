@@ -657,4 +657,26 @@ class Ajax extends CI_Controller
 
         echo json_encode($r);
     }
+
+    function options_ecole()
+    {
+        $type = $this->input->get('type');
+        $this->checktype($type);
+
+        $idsection = (int) $this->input->get('section');
+
+        if ($idsection) {
+            $idecole = $this->session->ecole_session;
+            if (!count($this->db->where(['idecole' => $idecole, 'idsection' => $idsection])->get('section')->result())) {
+                echo json_encode(['error']);
+                exit;
+            }
+            $this->db->where(['optionecole.idsection' => $idsection]);
+        }
+
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
+        $this->db->select('idoptionecole id, intituleOption option, section.intitulesection section');
+        $r = $this->db->get('optionecole')->result();
+        echo json_encode($r);
+    }
 }

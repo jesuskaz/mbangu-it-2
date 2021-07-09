@@ -17,12 +17,12 @@
       </ul>
     </li>
     <li class="dropdown">
-      <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-university"></i><span>Université</span></a>
+      <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-university"></i><span>Ecole</span></a>
       <ul class="dropdown-menu">
-        <li><a class="nav-link" href="<?php echo site_url("faculte/anneeacademique"); ?>">Annee Academique</a></li>
-        <li><a class="nav-link" href="<?php echo site_url("faculte/listefaculte"); ?>">Liste de faculté</a></li>
-        <li><a class="nav-link" href="<?php echo site_url("faculte/promotion"); ?>">Ajouter promotion</a></li>
-        <li><a class="nav-link" href="<?php echo site_url("faculte/option"); ?>">Ajouter option</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("ecole/anneescolaire"); ?>">Année Scolaire</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("ecole/section"); ?>">Liste de sections</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("ecole/option"); ?>">Ajouter option</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("ecole/classes"); ?>">Ajouter classe</a></li>
       </ul>
     </li>
     <li class="dropdown">
