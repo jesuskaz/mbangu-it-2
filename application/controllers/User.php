@@ -16,8 +16,8 @@ class User extends CI_Controller
 
     public function signInUser()
     {
-        $matricule = "bonjour"; //$this->input->post("matricule");
-        $code = "Bonjour"; //$this->input->post("code");
+        $matricule = $this->input->post("matricule");
+        $code = $this->input->post("code");
 
         $data = $this->UserModel->getPasswordChecking($matricule, $code);
        
@@ -30,7 +30,7 @@ class User extends CI_Controller
                 "password" => $data[0]["password"],
                 "status" => "etudiant"
             ));
-            echo json_encode(array("result" => $resarr));
+            echo json_encode($resarr);
         } 
         else 
         {
@@ -54,7 +54,7 @@ class User extends CI_Controller
                 echo json_encode($arr);
             }
             else
-            {
+            {   
                 echo json_encode("false");
             }
         }
