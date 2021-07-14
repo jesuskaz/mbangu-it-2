@@ -21,16 +21,16 @@
 						<div class="col-12">
 							<div class="card">
 								<div class="card-header">
-									<h5>Banque : <span univ><?= $bank->denomination ?></span> | Login : <?= $bank->login ?> </h5>
+									<h5>Ecole : <span ecole><?= $ecole->nomecole ?></span> | Login : <?= $ecole->login ?> </h5>
 								</div>
 								<div class="row">
 									<div class="col-md-6">
 										<div class="p-3">
 											<form id="f-profil" method="post">
-												<input type="hidden" name="type" value="banque">
+												<input type="hidden" name="type" value="ecole">
 												<div class="form-group">
-													<input value="<?= $bank->denomination ?>" class="form-control" type="text" name="banque" placeholder="Banque">
-													<em class="text-danger" name='banque'></em>
+													<input value="<?= $ecole->nomecole ?>" class="form-control" type="text" name="ecole" placeholder="Ecole">
+													<em class="text-danger" name='ecole'></em>
 												</div>
 												<p class="m-0 p-0"><em msg3></em></p>
 												<div class="form-group">
@@ -38,7 +38,7 @@
 												</div>
 											</form>
 											<form action="" method="post" id="f-pass">
-												<input type="hidden" name="type" value="banque">
+												<input type="hidden" name="type" value="ecole">
 												<div class="form-group">
 													<input class="form-control" type="password" name="pass" placeholder="Mot de passe actuel">
 													<em class="text-danger" name='pass'></em>
@@ -63,15 +63,15 @@
 										<div class="card-body">
 											<div class="mb-3">
 												<div image class="d-flex justify-content-center">
-													<?php if (!empty($bank->logo)) { ?>
-														<img width="100" height="100" src="<?= base_url($bank->logo) ?>" alt="">
+													<?php if (!empty($ecole->logo)) { ?>
+														<img width="100" height="100" src="<?= base_url($ecole->logo) ?>" alt="">
 													<?php } ?>
 												</div>
 											</div>
 											<div class="">
 												<p class="d-flex justify-content-center m-2 ">Ajouter un logo (.jpg, .png, .gif)</p>
 												<form id="f-logo" method="post" enctype="multipart/form-data" action="">
-													<input type="hidden" name="type" value="banque">
+													<input type="hidden" name="type" value="ecole">
 													<div class="form-group">
 														<input id="file" style="display: none" required accept=".jpg,.png,.gif" class="form-control" type="file" name="logo" id="">
 													</div>
@@ -259,8 +259,8 @@
 					data = JSON.parse(data);
 					if (data.status) {
 						$(`em[msg3]`).removeClass().addClass('text-success small').html(data.message);
-						var n = $(':input[name=banque]', form).val();
-						$('span[univ]').html(n)
+						var n = $(':input[name=ecole]', form).val();
+						$('span[ecole]').html(n)
 
 					} else {
 						var err = data.error;

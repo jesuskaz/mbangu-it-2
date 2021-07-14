@@ -349,11 +349,72 @@ class Ecole extends CI_Controller
     {
         $idoption = (int) $idoption;
 
-        // option verifier
         $ann = $this->session->annee_scolaire;
         $this->db->where(['idoptionecole' => $idoption, 'idannee_scolaire_ecole' => $ann]);
         $data['classes'] = $this->db->get('classe')->result();
 
         $this->load->view("ecole/classe", $data);
+    }
+
+    public function classes()
+    {
+        $this->db->order_by('idsection', 'desc');
+        $data["sections"] = $this->db->get_where('section', ['idecole' => $this->idecole])->result();
+        $this->load->view("ecole/classes", $data);
+    }
+
+    function delete_c($idclasse = null)
+    {
+        $idclasse = (int) $idclasse;
+        $ann = $this->session->annee_scolaire;
+
+        if (!count($this->db->where(['idclasse' => $idclasse, 'idannee_scolaire_ecole' => $ann])->get('classe')->result())) {
+            $this->session->set_flashdata(['message' => "Erreur", "classe" => "danger"]);
+            redirect('ecole/classes');
+        }
+        if (count($this->db->where(['idclasse' => $idclasse])->get('eleve')->result())) {
+            $this->session->set_flashdata(['message' => "Vous ne pouvez pas supprimer cette classe, car elle contient un plusieurs élèves.", "classe" => "warning"]);
+            redirect('ecole/classes');
+        }
+
+        $this->db->where('idclasse', $idclasse)->delete('classe');
+        $this->session->set_flashdata(['message' => "Classe supprimée.", "classe" => "success"]);
+        redirect('ecole/classes');
+    }
+
+    public function eleves()
+    {
+        $this->db->order_by('idsection', 'desc');
+        $data["sections"] = $this->db->get_where('section', ['idecole' => $this->idecole])->result();
+
+        $this->load->view("ecole/eleves", $data);
+    }
+
+    public function rapport()
+    {
+        $this->db->select("paiement_ecole.*, eleve.nom, eleve.postnom,
+        eleve.prenom, eleve.matricule, section.intitulesection section, 
+        optionecole.intituleOption option, frais_ecole.intitulefrais frais, frais_ecole.compte, banque.denomination banque, 
+        paiement_ecole.montant, devise.nomDevise devise ");
+
+        $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
+        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+        $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
+
+        $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
+        $this->db->join('banque', 'banque.idbanque=frais_ecole.idbanque');
+        $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
+        $this->db->where('frais_ecole.idannee_scolaire_ecole', $this->idannee);
+        $this->db->where('section.idecole', $this->idecole);
+
+        $this->db->group_by('paiement_ecole.idpaiement_ecole');
+        $data["paies"] = $r = $this->db->get('paiement_ecole')->result_array();
+
+        $this->load->view("ecole/rapport", $data);
+    }
+    function profil()
+    {
+        $this->load->view("ecole/profil");
     }
 }

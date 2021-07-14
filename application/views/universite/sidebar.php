@@ -29,7 +29,7 @@
     <li class="dropdown">
       <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-user-graduate"></i><span>Etudiant</span></a>
       <ul class="dropdown-menu">
-        <li><a class="nav-link" href="<?php echo site_url("banque/listertudiant"); ?>">Voir la liste des Etudiants</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("banque/listeetudiant"); ?>">Voir la liste des Etudiants</a></li>
       </ul>
     </li>
     <li class="dropdown">

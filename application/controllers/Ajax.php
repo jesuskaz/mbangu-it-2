@@ -498,6 +498,11 @@ class Ajax extends CI_Controller
                 $r = $this->db->where($where)->get('banque')->result()[0];
                 @unlink($r->logo);
                 $this->db->update('banque', ['logo' => $nomFichier], $where);
+            } else if ($type == 'ecole') {
+                $where = ['idecole' => $this->session->ecole_session];
+                $r = $this->db->where($where)->get('ecole')->result()[0];
+                @unlink($r->logo);
+                $this->db->update('ecole', ['logo' => $nomFichier], $where);
             }
 
             $reponse['status'] = true;
@@ -548,6 +553,19 @@ class Ajax extends CI_Controller
                     $re['message'] = 'Le mot de passe actuel que vous avez saisi est incorrect.';
                 }
             }
+            else if ($type == 'ecole') {
+                $pass = $this->input->post('pass');
+                $newpass = $this->input->post('new');
+                $idecole = $this->session->ecole_session;
+
+                if (count($this->db->where(['password' => $pass, 'idecole' => $idecole])->get('ecole')->result())) {
+                    $this->db->update('ecole', ['password' => $newpass], ['idecole' => $idecole]);
+                    $re['message'] = 'Le mot de passe a été mis à jour.';
+                    $re['status'] = true;
+                } else {
+                    $re['message'] = 'Le mot de passe actuel que vous avez saisi est incorrect.';
+                }
+            }
         } else {
             $re['error'] = $validation->error_array();
         }
@@ -567,8 +585,8 @@ class Ajax extends CI_Controller
             $validation->set_rules('universite', '', 'required', ['required' => "Tapez le nom de votre université."]);
         } elseif ($type == 'banque') {
             $validation->set_rules('banque', '', 'required', ['required' => "Tapez le nom de votre banue."]);
-        } else {
-            die;
+        } elseif ($type == 'ecole') {
+            $validation->set_rules('ecole', '', 'required', ['required' => "Tapez le nom de votre ecole."]);
         }
 
         $re['status'] = false;
@@ -594,6 +612,17 @@ class Ajax extends CI_Controller
                     $re['status'] = true;
                 } else {
                     $re['message'] = "Vous ne pouvez pas utiliser ce nom  < <i>$banque</i> >.";
+                }
+            } else if ($type == 'ecole') {
+                $ecole = $this->input->post('ecole');
+                $idecole = $this->session->ecole_session;
+
+                if (!count($this->db->where(['nomecole' => $ecole, 'idecole !=' => $idecole])->get('ecole')->result())) {
+                    $this->db->update('ecole', ['nomecole' => $ecole], ['idecole' => $idecole]);
+                    $re['message'] = 'Le nom de votre ecole a été mis à jour.';
+                    $re['status'] = true;
+                } else {
+                    $re['message'] = "Vous ne pouvez pas utiliser ce nom  < <i>$ecole</i> >.";
                 }
             }
         } else {
@@ -678,5 +707,125 @@ class Ajax extends CI_Controller
         $this->db->select('idoptionecole id, intituleOption option, section.intitulesection section');
         $r = $this->db->get('optionecole')->result();
         echo json_encode($r);
+    }
+
+    function classes_ecole()
+    {
+        $type = $this->input->get('type');
+        $this->checktype($type);
+
+        $idoption = (int) $this->input->get('option', true);
+
+        $idecole = $this->session->ecole_session;
+        $annee = $this->session->annee_scolaire;
+
+        if ($idoption) {
+            $this->db->where(['optionecole.idoptionecole' => $idoption]);
+        }
+        $this->db->select("idclasse, intituleclasse classe, intituleOption option");
+        $this->db->where(['classe.idannee_scolaire_ecole' => $annee, 'section.idecole' => $idecole]);
+        $this->db->join('optionecole', 'classe.idoptionecole=optionecole.idoptionecole');
+        $this->db->join('section', 'optionecole.idsection=section.idsection');
+
+        $this->db->group_by('classe.idclasse');
+        $this->db->order_by('classe.idclasse', 'desc');
+        $r = $this->db->get('classe')->result();
+        echo json_encode($r);
+    }
+
+    function add_classe()
+    {
+        $idsection = $this->input->post('section2');
+        $idoption = $this->input->post('option2');
+        $classe = $this->input->post('classe');
+        if (empty($idsection)) {
+            echo json_encode(['status' => false, 'message' => "Veuillez selectionner la section", 'classe' => 'danger']);
+            die;
+        }
+
+        $idecole = $this->session->ecole_session;
+        $annee = $this->session->annee_scolaire;
+
+        if (!count($this->db->where(['idsection' => $idsection, 'idecole' => $idecole])->get('section')->result())) {
+            echo json_encode(['status' => false, 'message' => "Erreur section"]);
+            die;
+        }
+
+        $this->db->join('section', 'optionecole.idsection=section.idsection');
+        $o = $this->db->where('optionecole.idoptionecole', $idoption)->get('optionecole')->result();
+
+        if (!count($o)) {
+            echo json_encode(['status' => false, 'message' => "Erreur option"]);
+            die;
+        }
+
+        $classes = explode(',', $classe);
+
+        $ignoreliste = $addliste = '';
+        foreach ($classes as $opt) {
+            $opt = trim($opt);
+            if (count($this->db->where(["idoptionecole" => $idoption, 'intituleclasse' => $opt])->get('classe')->result())) {
+                $ignoreliste .= $opt . ', ';
+            } else {
+                if (!empty($opt)) {
+                    $this->db->insert('classe', [
+                        'intituleclasse' => $opt,
+                        'idoptionecole' => $idoption,
+                        'idannee_scolaire_ecole' => $annee
+                    ]);
+                    $addliste .= $opt . ', ';
+                } else {
+                    $message["message1"] = "Format de données incorrect : $classe";
+                    $message["classe1"] = "danger";
+                }
+            }
+        }
+        $message['status'] = false;
+
+        if (!empty($addliste)) {
+            $message["message"] = "Classe(s) ajoutée(s) avec succès : " . substr($addliste, 0, -2);
+            $message["classe"] = "success";
+            $message['status'] = true;
+        }
+        if (!empty($ignoreliste)) {
+            $message["message1"] = "Classe(s) existante(s) : " . substr($ignoreliste, 0, -2);
+            $message["classe1"] = "warning";
+        }
+        echo json_encode($message);
+    }
+    function liste_eleve()
+    {
+        $type = $this->input->get('type', true);
+        $this->checktype($type);
+        $section = $this->input->get('section', true);
+        $option = $this->input->get('option', true);
+        $classe = $this->input->get('classe', true);
+
+        $this->db->select("eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
+            eleve.matricule, eleve.adresse, section.intitulesection section, 
+            optionecole.intituleOption option, intituleclasse classe");
+        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+        $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
+
+        $idecole = $this->session->ecole_session;
+        $annee = $this->session->annee_scolaire;
+        $this->db->where('section.idecole', $idecole);
+        $this->db->where('classe.idannee_scolaire_ecole', $annee);
+
+        if ($section) {
+            $this->db->where('section.idsection', $section);
+        }
+
+        if ($classe) {
+            $this->db->where('classe.idclasse', $classe);
+        }
+
+        if ($option) {
+            $this->db->where('optionecole.idoptionecole', $option);
+        }
+        $this->db->group_by('eleve.ideleve');
+        $r = $this->db->get('eleve')->result();
+        echo json_encode(['data' => $r]);
     }
 }

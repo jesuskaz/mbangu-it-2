@@ -26,21 +26,21 @@
       </ul>
     </li>
     <li class="dropdown">
-      <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-user-graduate"></i><span>Etudiant</span></a>
+      <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-users"></i><span>Elèves</span></a>
       <ul class="dropdown-menu">
-        <li><a class="nav-link" href="<?php echo site_url("banque/listertudiant"); ?>">Voir la liste des Etudiants</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("ecole/eleves"); ?>">Liste d'Elèves</a></li>
       </ul>
     </li>
     <li class="dropdown">
       <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-print"></i><span>Rapport</span></a>
       <ul class="dropdown-menu">
-        <li><a class="nav-link" href="<?php echo site_url("banque/listerapport"); ?>">Liste de paiement</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("ecole/rapport"); ?>">Liste de paiement</a></li>
       </ul>
     </li>
     <li class="dropdown">
       <a href="#" class="menu-toggle nav-link has-dropdown"><i class=" fa fa-cog"></i><span>Paramètres</span></a>
       <ul class="dropdown-menu">
-        <li><a class="nav-link" href="<?php echo site_url("banque/profil"); ?>">Profil</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("ecole/profil"); ?>">Profil</a></li>
       </ul>
     </li>
     <li class="dropdown">
