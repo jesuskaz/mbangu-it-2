@@ -73,6 +73,29 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between">
+                                        <h4>Importer la liste d'Elèves</h4>
+                                        <button class="btn btn-success float-right rounded-0" onclick="location.assign('<?= base_url('assets/model_importation.xlsx') ?>')">
+                                            <i class="fa fa-file-excel "></i> Modèle d'importation
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="" id="f-import">
+                                            <div class="form-inline">
+                                                <div class="form-group m-2">
+                                                    <div class="custom-file">
+                                                        <input accept=".xls,.xlsx" type="file" class="custom-file-input" id="customFile" name="file">
+                                                        <label class="custom-file-label" for="customFile">fichier Excel</label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" id="rep"></div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -170,6 +193,10 @@
 
     <script>
         $(function() {
+            $(".custom-file-input").on("change", function() {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
 
             opt = {
                 dom: 'Bfrtip',
@@ -231,8 +258,6 @@
                     $('select[name=classe]').html('<option value="">Classe</option>');
                     data();
                 })
-
-
             })
 
             $('#option').change(function() {
@@ -255,6 +280,43 @@
             $('#classe').change(function() {
                 $('select').attr('disabled', true);
                 data();
+            })
+
+            $('#f-import').change(function(e) {
+                e.preventDefault();
+                var spin = `
+                <div class="spinner-border text-warning" role="status">
+                <span class="sr-only">Loading...</span>
+                </div>`;
+                var m = $('#rep');
+                m.html(spin);
+                var f = $(this);
+                var d = new FormData(this);
+                d.append('type', 'ecole');
+                d.append('section', $('#section').val());
+                d.append('option', $('#option').val());
+                d.append('classe', $('#classe').val());
+
+                $.ajax({
+                    url: '<?= site_url('json/import') ?>',
+                    type: 'POST',
+                    data: d,
+                    timeout: 0,
+                    processData: false,
+                    contentType: false,
+                    success: function(res) {
+                        f.get(0).reset();
+                        res = $.parseJSON(res);
+                        if (res.status) {
+                            data();
+                        }
+                        m.html(res.message);
+                    },
+                    error: function() {
+                        m.html("<b>Une erreur s'est produite.</b>");
+                    }
+                })
+
             })
 
 

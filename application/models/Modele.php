@@ -36,4 +36,30 @@ class Modele extends CI_Model
 		$this->db->where($clause);
 		$this->db->update($table, $data);
 	}
+
+	function matricule($type, $nom)
+	{
+
+		$mat = date('y');
+		if ($type == 'eleve') {
+			$mat .= substr($nom[0], 0, 1) . substr($nom[1], 0, 1) . substr($nom[2], 0, 1);
+
+			$this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+			$this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
+			$this->db->join('section', 'section.idsection=optionecole.idsection');
+			$this->db->where('section.idecole', $this->session->ecole_session);
+			$this->db->where('classe.idannee_scolaire_ecole', $this->session->annee_scolaire);
+			$i = count($this->db->get('eleve')->result()) + 1;
+
+			if ($i <= 9) {
+				$i = "00$i";
+			} else if ($i >= 10 and $i <= 99) {
+				$i = "0$i";
+			}
+
+			$mat .= "$i";
+		}
+
+		return strtoupper($mat);
+	}
 }
