@@ -1,2 +1,2 @@
-# mbagupayn
+# mbagupay
 mobile payment app
