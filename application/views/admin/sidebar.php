@@ -20,7 +20,7 @@
     <li class="dropdown">
       <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-university"></i><span>Banque</span></a>
       <ul class="dropdown-menu">
-        <li><a class="nav-link" href="<?php echo site_url("admBanque/loadbanque"); ?>">Liste de Banque</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("admBanque/loadbanque"); ?>">Liste de Banques</a></li>
         <li><a class="nav-link" href="<?php echo site_url("admBanque/addbanque"); ?>">Ajouter Banque</a></li>
         <li><a class="nav-link" href="<?php echo site_url("AdmCompte/listecompte"); ?>">Liste de comptes</a></li>
       </ul>
@@ -28,8 +28,13 @@
     <li class="dropdown">
       <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-university"></i><span>Université</span></a>
       <ul class="dropdown-menu">
-        <li><a class="nav-link" href="<?php echo site_url("admUniversite/loaduniversite"); ?>">Liste Université</a></li>
-        <li><a class="nav-link" href="<?php echo site_url("admUniversite/adduniversite"); ?>">Ajouter Université</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("admUniversite/loaduniversite"); ?>">Liste Universités</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-university"></i><span>Ecole</span></a>
+      <ul class="dropdown-menu">
+        <li><a class="nav-link" href="<?php echo site_url("admUniversite/ecole"); ?>">Liste ecoles</a></li>
       </ul>
     </li>
     <li class="dropdown">

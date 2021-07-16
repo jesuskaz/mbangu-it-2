@@ -194,6 +194,9 @@ class Ajax extends CI_Controller
                 $this->db->where('frais_ecole.iddevise', $devise);
             }
 
+            $annee = $this->session->annee_scolaire;
+            $this->db->where('frais_ecole.idannee_scolaire_ecole', $annee);
+
             $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
             $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
             $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
@@ -552,8 +555,7 @@ class Ajax extends CI_Controller
                 } else {
                     $re['message'] = 'Le mot de passe actuel que vous avez saisi est incorrect.';
                 }
-            }
-            else if ($type == 'ecole') {
+            } else if ($type == 'ecole') {
                 $pass = $this->input->post('pass');
                 $newpass = $this->input->post('new');
                 $idecole = $this->session->ecole_session;
@@ -703,6 +705,9 @@ class Ajax extends CI_Controller
             $this->db->where(['optionecole.idsection' => $idsection]);
         }
 
+        $idecole = $this->session->ecole_session;
+        $this->db->where('section.idecole', $idecole);
+
         $this->db->join('section', 'section.idsection=optionecole.idsection');
         $this->db->select('idoptionecole id, intituleOption option, section.intitulesection section');
         $r = $this->db->get('optionecole')->result();
@@ -802,7 +807,7 @@ class Ajax extends CI_Controller
         $classe = $this->input->get('classe', true);
 
         $this->db->select("eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
-            eleve.matricule, eleve.adresse, section.intitulesection section, 
+            eleve.matricule, code, telephoneparent, eleve.adresse, section.intitulesection section, 
             optionecole.intituleOption option, intituleclasse classe");
         $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
         $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');

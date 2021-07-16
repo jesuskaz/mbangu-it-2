@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
 <?php include("heade.php"); ?>
 
 <body>
@@ -14,33 +12,94 @@
         <?php include("sidebar.php"); ?>
       </div>
       <div class="main-content">
-        <div class="card">
-          <div class="boxs mail_listing">
-            <div class="p-3" style="background: whitesmoke;">
-              Ajouter une faculté <br>
-              <b><?php if (isset($success)) echo $success; ?></b>
-              <b><?php if (isset($error)) echo $error; ?></b>
-              <b><?php if (isset($existe)) echo $existe; ?></b>
-            </div>
-            <div class="row">
-              <form class="composeForm" action="<?php echo site_url("Faculte/createFaculte"); ?>" method="POST">
-                <div class="col-lg-12">
-                  <div class="form-group">
-                    <div class="form-line">
-                      <input type="text" id="email_address" class="form-control" name="faculte" placeholder="Faculté">
+        <section class="section">
+          <div class="section-body">
+            <div class="invoice pt-2 pb-0">
+              <div class="invoice-print" id="print">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="invoice-title bg-w d-flex p-0 m-0 justify-content-center">
+                      <h2 class="text-warning p-0 m-0">Recu</h2>
+                    </div>
+                    <hr class="m-0 p-0 mb-2">
+                    <div class="row justify-content-between m-0 p-0">
+                      <div class="col-md-4">
+                        <div class="row font-weight-600 text-muted">
+                          <div class="col-2">Nom </div>
+                          <div class="col-10"> : <?= "$eleve->nom $eleve->postnom $eleve->prenom" ?></div>
+                        </div>
+                        <div class="row font-weight-600 text-muted">
+                          <div class="col-2">Section </div>
+                          <div class="col-10"> : <?= "$eleve->intitulesection" ?></div>
+                        </div>
+                        <div class="row font-weight-600 text-muted">
+                          <div class="col-2">Classe </div>
+                          <div class="col-10"> : <?= "$eleve->intituleclasse" ?></div>
+                        </div>
+                        <div class="row font-weight-600 text-muted">
+                          <div class="col-2">Option </div>
+                          <div class="col-10"> : <?= "$eleve->intituleOption" ?></div>
+                        </div>
+                        <div class="row font-weight-600 text-muted">
+                          <div class="col-2">Matricule </div>
+                          <div class="col-10"> : <?= "$eleve->matricule" ?></div>
+                        </div>
+                        <div class="row font-weight-600 text-muted">
+                          <div class="col-2">Adresse </div>
+                          <div class="col-10"> : <?= "$eleve->adresse" ?></div>
+                        </div>
+                      </div>
+                      <div class="col-md-8">
+                        <div class=" text-md-right">
+                          <?php $d = explode(' ', $paie->date);
+                          ?>
+                          <address class="font-weight-600 text-muted">
+                            N° Facture : <?= $eleve->ideleve ?><br>
+                            Date : <?= @$d[0] ?><br>
+                            Heure : <?= @$d[1] ?><br>
+                            Ecole : <?= $paie->nomecole ?><br>
+                            Compte : <?= $paie->compte ?><br>
+                          </address>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-12">
-                  <div class="m-l-25 m-b-20">
-                    <button type="submit" class="btn btn-info btn-border-radius waves-effect">Créer</button>
+                <div class="row mt-4">
+                  <div class="col-md-12">
+                    <div class="table-responsive">
+                      <table class="table table-striped table-hover table-md">
+                        <thead>
+                          <tr>
+                            <th>Frais</th>
+                            <th class="text-center">Montant à payer</th>
+                            <th class="text-right">Montant payé</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><?= $paie->intitulefrais ?></td>
+                            <td class="text-center"><?= "$paie->montant_frais $paie->nomDevise" ?></td>
+                            <td class="text-right"><?= " $paie->montant_paye $paie->nomDevise" ?></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-
                 </div>
-              </form>
+                <div class="row justify-content-center" id="qrcode">
+                </div>
+              </div>
+              <hr>
+              <div class="row pb-3">
+                <div class="col-12 justify-content-between">
+                  <button onclick="history.back()" class="btn btn-danger btn-icon "><i class="fas fa-arrow-left"></i> Retour</button>
+                  <button class="btn btn-warning btn-icon print"><i class="fas fa-print"></i> Imprimer</button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
         <div class="settingSidebar">
           <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
           </a>
@@ -132,6 +191,26 @@
     </div>
   </div>
   <?php include("footer.php"); ?>
+  <script src="<?php echo base_url() . 'assets/js/printThis.js'; ?>"></script>
+  <script src="<?php echo base_url() . 'assets/js/qrcode.min.js'; ?>"></script>
+  <script>
+    $(function() {
+      $('.table').DataTable().destroy()
+      $('.print').click(function() {
+        $("#print").printThis({
+          importCSS: true,
+        });
+      });
+
+      var qrcode = new QRCode(document.getElementById("qrcode"), {
+        width: 100,
+        height: 100
+      });
+      qrcode.makeCode('<?= "$eleve->nom $eleve->postnom $eleve->prenom" ?>');
+
+    })
+  </script>
+
 </body>
 
 </html>

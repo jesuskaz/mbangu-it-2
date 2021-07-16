@@ -13,6 +13,49 @@
       </div>
       <div class="main-content">
         <section class="section">
+          <div class="row ">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header">
+                  <h4>Création Univercité</h4>
+                  <center><b class="text-<?= $this->session->classe ?>"><?= $this->session->message ?></b></center>
+                </div>
+                <div class="row">
+                  <div class="col-md-4">
+                    <form action="<?php echo site_url('AdmUniversite/univCreate'); ?>" method="POST">
+                      <div class="card-body">
+                        <div class="form-group">
+                          <label>Nom de l'univercité</label>
+                          <input type="text" class="form-control" name="nom" required autofocus>
+                          <div class="invalid-feedback">
+                            Veuillez remplir ce champ svp
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label>Nom de utilisateur</label>
+                          <input type="text" class="form-control" name="login" required >
+                          <div class="invalid-feedback">
+                            Veuillez remplir ce champ svp
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label>Mot de pass</label>
+                          <input type="password" class="form-control" name="password" required >
+                          <div class="invalid-feedback">
+                            Veuillez remplir ce champ svp
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card-footer text-right">
+                        <button class="btn btn-warning">Submit</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              </form>
+            </div>
+          </div>
           <div class="row">
             <div class="col-md-12">
               <div class="card">
@@ -24,8 +67,9 @@
                     <table class="table table-hover mb-0" style="width: 100%;">
                       <thead>
                         <tr>
-                          <th>Numero</th>
+                          <th></th>
                           <th>Nom de l'univercité</th>
+                          <th>Login</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -38,6 +82,7 @@
                             <tr>
                               <td><?php echo $i; ?></td>
                               <td><?php echo $ecole->nomUniversite ?></td>
+                              <td><?php echo $ecole->login ?></td>
                             </tr>
                         <?php
                           }
@@ -144,7 +189,6 @@
     </div>
   </div>
   <?php include("footer.php"); ?>
- 
 </body>
 
 </html>

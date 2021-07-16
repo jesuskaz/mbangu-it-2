@@ -20,29 +20,6 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="card">
-                                    <div class="card-header d-flex justify-content-between">
-                                        <h4>Importer la liste d'Elèves</h4>
-                                        <button class="btn btn-success float-right rounded-0" onclick="location.assign('<?= base_url('assets/model_importation.xlsx') ?>')">
-                                            <i class="fa fa-file-excel "></i> Modèle d'importation
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        <form method="" id="f-import">
-                                            <div class="form-inline">
-                                                <div class="form-group m-2">
-                                                    <div class="custom-file">
-                                                        <input accept=".xls,.xlsx" type="file" class="custom-file-input" id="customFile" name="file">
-                                                        <label class="custom-file-label" for="customFile">fichier Excel</label>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group" id="rep"></div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="card">
                                     <div class="card-header">
                                         <form method="" id="f-change">
                                             <div class="form-inline">
@@ -73,6 +50,29 @@
                             </div>
                             <div class="col-12">
                                 <div class="card">
+                                    <div class="card-header d-flex justify-content-between">
+                                        <h4>Importer la liste d'Elèves</h4>
+                                        <button class="btn btn-success float-right rounded-0" onclick="location.assign('<?= base_url('assets/model_importation.xlsx') ?>')">
+                                            <i class="fa fa-file-excel "></i> Modèle d'importation
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="" id="f-import">
+                                            <div class="form-inline">
+                                                <div class="form-group m-2">
+                                                    <div class="custom-file">
+                                                        <input accept=".xls,.xlsx" type="file" class="custom-file-input" id="customFile" name="file">
+                                                        <label class="custom-file-label" for="customFile">fichier Excel</label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" id="rep"></div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="card">
                                     <div class="card-header">
                                         <h4>Liste d'Elèves</h4>
                                     </div>
@@ -87,6 +87,8 @@
                                                         <th>Section</th>
                                                         <th>Classe</th>
                                                         <th>Matricule</th>
+                                                        <th>Code</th>
+                                                        <th>Tél. Parent</th>
                                                         <th>Détails</th>
                                                     </tr>
                                                 </thead>
@@ -232,6 +234,8 @@
 							<td>${data.section}</td>
 							<td>${data.classe}</td>
                             <td>${data.matricule ? data.matricule : ''}</td>
+                            <td>${data.code}</td>
+                            <td>${data.telephoneparent ? data.telephoneparent : ''}</td>
 							<td style="text-align:center"><a href="${url}"><i class="fa fa-eye"></i> Détail</a></td>
 						</tr>
 						`;
@@ -298,6 +302,7 @@
                 d.append('option', $('#option').val());
                 d.append('classe', $('#classe').val());
 
+                $(':input', f).attr('disabled', true);
                 $.ajax({
                     url: '<?= site_url('json/import') ?>',
                     type: 'POST',
@@ -312,16 +317,16 @@
                             data();
                         }
                         m.html(res.message);
+                        $(':input', f).attr('disabled', false);
+
                     },
                     error: function() {
                         m.html("<b>Une erreur s'est produite.</b>");
+                        $(':input', f).attr('disabled', false);
+
                     }
                 })
-
             })
-
-
-
         })
     </script>
 </body>

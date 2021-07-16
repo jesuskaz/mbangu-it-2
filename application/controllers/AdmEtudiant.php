@@ -10,32 +10,17 @@ class AdmEtudiant extends CI_Controller
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
         $this->load->model("EtudiantModel");
     }
-    // public function etudiant()
-    // {
-    //     $this->load->view("etuidant");
-    // }
-
-    // public function listeEtudiant()
-    // {
-    //     $this->load->view("admn-listeetudiant");
-    // }
-
+    
     public function listePaiement()
     {
 
         $data["universites"] = $this->db->get('universite')->result();
         $this->load->view("admin/adm-listepay", $data);
     }
-    // public function listeUniv()
-    // {
-    //     $this->load->view("admn-listuniv");
-    // }
-    // public function listBanque()
-    // {
-    //     $this->load->view("adm-voirbanque");
-    // }
+    
     public function listeEtudiant()
     {
+        $this->db->order_by('etudiant.idetudiant', 'desc');
         $this->db->select(
             "etudiant.idetudiant,
         etudiant.nom, etudiant.postnom, etudiant.prenom, 

@@ -39,10 +39,10 @@ class Modele extends CI_Model
 
 	function matricule($type, $nom)
 	{
-
 		$mat = date('y');
+		$mat .= substr($nom[0], 0, 1) . substr($nom[1], 0, 1) . substr($nom[2], 0, 1);
+		$i = '';
 		if ($type == 'eleve') {
-			$mat .= substr($nom[0], 0, 1) . substr($nom[1], 0, 1) . substr($nom[2], 0, 1);
 
 			$this->db->join('classe', 'classe.idclasse=eleve.idclasse');
 			$this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
@@ -50,16 +50,24 @@ class Modele extends CI_Model
 			$this->db->where('section.idecole', $this->session->ecole_session);
 			$this->db->where('classe.idannee_scolaire_ecole', $this->session->annee_scolaire);
 			$i = count($this->db->get('eleve')->result()) + 1;
+		} else if ($type == 'etudiant') {
 
-			if ($i <= 9) {
-				$i = "00$i";
-			} else if ($i >= 10 and $i <= 99) {
-				$i = "0$i";
-			}
-
-			$mat .= "$i";
+			$this->db->join('anneeAcademique', 'anneeAcademique.idanneeAcademique=etudiant.idanneeAcademique');
+			$this->db->where('anneeAcademique.iduniversite', $this->session->universite_session);
+			$i = count($this->db->get('etudiant')->result()) + 1;
+		}
+		if ($i <= 9) {
+			$i = "00$i";
+		} else if ($i >= 10 and $i <= 99) {
+			$i = "0$i";
 		}
 
+		$mat .= "$i";
 		return strtoupper($mat);
+	}
+
+	function code()
+	{
+		return uniqid();
 	}
 }

@@ -12,18 +12,8 @@ class AdmBanque extends CI_Controller
     }
     public function loadBanque()
     {
+        $this->db->order_by('idbanque', 'desc');
         $data["banques"] = $this->db->get('banque')->result();
-        // $data["banques"] = $this->AdmBanqueModel->getAllBanque();
-
-        // if($data)
-        // {
-        //     $this->load->view("admin/liste-banque", $data);   
-        // }
-        // else
-        // {
-        //     $data["error"] = "Vide";
-        //     $this->load->view("admin/liste-banque", $data);   
-        // }
         $this->load->view("admin/liste-banque", $data);
     }
     public function addBanque()
@@ -57,9 +47,9 @@ class AdmBanque extends CI_Controller
             if ($insert) {
                 $data["message"] = "La banque " . strtoupper($banque) . " a été créée avec succès";
                 $data["classe"] = "success";
-            }else{
+            } else {
                 $data["message"] = "erreur";
-                $data["classe"] = "danger"; 
+                $data["classe"] = "danger";
             }
         }
 

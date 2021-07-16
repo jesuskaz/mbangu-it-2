@@ -12,33 +12,12 @@ class AdmCompte extends CI_Controller
     }
     public function listeCompte()
     {
-        // $data["comptes"] = $this->CompteModel->getAllCompte();
+        $this->db->order_by('idfrais', 'desc');
         $this->db->join('banque', 'banque.idbanque=frais.idbanque');
         $this->db->join('devise', 'devise.iddevise=frais.iddevise');
 
         $data["comptes"] = $this->db->get('frais')->result();
-
-        // var_dump($data["comptes"] ); die;
-        // if($data)
-        // {
-        //     $this->load->view("admin/liste-compte", $data);
-        // }
-        // else
-        // {
-        //     $data["error"] = "Vide";
-        //     $this->load->view("liste-compte", $data);
-        // }
-
         $this->load->view("admin/liste-compte", $data);
     }
-    // public function getBanque()
-    // {
-    //     $data["banques"] = $this->CompteModel->banqueGet();
-    //     if ($data) {
-    //         $this->load->view("ajouter-compte", $data);
-    //     } else {
-    //         $data["vide"] = "Vous n'avez aucune banque pour le moment";
-    //         $this->load->view("admin/ajouter-compte", $data);
-    //     }
-    // }
+    
 }

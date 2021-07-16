@@ -24,7 +24,7 @@
                     <form method="">
                       <div class="form-inline">
                         <div class="form-group m-2">
-                          <select name="faculte" style="width:130px" class="custom-select form-change">
+                          <select name="faculte" style="width:130px" class="custom-select form-change" id="faculte">
                             <option value="">Faculte</option>
                             <?php foreach ($facultes as $faculte) {
                             ?>
@@ -34,7 +34,7 @@
                           </select>
                         </div>
                         <div class="form-group m-2">
-                          <select name="promotion" style="width:130px" class="custom-select form-change">
+                          <select name="promotion" style="width:130px" class="custom-select form-change" id="promotion">
                             <option value="">Promotion</option>
                             <?php
                             foreach ($promotions as $promotion) {
@@ -44,10 +44,33 @@
                           </select>
                         </div>
                         <div class="form-group m-2">
-                          <select name="option" style="width:130px" class="custom-select form-change">
+                          <select name="option" style="width:130px" class="custom-select form-change" id="option">
                             <option value="">Option</option>
                           </select>
                         </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header d-flex justify-content-between">
+                    <h4>Importer la liste d'étudiants</h4>
+                    <button class="btn btn-success float-right rounded-0" onclick="location.assign('<?= base_url('assets/model_importation_etudiant.xlsx') ?>')">
+                      <i class="fa fa-file-excel "></i> Modèle d'importation
+                    </button>
+                  </div>
+                  <div class="card-body">
+                    <form method="" id="f-import">
+                      <div class="form-inline">
+                        <div class="form-group m-2">
+                          <div class="custom-file">
+                            <input accept=".xls,.xlsx" type="file" class="custom-file-input" id="customFile" name="file">
+                            <label class="custom-file-label" for="customFile">fichier Excel</label>
+                          </div>
+                        </div>
+                        <div class="form-group" id="rep"></div>
                       </div>
                     </form>
                   </div>
@@ -66,7 +89,6 @@
                             <th>N°</th>
                             <th>Nom</th>
                             <th>Post-nom</th>
-                            <!-- <th>Prénom</th> -->
                             <th>Faculté</th>
                             <th>Pomotion</th>
                             <th>Matricule</th>
@@ -247,6 +269,48 @@
         } else {
           data()
         }
+      })
+
+      $('#f-import').change(function(e) {
+        e.preventDefault();
+        var spin = `
+                <div class="spinner-border text-warning" role="status">
+                <span class="sr-only">Loading...</span>
+                </div>`;
+        var m = $('#rep');
+        m.html(spin);
+        var f = $(this);
+        var d = new FormData(this);
+        d.append('type', 'univ');
+        d.append('faculte', $('#faculte').val());
+        d.append('promotion', $('#promotion').val());
+        d.append('option', $('#option').val());
+
+        $(':input', f).attr('disabled', true);
+        $.ajax({
+          url: '<?= site_url('json/import-2') ?>',
+          type: 'POST',
+          data: d,
+          timeout: 0,
+          processData: false,
+          contentType: false,
+          success: function(res) {
+            f.get(0).reset();
+            res = $.parseJSON(res);
+            if (res.status) {
+              data();
+            }
+            m.html(res.message);
+            $(':input', f).attr('disabled', false);
+
+          },
+          error: function() {
+            m.html("<b>Une erreur s'est produite.</b>");
+            $(':input', f).attr('disabled', false);
+
+          }
+        })
+
       })
 
     })

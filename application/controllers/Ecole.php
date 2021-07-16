@@ -386,7 +386,6 @@ class Ecole extends CI_Controller
     {
         $this->db->order_by('idsection', 'desc');
         $data["sections"] = $this->db->get_where('section', ['idecole' => $this->idecole])->result();
-
         $this->load->view("ecole/eleves", $data);
     }
 
@@ -395,7 +394,7 @@ class Ecole extends CI_Controller
         $this->db->select("paiement_ecole.*, eleve.nom, eleve.postnom,
         eleve.prenom, eleve.matricule, section.intitulesection section, 
         optionecole.intituleOption option, frais_ecole.intitulefrais frais, frais_ecole.compte, banque.denomination banque, 
-        paiement_ecole.montant, devise.nomDevise devise ");
+        paiement_ecole.montant, devise.nomDevise devise, classe.intituleclasse classe ");
 
         $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
         $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
@@ -416,5 +415,108 @@ class Ecole extends CI_Controller
     function profil()
     {
         $this->load->view("ecole/profil");
+    }
+
+    function detail_eleve($ideleve = null)
+    {
+        $ideleve = (int) $ideleve;
+        $where = [
+            'eleve.ideleve' => $ideleve,
+            'classe.idannee_scolaire_ecole' => $this->idannee,
+            'section.idecole' => $this->idecole,
+        ];
+        $this->db->join('classe', 'eleve.idclasse=classe.idclasse');
+        $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
+        $this->db->join('section', 'optionecole.idsection=optionecole.idsection');
+        $this->db->group_by('eleve.ideleve');
+        if (!count($et = $this->db->where($where)->get('eleve')->result())) {
+            redirect('index/login');
+        }
+
+        $data['eleve'] = $et[0];
+
+        $listfrais = $this->db->where(['idannee_scolaire_ecole' => $this->idannee])->get('frais_ecole')->result();
+
+        $tabpaie = [];
+        foreach ($listfrais as $lf) {
+            $sql = "SELECT paiement_ecole.idpaiement_ecole, paiement_ecole.ideleve, frais_ecole.idfrais_ecole, 
+                frais_ecole.montant montant_frais, paiement_ecole.montant montant_paye, 
+                frais_ecole.intitulefrais frais, devise.nomDevise devise, date,
+                devise.iddevise,
+                (
+                    SELECT sum(f2.montant) from paiement_ecole f2 where f2.idpaiement_ecole <= paiement_ecole.idpaiement_ecole and 
+                    ideleve = $ideleve and f2.idfrais_ecole=$lf->idfrais_ecole
+                    group by ideleve order by f2.idfrais_ecole
+                ) cumule
+                from paiement_ecole
+                join frais_ecole on frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole 
+                join devise on devise.iddevise=paiement_ecole.iddevise 
+                where paiement_ecole.ideleve = $ideleve and frais_ecole.idfrais_ecole=$lf->idfrais_ecole 
+                group by paiement_ecole.idpaiement_ecole order by paiement_ecole.idfrais_ecole
+
+            ";
+            $paie = $this->db->query($sql)->result();
+            foreach ($paie as $p) {
+                array_push($tabpaie, $p);
+            }
+        }
+        $data['paiements'] = $paie = $tabpaie;
+
+        $devise = $this->db->get('devise')->result();
+        $final = [];
+        foreach ($devise as $dev) {
+            $tab = [];
+            foreach ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as $mois) {
+                $montantPaie = 0;
+                foreach ($paie as $p) {
+                    $date = explode('-', $p->date);
+                    $_mois = (int) $date[1];
+                    if ($mois == $_mois and $dev->iddevise == $p->iddevise) {
+                        $montantPaie += $p->montant_paye;
+                    }
+                }
+                array_push($tab, $montantPaie);
+            }
+            $final[$dev->nomDevise] = $tab;
+        }
+
+        $data['graph'] = json_encode($final);
+
+        $this->load->view("ecole/detail_eleve", $data);
+    }
+
+    function print($ideleve = null)
+    {
+        // ideleve - idpaiement //
+        $d = explode('-', $ideleve);
+        if (count($d) != 2) {
+            redirect('index/login');
+        }
+        $ideleve = (int) $d[0];
+        $idpaiement = (int) $d[1];
+        $where = [
+            'eleve.ideleve' => $ideleve,
+            'classe.idannee_scolaire_ecole' => $this->idannee,
+            'section.idecole' => $this->idecole,
+        ];
+        $this->db->join('classe', 'eleve.idclasse=classe.idclasse');
+        $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
+        $this->db->join('section', 'optionecole.idsection=optionecole.idsection');
+        $this->db->group_by('eleve.ideleve');
+        if (!count($et = $this->db->where($where)->get('eleve')->result())) {
+            redirect('index/login');
+        }
+
+        $data['eleve'] = $et[0];
+        $this->db->join('devise', 'devise.iddevise=paiement_ecole.iddevise');
+        $this->db->select('ecole.*, devise.nomDevise,frais_ecole.intitulefrais, frais_ecole.montant montant_frais,frais_ecole.compte, paiement_ecole.date, paiement_ecole.montant montant_paye');
+        $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
+        $this->db->join('annee_scolaire_ecole', 'annee_scolaire_ecole.idannee_scolaire_ecole=frais_ecole.idannee_scolaire_ecole');
+        $this->db->join('ecole', 'ecole.idecole=annee_scolaire_ecole.idecole');
+
+        $p = $this->db->where(['idpaiement_ecole' => $idpaiement, 'ideleve' => $ideleve])->get('paiement_ecole')->result();
+        $data['paie'] = @$p[0];
+
+        $this->load->view("ecole/print", $data);
     }
 }
