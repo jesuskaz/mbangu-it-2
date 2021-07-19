@@ -222,7 +222,7 @@
                     section: $(this).val(),
                     type: 'ecole'
                 }, function(data) {
-                    var str = '';
+                    var str = '<option value="">Aucune option</option>';
                     $(data).each(function(i, data) {
                         var url = '<?= site_url('ecole/classe/') ?>' + data.id;
                         str += `
@@ -295,7 +295,7 @@
 						<tr>
 							<td> ${i+1}</td>
 							<td>${data.classe}</td>
-							<td>${data.option}</td>
+							<td>${data.option ? data.option : '-'}</td>
 							<td><a class='btn btn-link text-danger' href="${url}"><i class="fa fa-trash"></i> Supprimer</a></td>
 						</tr>
 						`;

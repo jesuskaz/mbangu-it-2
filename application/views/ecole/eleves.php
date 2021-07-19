@@ -74,7 +74,10 @@
                             <div class="col-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4>Liste d'Elèves</h4>
+                                        <h4>Liste d'Elèves</h4> <br>
+                                    </div>
+                                    <div class="card-header">
+                                        <b class="text-<?= $this->session->classe; ?> mb-3"><?= $this->session->message; ?></b>
                                     </div>
                                     <div class="card-body">
                                         <div class="table-responsive">

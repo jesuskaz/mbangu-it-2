@@ -92,6 +92,10 @@
                       </div>
                     </div>
                   </div>
+                  <div class="card-footer">
+                    <a href="<?= site_url('ecole/eleve-e/' . $eleve->ideleve) ?>" class="btn btn-link"><i class="fa fa-edit"></i> Modifier</a>
+                    <a href="<?= site_url('ecole/eleve-s/' . $eleve->ideleve) ?>" class="btn btn-link text-danger pull-right"><i class="fa fa-trash"></i> Supprimer</a>
+                  </div>
                 </div>
               </div>
 

@@ -519,4 +519,63 @@ class Ecole extends CI_Controller
 
         $this->load->view("ecole/print", $data);
     }
+
+    function eleve_e($ideleve = null)
+    {
+        $ideleve = (int) $ideleve;
+
+        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+        $this->db->where(['classe.idannee_scolaire_ecole' => $this->idannee, 'eleve.ideleve' => $ideleve]);
+
+        if (!count($el = $this->db->get('eleve')->result())) {
+            redirect('ecole/eleves');
+        }
+
+        $el = $el[0];
+        $data['eleve'] = $el;
+        $this->load->view("ecole/eleve_e", $data);
+    }
+
+    function update_e()
+    {
+        $ideleve = $this->input->post('ideleve');
+        $nom = $this->input->post('nom');
+        $postnom = $this->input->post('postnom');
+        $prenom = $this->input->post('prenom');
+        $tel = $this->input->post('tel');
+        $adresse = $this->input->post('adresse');
+
+        $this->db->update('eleve', ['nom' => $nom, 'postnom' => $postnom, 'prenom' => $prenom, 'telephoneparent' => $tel, 'adresse' => $adresse], ['ideleve' => $ideleve]);
+        $this->session->set_flashdata('message', 'informations mises à jour.');
+        redirect('ecole/eleve-e/' . $ideleve);
+    }
+
+    function eleve_s($ideleve = '')
+    {
+        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+        $this->db->where(['classe.idannee_scolaire_ecole' => $this->idannee, 'eleve.ideleve' => $ideleve]);
+
+        if (!count($el = $this->db->get('eleve')->result())) {
+            $this->session->set_flashdata('message', 'Erreur');
+            $this->session->set_flashdata('classe', 'danger');
+            redirect('ecole/eleves');
+        }
+
+        if (count($this->db->where('ideleve', $ideleve)->get('paiement_ecole')->result())) {
+            $this->session->set_flashdata('message', 'Impossible de supprimer cet eleve, car il a déjà effectué un paiement.');
+            $this->session->set_flashdata('classe', 'warning');
+            redirect('ecole/eleves');
+        }
+
+        $this->db->trans_start();
+        $this->db->where('ideleve', $ideleve);
+        $this->db->delete('parent_has_eleve');
+        $this->db->where('ideleve', $ideleve);
+        $this->db->delete('eleve');
+
+        $this->db->trans_complete();
+        $this->session->set_flashdata('message', 'Eleve supprimé.');
+        $this->session->set_flashdata('classe', 'success');
+        redirect('ecole/eleves');
+    }
 }
