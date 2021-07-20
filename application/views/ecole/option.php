@@ -213,7 +213,7 @@
                 }, function(data) {
 
                     var str = '';
-                    $(data).each(function(i, data) {
+                    $(data.options).each(function(i, data) {
                         var url = '<?= site_url('ecole/classe/') ?>' + data.id;
                         str += `
 						<tr>

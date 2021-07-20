@@ -54,9 +54,9 @@ class Json extends CI_Controller
         if (empty($section)) {
             die(json_encode(['status' => false, 'message' => "Veuillez spécifier la section"]));
         }
-        if (empty($option)) {
-            die(json_encode(['status' => false, 'message' => "Veuillez spécifier l'option"]));
-        }
+        // if (empty($option)) {
+        //     die(json_encode(['status' => false, 'message' => "Veuillez spécifier l'option"]));
+        // }
         if (empty($classe)) {
             die(json_encode(['status' => false, 'message' => "Veuillez spécifier la classe"]));
         }

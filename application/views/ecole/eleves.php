@@ -35,7 +35,7 @@
                                                 </div>
                                                 <div class="form-group m-2">
                                                     <select name="option" class="custom-select" id="option">
-                                                        <option value="">Option</option>
+                                                        <option value="">Aucun</option>
                                                     </select>
                                                 </div>
                                                 <div class="form-group m-2">
@@ -256,14 +256,23 @@
                     section: $(this).val(),
                     type: 'ecole'
                 }, function(res) {
-                    var str = '<option value="">Option</option>';
-                    $(res).each(function(i, d) {
-                        var url = '<?= site_url('ecole/classe/') ?>' + d.id;
+                    var str = '<option value="">Aucun</option>';
+                    $(res.options).each(function(i, d) {
+                        // var url = '<?= site_url('ecole/classe/') ?>' + d.id;
                         str += `
                         <option value="${d.id}">${d.option} (${d.section})</option>`;
                     })
                     $('select[name=option]').html(str);
                     $('select[name=classe]').html('<option value="">Classe</option>');
+
+                    str = '<option value="">Classe</option>';
+                    if (res.options.length == 0) {
+                        $(res.classes).each(function(i, d) {
+                            str += `
+                        <option value="${d.idclasse}">${d.intituleclasse} </option>`;
+                        })
+                        $('select[name=classe]').html(str);
+                    }
                     data();
                 })
             })
