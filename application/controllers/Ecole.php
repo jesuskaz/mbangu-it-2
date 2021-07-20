@@ -291,7 +291,8 @@ class Ecole extends CI_Controller
     function option()
     {
         $this->db->order_by('idsection', 'desc');
-        $data["sections"] = $this->db->get_where('section', ['idecole' => $this->idecole])->result();
+        $data["sections"] = $this->db->get_where('section', ['idecole' => $this->idecole])->result_array();
+        $data["classes"] = $this->db->get_where('classe', ['idannee_scolaire_ecole' => $this->idannee])->result_array();
         $this->load->view("ecole/option", $data);
     }
 
@@ -358,9 +359,24 @@ class Ecole extends CI_Controller
 
     public function classes()
     {
-        $this->db->order_by('idsection', 'desc');
-        $data["sections"] = $this->db->get_where('section', ['idecole' => $this->idecole])->result();
+        $this->db->order_by('idclasse', 'desc');
+        $data["classes"] = $this->db->get_where('classe', ['idannee_scolaire_ecole' => $this->idannee])->result();
         $this->load->view("ecole/classes", $data);
+    }
+
+    public function options($idsection = null)
+    {
+        $idsection = (int) $idsection;
+
+        if (!count($fac = $this->db->where(['idsection' => $idsection, 'idecole' => $this->idecole])->get('section')->result())) {
+            redirect('ecole/section');
+        }
+
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
+        $this->db->group_by('classe.idclasse');
+        $data["options"] = $this->db->where(['idsection' => $idsection])->get('optionecole')->result();
+        $data["section"] = $fac[0]->intitulesection;
+        $this->load->view("ecole/liste-options", $data);
     }
 
     function delete_c($idclasse = null)

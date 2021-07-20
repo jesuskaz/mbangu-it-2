@@ -13,80 +13,51 @@
                 <?php include("sidebar.php"); ?>
             </div>
             <div class="main-content" style="min-height: 675px;">
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Informations supplémentaires</h4>
-                                <b class="text-<?= $this->session->classe; ?>"><?= $this->session->message; ?></b>
-                            </div>
-                            <form class="composeForm" name="add_name" method="POST" action="addPromotion">
-                                <div class="">
-                                    <div class="">
-                                        <div class="card-header">
-                                            <a class="btn btn-warning" style="border-radius: 5px;" href="<?php echo site_url('ecole/classes') ?>">Ajouter une classe</a>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="card shadow-secondary p-3">
-                                                    <div class="form-inline" style="min-height: 150px;">
-                                                        <?php
-                                                        foreach ($classes as $classe) {
-                                                        ?>
-                                                            <div class="">
-                                                                <div class="pretty p-default m-2">
-                                                                    <input id="n-<?php echo  $classe["idclasse"] ?>" type="checkbox" name="classeChose[]" value="<?php echo $classe["intituleclasse"]; ?>" />
-                                                                    <div class="state p-primary">
-                                                                        <label for="n-<?php echo  $classe["idclasse"] ?>"><?php echo  $classe["intituleclasse"] ?></label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        <?php
-                                                        } ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="card shadow-secondary p-3">
-                                                    <div class="" style="min-height: 150px;">
-                                                        <div class="form-group">
-                                                            <div class="">
-                                                                <table class="" id="dynamic_field">
-                                                                    <tr>
-                                                                        <td>
-                                                                            <div class="form-line mb-2 mr-2">
-                                                                                <select type="text" id="email_address" name="faculte" class="form-control" placeholder="Banque" required focus>
-                                                                                    <option value="">Choisissez une section ...</option>
-                                                                                    <?php foreach ($sections as $section) {
-                                                                                    ?>
-                                                                                        <option value="<?php echo $section["idsection"]; ?>"><?php echo $section["intitulesection"]; ?></option>
-                                                                                    <?php
-                                                                                    }
-                                                                                    ?>
-                                                                                </select>
-                                                                            </div>
-                                                                        </td>
-                                                                        <td><input type="text" name="addmore[][intituleOptions]" placeholder="Entrer l'option" class="form-control mb-2 mr-2 name_list" required="" /></td>
-                                                                        <td><button type="button" name="add" id="add" class="btn btn-warning mb-2 ml-2">Ajouter l'option</button></td>
-                                                                    </tr>
-                                                                </table>
-                                                            </div>
-                                                            <div class="mt-3">
-                                                                <button type="submit" name="submit" id="submit" class="btn btn-warning" value="Submit">Créer</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                <section class="section">
+                    <div class="section-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between">
+                                        <h4>Liste d'options et de classes de la section : <b><?= $section ?></b></h4>
+                                        <button class="btn btn-success float-right rounded-0" onclick="history.back()">
+                                            <i class="fa fa-arrow-left"></i>
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover" style="width:100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>N°</th>
+                                                        <th>Options</th>
+                                                        <th class="text-center">CLasses</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                    $i = 0;
+                                                    foreach ($options as $opt) {
+                                                    ?>
+                                                        <tr>
+                                                            <td><?php echo $i = $i + 1; ?></td>
+                                                            <td><?php echo  $opt->intituleOption; ?></td>
+                                                            <td class="text-center">
+                                                                <?= $opt->intituleclasse ?>
+                                                            </td>
+                                                        </tr>
+                                                    <?php
+                                                    }
+                                                    ?>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
-                            </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-
+                </section>
                 <div class="settingSidebar">
                     <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
                     </a>
@@ -178,21 +149,6 @@
         </div>
     </div>
     <?php include("footer.php"); ?>
-    <script>
-        $(function() {
-            var i = 1;
-
-            $('#add').click(function() {
-                i++;
-                $('#dynamic_field').append('<tr id="row' + i + '" class="dynamic-added"><td><input type="text" name="addmore[][intituleOptions]" placeholder="Entrer l\'option" class="form-control name_list" required /></td><td><button type="button" name="remove" id="' + i + '" class="btn btn-danger btn_remove">X Supprimer</button></td></tr>');
-            });
-
-            $(document).on('click', '.btn_remove', function() {
-                var button_id = $(this).attr("id");
-                $('#row' + button_id + '').remove();
-            });
-        })
-    </script>
 </body>
 
 </html>

@@ -30,7 +30,6 @@
     }
     public function getFacSelected($idFaculte, $iduniversite)
     {
-
         $this->db->select('*');
         $this->db->from('faculte');
         $this->db->join("options", "faculte.idfaculte = options.idfaculte");
@@ -190,7 +189,7 @@
     {
         $this->db->select('sum(montant) as montant, nomDevise');
         $this->db->from('paiement');
-        $this->db->where('paiement.idfrais', $idfrais);
+        $this->db->where('paiement.idfrais_ecole', $idfrais);
         $this->db->where('paiement.idetudiant', $idetudiant);
         $this->db->where('paiement.iddevise', $iddevise);
         $this->db->join('devise', 'devise.iddevise = paiement.iddevise');
@@ -221,9 +220,9 @@
         $query = $this->db->get_where("paiement", ["matricule" => $matricule, "idFrais" => $frais])->result_array();
         return $query;
     }
-    public function getInfoNav($matricule)
+    public function getInfoNav($login)
     {
-        $query = $this->db->get_where("etudiant", ["matricule" => $matricule])->result_array();
+        $query = $this->db->get_where("parent", ["login" => $login])->result_array();
         return $query;
     }
     public function insertionReste($data)
@@ -357,46 +356,45 @@
         $query = $this->db->get("appro")->result_array();
         return $query;
     }
-    public function getAlldata($idetudiant)
+    public function getPaieOperation($idparent)
     {
         $this->db->select("
-            paiement.date as date,
-            frais.montant as fraisMontant,
-            (frais.montant - paiement.montant) as reste,
-            universite.nomUniversite as nomUniversite,
-            paiement.idpaiement as idpaiement,
-            paiement.montant as montant, paiement.date as date, paiement.typeOperation,
-            paiement.commission, designation,
-            nom,postnom,matricule,intitulePromotion, numeroCompte, nomDevise, nomFaculte,
-            operateur, nomOperateur, codeQr,
-            options.intituleOptions as options,
+            frais_ecole.montant as fraisMontant,
+            (frais_ecole.montant - paiement_ecole.montant) as reste,
+            paiement_ecole.idpaiement_ecole as idpaiement,
+            paiement_ecole.montant as montant, date, paiement_ecole.typeOperation,
+            paiement_ecole.commission, intitulefrais,
+            compte, nomDevise,codeQr, paiement_ecole.ideleve,
+            eleve.nom, eleve.prenom, eleve.postnom, eleve.matricule,
+            intitulesection, intituleOption, intituleclasse, nomecole, idparent
             ");
-        $this->db->from("paiement");
-        $this->db->join('frais', 'frais.idfrais = paiement.idfrais');
-        $this->db->join('devise', 'frais.iddevise = devise.iddevise');
-        $this->db->where('paiement.idetudiant', $idetudiant);
-        $this->db->join('universite', 'frais.iduniversite = universite.iduniversite');
-        $this->db->join('faculte', 'faculte.iduniversite=universite.iduniversite');
-        $this->db->join('options', 'options.idfaculte = faculte.idfaculte');
-        $this->db->join('promotion', 'promotion.idpromotion = options.idpromotion');
-        $this->db->where('etudiant.idetudiant', $idetudiant);
-        $this->db->join('etudiant', 'etudiant.idpromotion = promotion.idpromotion');
+        $this->db->from("paiement_ecole");
+        $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole = paiement_ecole.idfrais_ecole');
+        $this->db->join('devise', 'frais_ecole.iddevise = devise.iddevise');
+        $this->db->join('eleve', 'paiement_ecole.ideleve = eleve.ideleve');
+        $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
+        $this->db->join('classe', 'eleve.idclasse = classe.idclasse');
+        $this->db->join('optionecole', 'classe.idoptionecole = optionecole.idoptionecole');
+        $this->db->join('section', 'optionecole.idsection = section.idsection');
+        $this->db->join('annee_scolaire_ecole', 'classe.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
+        $this->db->join('ecole', 'annee_scolaire_ecole.idecole = annee_scolaire_ecole.idecole');
+        // $this->db->where('parent_has_eleve.idparent', $idparent);
         $this->db->limit(3);
         $this->db->order_by("idpaiement", "desc");
         $this->db->group_by('idpaiement');
         $query = $this->db->get()->result_array();
         return $query;
     }
-    public function getAlldataAppro($idetudiant)
+    public function getAlldataAppro($idparent)
     {
         $this->db->select("*");
-        $this->db->from("appro");
-        $this->db->join('operateur', 'operateur.idoperateur = appro.idoperateur');
-        $this->db->join('devise', 'devise.iddevise = appro.iddevise');
-        $this->db->where('appro.idetudiant', $idetudiant);
+        $this->db->from("appro_parent");
+        $this->db->join('operateur', 'operateur.idoperateur = appro_parent.idoperateur');
+        $this->db->join('devise', 'devise.iddevise = appro_parent.iddevise');
+        $this->db->where('appro_parent.idparent', $idparent);
         $this->db->limit(3);
-        $this->db->order_by("idappro", "desc");
-        $this->db->group_by('idappro');
+        $this->db->order_by("idappro_parent", "desc");
+        $this->db->group_by('idappro_parent');
         $query = $this->db->get()->result_array();
         return $query;
     }
@@ -409,29 +407,28 @@
         $query = $this->db->get()->result_array();
         return $query;
     }
-    public function getAllHistoriquePaiement($idetudiant)
+    public function getAllHistoriquePaiement($ideleve)
     {
         $this->db->select("
-            paiement.date as date,
-            frais.montant as fraisMontant,
-            (frais.montant - paiement.montant) as reste,
-            universite.nomUniversite as nomUniversite,
-            paiement.idpaiement as idpaiement,
-            paiement.montant as montant, paiement.date as date, paiement.typeOperation,
-            paiement.commission, designation,
-            nom,postnom,matricule,intitulePromotion, numeroCompte, nomDevise, nomFaculte,
-            operateur, nomOperateur, codeQr,
-            options.intituleOptions as options,
+            frais_ecole.montant as fraisMontant,
+            (frais_ecole.montant - paiement_ecole.montant) as reste,
+            paiement_ecole.idpaiement_ecole as idpaiement,
+            paiement_ecole.montant as montant, date, paiement_ecole.typeOperation,
+            paiement_ecole.commission, intitulefrais,
+            compte, nomDevise,codeQr, paiement_ecole.ideleve,
+            eleve.nom, eleve.prenom, eleve.postnom, eleve.matricule,
+            intitulesection, intituleOption, intituleclasse, nomecole,
             ");
-        $this->db->from("paiement");
-        $this->db->join('frais', 'frais.idfrais = paiement.idfrais');
-        $this->db->join('devise', 'frais.iddevise = devise.iddevise');
-        $this->db->join('universite', 'frais.iduniversite = universite.iduniversite');
-        $this->db->join('faculte', 'faculte.iduniversite=universite.iduniversite');
-        $this->db->join('options', 'options.idfaculte = faculte.idfaculte');
-        $this->db->join('promotion', 'promotion.idpromotion = options.idpromotion');
-        $this->db->join('etudiant', 'etudiant.idpromotion = promotion.idpromotion');
-        $this->db->where('paiement.idetudiant', $idetudiant);
+        $this->db->from("paiement_ecole");
+        $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole = paiement_ecole.idfrais_ecole');
+        $this->db->join('devise', 'frais_ecole.iddevise = devise.iddevise');
+        $this->db->join('eleve', 'paiement_ecole.ideleve = eleve.ideleve');
+        $this->db->join('classe', 'eleve.idclasse = classe.idclasse');
+        $this->db->join('optionecole', 'classe.idoptionecole = optionecole.idoptionecole');
+        $this->db->join('section', 'optionecole.idsection = section.idsection');
+        $this->db->join('annee_scolaire_ecole', 'classe.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
+        $this->db->join('ecole', 'annee_scolaire_ecole.idecole = annee_scolaire_ecole.idecole');
+        $this->db->where('eleve.ideleve', $ideleve);
         $this->db->order_by("idpaiement", "desc");
         $this->db->group_by('idpaiement');
         $query = $this->db->get()->result_array();
@@ -450,15 +447,15 @@
         return $query;
     }
 
-    public function getTarif($matricule)
+    public function getTarif($ideleve)
     {
         $this->db->select('*');
-        $this->db->from('etudiant');
-        $this->db->where('etudiant.matricule', $matricule);
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('universite', 'universite.iduniversite=promotion.iduniversite');
-        $this->db->join('frais', 'frais.iduniversite=universite.iduniversite');
-        $this->db->join('devise', 'devise.iddevise=frais.iddevise');
+        $this->db->from('frais_ecole');
+        $this->db->join('annee_scolaire_ecole', 'annee_scolaire_ecole.idannee_scolaire_ecole = frais_ecole.idannee_scolaire_ecole');
+        $this->db->join('classe', 'annee_scolaire_ecole.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
+        $this->db->join('eleve', 'classe.idclasse = eleve.idclasse');
+        $this->db->where("ideleve", $ideleve);
+        $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
         $query = $this->db->get()->result_array();
         return $query;
     }

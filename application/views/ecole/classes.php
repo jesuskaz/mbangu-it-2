@@ -23,17 +23,6 @@
                                     </div>
                                     <form class="p-3" method="POST" id="f-add">
                                         <div class="form-inline">
-                                            <div class="form-group-sm">
-                                                <select name="section2" id="" class="custom-select change2 select">
-                                                    <option value="">Section</option>
-                                                    <?php foreach ($sections as $sec) { ?>
-                                                        <option value="<?= $sec->idsection ?>"><?= $sec->intitulesection ?></option>
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
-                                            <div class="form-group-sm ml-3">
-                                                <select name="option2" class="custom-select select"></select>
-                                            </div>
                                             <div class="form-group">
                                                 <input type="text" name="classe" placeholder="Nom de la classe" class="form-control name_list m-3" required="" />
                                             </div>
@@ -50,7 +39,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-12">
                                 <div class="card">
                                     <form id="f-data" class="p-3" method="POST">
@@ -72,7 +61,7 @@
                                     </form>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="card">
@@ -89,7 +78,6 @@
                                                     <tr>
                                                         <th></th>
                                                         <th>Classe</th>
-                                                        <th>Option</th>
                                                         <th></th>
                                                     </tr>
                                                 </thead>
@@ -292,13 +280,12 @@
                     $(data).each(function(i, data) {
                         var url = '<?= site_url('ecole/delete-c/') ?>' + data.idclasse;
                         str += `
-						<tr>
-							<td> ${i+1}</td>
-							<td>${data.classe}</td>
-							<td>${data.option ? data.option : '-'}</td>
-							<td><a class='btn btn-link text-danger' href="${url}"><i class="fa fa-trash"></i> Supprimer</a></td>
-						</tr>
-						`;
+            			<tr>
+            				<td> ${i+1}</td>
+            				<td>${data.classe}</td>
+            				<td><a class='btn btn-link text-danger' href="${url}"><i class="fa fa-trash"></i> Supprimer</a></td>
+            			</tr>
+            			`;
                     })
                     table.DataTable().destroy()
                     table.children('tbody').html(str)

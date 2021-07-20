@@ -371,18 +371,15 @@
         public function insertPayment()
         {
             $devise = $this->input->post("devise");
-            $ideleve = 1; $this->input->post("ideleve");
+            $ideleve = $this->input->post("ideleve");
             $iddevise = $this->db->get_where('devise', ["nomDevise" => $devise])->row('iddevise');
             
             $montant = $this->input->post("montant");
             $idfrais = $this->input->post("idfrais");
-    
-            //Commission
             $totMontant = $this->input->post("montantTot");
             $commissionMontant = $this->input->post("commission");
 
             $dateQr = date('m-d-y-H-i-s');
-            // QrCode generator
             $scale = 4;
             $size = 100;
             $qr_image = 'qrcode-' . $dateQr . '.png';
@@ -390,7 +387,7 @@
             $params['level'] = $scale;
             $params['size'] = $size;
             $params['savename'] = FCPATH . 'upload/qrcode/' . $qr_image;
-            //print_r($params["savename"]);
+        
             $this->ciqrcode->generate($params);
 
             $insertOperation = [
@@ -417,8 +414,8 @@
         public function paieOperation($login)
         {
             $idparent = $this->db->get_where('parent', ['login' => $login])->row('idparent');
-    
             $data = $this->ApiParentModel->getPaieOperation($idparent);
+
             echo json_encode($data);
         }
         public function getAlldataAppro($login)
@@ -436,5 +433,119 @@
         {
             $data = $this->ApiParentModel->getTarif($ideleve);
             echo json_encode($data);
+        }
+        public function getStatistic($ideleve)
+        {
+            $this->db->select('sum(paiement_ecole.montant) as montant, 
+            frais_ecole.montant as montantTotal, paiement_ecole.idfrais_ecole, 
+            devise.nomDevise, intitulefrais, compte');
+            $this->db->from("paiement_ecole");
+            $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');           
+            $this->db->join('devise', 'devise.iddevise = paiement_ecole.iddevise');
+            $this->db->where('paiement_ecole.ideleve', $ideleve);
+            $this->db->group_by('paiement_ecole.iddevise');
+            $this->db->group_by('paiement_ecole.idfrais_ecole');
+            $query = $this->db->get()->result_array();
+
+            if ($query) 
+            {
+                $frais = array();
+                foreach ($query as $key => $value) {
+                    $idfrais = $value['idfrais_ecole'];
+
+                    $this->db->select('idfrais_ecole, montant');
+                    $this->db->from('frais_ecole');
+                    $this->db->where('idfrais_ecole', $idfrais);
+                    $data = $this->db->get()->result_array();
+
+                    $frais[$key] = $data;
+                }
+                foreach ($query as $key => $value) {
+                    foreach ($frais as $f => $v) {
+                        if ($value["idfrais_ecole"] == $v[0]["idfrais_ecole"]) {
+                            $tab[$value["idfrais_ecole"]] = $v[0]["montant"] - $value["montant"];
+                        }
+                    }
+                }
+
+                $d = $query;
+                $i = 0;
+                foreach ($tab as $ke => $va) {
+
+                    foreach ($d as $k => $val) {
+                        if ($ke == $val["idfrais_ecole"]) {
+                            $query[$i]["montant"] = $va;
+                        }
+                    }
+                    $i += 1;
+                }
+            }
+            echo json_encode($query);
+        }
+        public function getInfoNav($login)
+        {
+            $query = $this->ApiParentModel->getInfoNav($login);
+            echo json_encode($query);
+        }
+        public function updateInfo()
+        {
+            $inputData = $this->input->post("data");
+            $index = $this->input->post("index");
+            $login = $this->input->post("matricule");
+
+            if($index == '1')
+            {
+                $data = [
+                    "email" => $inputData,
+                ];
+
+                $this->db->where("login", $login);
+                $update = $this->db->update("parent", $data);
+
+                if($update)
+                {
+                    echo json_encode("true");
+                }
+                else
+                {
+                    echo json_encode("false");
+                }
+            }
+            else if($index == '2')
+            {
+                $data = [
+                    "adresse" => $inputData,
+                ];
+
+                $this->db->where("login", $login);
+                $update = $this->db->update("parent", $data);
+
+                if($update)
+                {
+                    echo json_encode("true");
+                }
+                else
+                {
+                    echo json_encode("false");
+                }
+            }
+            else if($index == '3')
+            {
+                $data = [
+                    "tel" => $inputData,
+                ];
+
+                $this->db->where("login", $login);
+                $update = $this->db->update("etudiant", $data);
+
+                if($update)
+                {
+                    echo json_encode("true");
+                }
+                else
+                {
+                    echo json_encode("false");
+                }
+            }
         }
     }

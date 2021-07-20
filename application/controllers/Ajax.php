@@ -724,53 +724,32 @@ class Ajax extends CI_Controller
     {
         $type = $this->input->get('type');
         $this->checktype($type);
-
-        $idoption = (int) $this->input->get('option', true);
-
-        $idecole = $this->session->ecole_session;
         $annee = $this->session->annee_scolaire;
 
-        $w = '';
-        if ($idoption) {
-            // $this->db->where(['optionecole.idoptionecole' => $idoption]);
-            $w = " AND optionecole.idoptionecole=$idoption )";
-        } else {
-            $w = " )  OR (classe.idoptionecole IS NULL AND classe.idannee_scolaire_ecole=$annee ) ";
-        }
-        $r = $this->db->query("SELECT idclasse, intituleclasse classe, intituleOption option FROM classe 
-        LEFT JOIN optionecole ON classe.idoptionecole=optionecole.idoptionecole 
-        LEFT JOIN section ON optionecole.idsection=section.idsection 
-        WHERE (classe.idannee_scolaire_ecole=$annee AND section.idecole=$idecole " . $w . "
-        GROUP BY classe.idclasse ORDER BY classe.idclasse desc
-        ")->result();
-
-        // $this->db->where(['classe.idannee_scolaire_ecole' => $annee, 'section.idecole' => $idecole]);
-        // $this->db->join('optionecole', 'classe.idoptionecole=optionecole.idoptionecole');
-        // $this->db->join('section', 'optionecole.idsection=section.idsection');
-
-        // $this->db->group_by('classe.idclasse');
-        // $this->db->order_by('classe.idclasse', 'desc');
-        // $r = $this->db->get('classe')->result();
+        $this->db->select('intituleclasse classe, idclasse');
+        $this->db->group_by('classe.idclasse');
+        $this->db->order_by('classe.idclasse', 'desc');
+        $r = $this->db->where('idannee_scolaire_ecole', $annee)->get('classe')->result();
         echo json_encode($r);
     }
 
     function add_classe()
     {
-        $idsection = $this->input->post('section2');
-        $idoption = $this->input->post('option2');
+        // $idsection = $this->input->post('section2');
+        // $idoption = $this->input->post('option2');
         $classe = $this->input->post('classe');
-        if (empty($idsection)) {
-            echo json_encode(['status' => false, 'message' => "Veuillez selectionner la section", 'classe' => 'danger']);
-            die;
-        }
+        // if (empty($idsection)) {
+        //     echo json_encode(['status' => false, 'message' => "Veuillez selectionner la section", 'classe' => 'danger']);
+        //     die;
+        // }
 
         $idecole = $this->session->ecole_session;
         $annee = $this->session->annee_scolaire;
 
-        if (!count($this->db->where(['idsection' => $idsection, 'idecole' => $idecole])->get('section')->result())) {
-            echo json_encode(['status' => false, 'message' => "Erreur section"]);
-            die;
-        }
+        // if (!count($this->db->where(['idsection' => $idsection, 'idecole' => $idecole])->get('section')->result())) {
+        //     echo json_encode(['status' => false, 'message' => "Erreur section"]);
+        //     die;
+        // }
 
         // $this->db->join('section', 'optionecole.idsection=section.idsection');
         // $o = $this->db->where('optionecole.idoptionecole', $idoption)->get('optionecole')->result();
@@ -784,23 +763,14 @@ class Ajax extends CI_Controller
         $ignoreliste = $addliste = '';
         foreach ($classes as $opt) {
             $opt = trim($opt);
-            if (count($this->db->where(["idoptionecole" => $idoption, 'intituleclasse' => $opt])->get('classe')->result())) {
+            if (count($this->db->where(["idannee_scolaire_ecole" => $annee, 'intituleclasse' => $opt])->get('classe')->result())) {
                 $ignoreliste .= $opt . ', ';
             } else {
                 if (!empty($opt)) {
-                    if ($idoption) {
-                        $this->db->insert('classe', [
-                            'intituleclasse' => $opt,
-                            'idoptionecole' => $idoption,
-                            'idannee_scolaire_ecole' => $annee
-                        ]);
-                    } else {
-                        $this->db->insert('classe', [
-                            'intituleclasse' => $opt,
-                            'idannee_scolaire_ecole' => $annee
-                        ]);
-                    }
-
+                    $this->db->insert('classe', [
+                        'intituleclasse' => $opt,
+                        'idannee_scolaire_ecole' => $annee
+                    ]);
                     $addliste .= $opt . ', ';
                 } else {
                     $message["message1"] = "Format de données incorrect : $classe";
@@ -860,7 +830,7 @@ class Ajax extends CI_Controller
         // $this->db->group_by('eleve.ideleve');
         // $r = $this->db->get('eleve')->result();
         $r = $this->db->query("SELECT eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
-        eleve.matricule, code, telephoneparent, eleve.adresse, section.intitulesection section, 
+        eleve.matricule, password code, telephoneparent, eleve.adresse, section.intitulesection section, 
         optionecole.intituleOption option, intituleclasse classe FROM eleve
         JOIN classe ON classe.idclasse=eleve.idclasse 
         JOIN optionecole ON (optionecole.idoptionecole=classe.idoptionecole OR classe.idoptionecole IS NULL)

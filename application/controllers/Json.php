@@ -150,7 +150,7 @@ class Json extends CI_Controller
                                 'adresse' => $adresse,
                                 'idclasse' => $classe,
                                 'telephoneparent' => $telephone,
-                                'code' => $code
+                                'password' => $code
                             ]);
                         } else {
                             $ignore++;

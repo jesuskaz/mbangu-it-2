@@ -27,7 +27,7 @@
                       <div class="col-lg-12">
                         <div class="form-group">
                           <div class="form-line">
-                            <input type="text" id="email_address" class="form-control" name="faculte" placeholder="Faculté">
+                            <input required type="text" id="email_address" class="form-control" name="faculte" placeholder="Faculté">
                           </div>
                         </div>
                       </div>
