@@ -54,12 +54,17 @@ class Json extends CI_Controller
         if (empty($section)) {
             die(json_encode(['status' => false, 'message' => "Veuillez spécifier la section"]));
         }
-        // if (empty($option)) {
-        //     die(json_encode(['status' => false, 'message' => "Veuillez spécifier l'option"]));
-        // }
+
+
+        // si ya pas d'option on verifie si la section n.a pas d'option mais juste les classe 
+        if (empty($option) and !count($this->db->where('idsection', $section)->get('section_has_classe')->result())) {
+            die(json_encode(['status' => false, 'message' => "Veuillez spécifier l'option"]));
+        }
         if (empty($classe)) {
             die(json_encode(['status' => false, 'message' => "Veuillez spécifier la classe"]));
         }
+
+        $nooption = empty($option);
 
         $file_mimes = array(
             'text/x-comma-separated-values',
@@ -142,16 +147,35 @@ class Json extends CI_Controller
                         $code = $this->Modele->code();
                         if (!count($this->db->where(['nom' => $nom, 'postnom' => $postnom, 'prenom' => $prenom, 'idclasse' => $classe])->get('eleve')->result())) {
                             $add++;
-                            $this->db->insert('eleve', [
-                                'nom' => $nom,
-                                'postnom' => $postnom,
-                                'prenom' => $prenom,
-                                'matricule' => $matricule,
-                                'adresse' => $adresse,
-                                'idclasse' => $classe,
-                                'telephoneparent' => $telephone,
-                                'password' => $code
-                            ]);
+
+                            if ($nooption) {
+                                $d = [
+                                    'nom' => $nom,
+                                    'postnom' => $postnom,
+                                    'prenom' => $prenom,
+                                    'matricule' => $matricule,
+                                    'adresse' => $adresse,
+                                    'idclasse' => $classe,
+                                    'telephoneparent' => $telephone,
+                                    'password' => $code,
+                                    'idecole' => $this->session->ecole_session
+                                ];
+                            } else {
+                                $d = [
+                                    'nom' => $nom,
+                                    'postnom' => $postnom,
+                                    'prenom' => $prenom,
+                                    'matricule' => $matricule,
+                                    'adresse' => $adresse,
+                                    'idclasse' => $classe,
+                                    'telephoneparent' => $telephone,
+                                    'password' => $code,
+                                    'idecole' => $this->session->ecole_session,
+                                    'idoptionecole' => $option
+                                ];
+                            }
+
+                            $this->db->insert('eleve', $d);
                         } else {
                             $ignore++;
                         }

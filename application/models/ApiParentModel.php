@@ -308,7 +308,6 @@
         $query = $this->db->get_where("reste", ["matricule" => $matricule])->result_array();
         return $query;
     }
-
     public function payment($data)
     {
         $query = $this->db->insert("paiement", $data);
@@ -434,6 +433,34 @@
         $query = $this->db->get()->result_array();
         return $query;
     }
+    public function getAllChild($idparent)
+    {
+        $this->db->select("
+            frais_ecole.montant as fraisMontant,
+            (frais_ecole.montant - paiement_ecole.montant) as reste,
+            paiement_ecole.idpaiement_ecole as idpaiement,
+            paiement_ecole.montant as montant, date, paiement_ecole.typeOperation,
+            paiement_ecole.commission, intitulefrais,
+            compte, nomDevise,codeQr, paiement_ecole.ideleve,
+            eleve.nom, eleve.prenom, eleve.postnom, eleve.matricule,
+            intitulesection, intituleOption, intituleclasse, nomecole,
+            ");
+        $this->db->from("paiement_ecole");
+        $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole = paiement_ecole.idfrais_ecole');
+        $this->db->join('devise', 'frais_ecole.iddevise = devise.iddevise');
+        $this->db->join('eleve', 'paiement_ecole.ideleve = eleve.ideleve');
+        $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
+        $this->db->join('classe', 'eleve.idclasse = classe.idclasse');
+        $this->db->join('optionecole', 'classe.idoptionecole = optionecole.idoptionecole');
+        $this->db->join('section', 'optionecole.idsection = section.idsection');
+        $this->db->join('annee_scolaire_ecole', 'classe.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
+        $this->db->join('ecole', 'annee_scolaire_ecole.idecole = annee_scolaire_ecole.idecole');
+        $this->db->where('parent_has_eleve.idparent', $idparent);
+        $this->db->order_by("idpaiement", "desc");
+        $this->db->group_by('idpaiement');
+        $query = $this->db->get()->result_array();
+        return $query;
+    }
     public function getAllHistoriqueAppro($idetudiant)
     {
         $this->db->select("*");
@@ -455,6 +482,19 @@
         $this->db->join('classe', 'annee_scolaire_ecole.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
         $this->db->join('eleve', 'classe.idclasse = eleve.idclasse');
         $this->db->where("ideleve", $ideleve);
+        $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
+        $query = $this->db->get()->result_array();
+        return $query;
+    }
+    public function getAllTarifChild($idparent)
+    {
+        $this->db->select('*');
+        $this->db->from('frais_ecole');
+        $this->db->join('annee_scolaire_ecole', 'annee_scolaire_ecole.idannee_scolaire_ecole = frais_ecole.idannee_scolaire_ecole');
+        $this->db->join('classe', 'annee_scolaire_ecole.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
+        $this->db->join('eleve', 'classe.idclasse = eleve.idclasse');
+        $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
+        $this->db->where("idparent", $idparent);
         $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
         $query = $this->db->get()->result_array();
         return $query;

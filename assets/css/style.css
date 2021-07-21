@@ -7436,8 +7436,8 @@ body:not(.sidebar-mini)
   background-color: #f2f2f2;
 }
 .light-sidebar .main-sidebar .sidebar-menu li.active a {
-  background-color: #f3d9a9;
-  /* coleur */
+  background-color: #ffe9ca;
+  /* couleur */
 }
 .light-sidebar .main-sidebar .sidebar-menu li ul.dropdown-menu li.active > a {
   color: #454546;

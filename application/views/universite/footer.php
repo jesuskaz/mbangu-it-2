@@ -1,6 +1,6 @@
 <footer class="main-footer">
   <div class="footer-left">
-    <a href="templateshub.net">MbanguPay</a></a>
+    <a href="#" class="text-warning">MbanguPay</a></a>
   </div>
 </footer>
 <script src="<?php echo base_url() . 'assets/js/app.min.js'; ?>"></script>
@@ -9,7 +9,7 @@
 <script src="<?php echo base_url() . 'assets/js/scripts.js'; ?>"></script>
 <script src="<?php echo base_url() . 'assets/js/custom.js'; ?>"></script>
 
-<script src="<?php echo base_url().'assets/js/page/indexUniv.js'; ?>"></script>
+<script src="<?php echo base_url() . 'assets/js/page/indexUniv.js'; ?>"></script>
 
 
 <script src="<?php echo base_url() . 'assets/bundles/fullcalendar/fullcalendar.min.js'; ?>"></script>

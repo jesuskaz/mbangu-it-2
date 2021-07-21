@@ -54,7 +54,7 @@
                         </div>
                         <div class="row d-flexi justify-content-betweeni">
                           <div class="col-4">Option </div>
-                          <div class="col-8"> : <?= "$eleve->intituleOption" ?></div>
+                          <div class="col-8"> : <?= $eleve->intituleOption ?? '-' ?></div>
                         </div>
                         <div class="row d-flexi justify-content-betweeni">
                           <div class="col-4">Matricule </div>

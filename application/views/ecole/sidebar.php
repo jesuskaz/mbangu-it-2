@@ -21,8 +21,8 @@
       <ul class="dropdown-menu">
         <li><a class="nav-link" href="<?php echo site_url("ecole/anneescolaire"); ?>">Année Scolaire</a></li>
         <li><a class="nav-link" href="<?php echo site_url("ecole/section"); ?>">Liste de sections</a></li>
-        <li><a class="nav-link" href="<?php echo site_url("ecole/option"); ?>">Ajouter option</a></li>
         <li><a class="nav-link" href="<?php echo site_url("ecole/classes"); ?>">Ajouter classe</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("ecole/option"); ?>">Ajouter option</a></li>
       </ul>
     </li>
     <li class="dropdown">

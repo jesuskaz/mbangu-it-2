@@ -1,6 +1,6 @@
 <footer class="main-footer">
   <div class="footer-left">
-    <a href="templateshub.net">MbanguPay</a></a>
+    <a href="#" class="text-warning">MbanguPay</a></a>
   </div>
 </footer>
 <script src="<?php echo base_url() . 'assets/js/app.min.js'; ?>"></script>

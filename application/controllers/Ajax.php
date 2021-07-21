@@ -709,13 +709,16 @@ class Ajax extends CI_Controller
         $this->db->where('section.idecole', $idecole);
 
         $this->db->join('section', 'section.idsection=optionecole.idsection');
-        $this->db->select('idoptionecole id, intituleOption option, section.intitulesection section');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
+        $this->db->select('idoptionecole id, intituleOption option, section.intitulesection section, intituleclasse classe');
         $r = $this->db->get('optionecole')->result();
 
         $cl = [];
         if (!count($r)) {
-            $idanne = $this->session->annee_scolaire;
-            $cl = $this->db->query("SELECT * FROM classe WHERE idoptionecole IS NULL AND idannee_scolaire_ecole =$idanne")->result();
+            $this->db->join('section_has_classe', 'section_has_classe.idclasse=classe.idclasse');
+            $this->db->join('section', 'section.idsection=section_has_classe.idsection');
+            $this->db->where(['section.idsection' => $idsection]);
+            $cl = $this->db->get('classe')->result();
         }
         echo json_encode(['options' => $r, 'classes' => $cl]);
     }
@@ -726,9 +729,13 @@ class Ajax extends CI_Controller
         $this->checktype($type);
         $annee = $this->session->annee_scolaire;
 
-        $this->db->select('intituleclasse classe, idclasse');
+        $option = (int) $this->input->get('option');
+
+        $this->db->select('intituleclasse classe, classe.idclasse');
         $this->db->group_by('classe.idclasse');
         $this->db->order_by('classe.idclasse', 'desc');
+        $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
+        $this->db->where('optionecole.idoptionecole', $option);
         $r = $this->db->where('idannee_scolaire_ecole', $annee)->get('classe')->result();
         echo json_encode($r);
     }
@@ -799,43 +806,74 @@ class Ajax extends CI_Controller
         $option = $this->input->get('option', true);
         $classe = $this->input->get('classe', true);
 
-        // $this->db->select("eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
-        //     eleve.matricule, code, telephoneparent, eleve.adresse, section.intitulesection section, 
-        //     optionecole.intituleOption option, intituleclasse classe");
-        // $this->db->join('classe', 'classe.idclasse=eleve.idclasse', 'right');
-        // $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole', 'right');
-        // $this->db->join('section', 'section.idsection=optionecole.idsection', 'right');
+        $this->db->select("eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
+            eleve.matricule, password code, telephoneparent, eleve.adresse, section.intitulesection section, 
+            optionecole.intituleOption option, intituleclasse classe");
+        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+        $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
 
         $idecole = $this->session->ecole_session;
         $annee = $this->session->annee_scolaire;
 
-        // $this->db->where('section.idecole', $idecole);
-        // $this->db->where('classe.idannee_scolaire_ecole', $annee);
+        $this->db->where('section.idecole', $idecole);
+        $this->db->where('classe.idannee_scolaire_ecole', $annee);
 
-        $w = "WHERE section.idecole = $idecole AND classe.idannee_scolaire_ecole=$annee ";
         if ($classe) {
-            // $this->db->where('classe.idclasse', $classe);
-            $w = " AND classe.idclasse=$classe ";
-        } else {
-            if ($section) {
-                // $this->db->where('section.idsection', $section);
-                $w = " AND  section.idsection=$section ";
-            }
-            if ($option) {
-                // $this->db->where('optionecole.idoptionecole', $option);
-                $w = " AND optionecole.idoptionecole=$option ";
-            }
+            $this->db->where('classe.idclasse', $classe);
+        }
+        if ($section) {
+            $this->db->where('section.idsection', $section);
+        }
+        if ($option) {
+            $this->db->where('optionecole.idoptionecole', $option);
         }
 
-        // $this->db->group_by('eleve.ideleve');
-        // $r = $this->db->get('eleve')->result();
-        $r = $this->db->query("SELECT eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
-        eleve.matricule, password code, telephoneparent, eleve.adresse, section.intitulesection section, 
-        optionecole.intituleOption option, intituleclasse classe FROM eleve
-        JOIN classe ON classe.idclasse=eleve.idclasse 
-        JOIN optionecole ON (optionecole.idoptionecole=classe.idoptionecole OR classe.idoptionecole IS NULL)
-        JOIN section ON section.idsection=optionecole.idsection $w GROUP BY eleve.ideleve order by eleve.ideleve desc
-        ")->result();
+        $this->db->group_by('eleve.ideleve');
+        $r = $this->db->get('eleve')->result();
+        $ide = '';
+        foreach ($r as $el) {
+            $ide .= "$el->ideleve, ";
+        }
+        $ide = substr($ide, 0, -2);
+
+        //////////
+        $r2 = [];
+
+        $this->db->select("eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
+            eleve.matricule, password code, telephoneparent, eleve.adresse, section.intitulesection section, 
+            intituleclasse classe");
+        $this->db->join('section_has_classe', 'section_has_classe.idsection=section.idsection');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+
+        $this->db->join('eleve', 'eleve.idclasse=classe.idclasse');
+
+        $this->db->where('section.idecole', $idecole);
+        $this->db->where('classe.idannee_scolaire_ecole', $annee);
+        if (!empty($ide)) {
+            $this->db->where("`ideleve` NOT IN ($ide)", NULL, FALSE);
+        }
+
+        if ($classe) {
+            $this->db->where('eleve.idclasse', $classe);
+        }
+        if ($section) {
+            $this->db->where('section.idsection', $section);
+        }
+
+        $this->db->group_by('eleve.ideleve');
+        $r2 = $this->db->get('section')->result();
+
+
+        // var_dump($r2, $ide);
+        // die;
+
+        foreach ($r2 as $ele) {
+            $e = $ele;
+            // array_push($r, $e);
+        }
+
+
         echo json_encode(['data' => $r]);
     }
 }

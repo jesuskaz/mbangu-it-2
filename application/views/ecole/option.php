@@ -19,9 +19,8 @@
                         <div class="card">
                             <div class="card-header">
                                 <h4>Informations supplémentaires</h4>
-                                <b class="text-<?= $this->session->classe; ?>"><?= $this->session->message; ?></b>
                             </div>
-                            <form class="composeForm" name="add_name" method="POST" action="addPromotion">
+                            <form class="composeForm" name="add_name" method="POST" action="<?= site_url('ecole/option_a') ?>">
                                 <div class="">
                                     <div class="">
                                         <div class="card-header">
@@ -36,7 +35,7 @@
                                                         ?>
                                                             <div class="">
                                                                 <div class="pretty p-default m-2">
-                                                                    <input id="n-<?php echo  $classe["idclasse"] ?>" type="checkbox" name="classeChose[]" value="<?php echo $classe["intituleclasse"]; ?>" />
+                                                                    <input id="n-<?php echo  $classe["idclasse"] ?>" type="checkbox" name="classe[]" value="<?php echo $classe["idclasse"]; ?>" />
                                                                     <div class="state p-primary">
                                                                         <label for="n-<?php echo  $classe["idclasse"] ?>"><?php echo  $classe["intituleclasse"] ?></label>
                                                                     </div>
@@ -50,31 +49,29 @@
                                             <div class="col-md-6">
                                                 <div class="card shadow-secondary p-3">
                                                     <div class="" style="min-height: 150px;">
+                                                        <div class="form-inline">
+                                                            <div class="form-group m-2">
+                                                                <select type="text" name="section" class="custom-select custom-select-sm" required>
+                                                                    <option value="">Choisissez une section</option>
+                                                                    <?php foreach ($sections as $section) {
+                                                                    ?>
+                                                                        <option value="<?php echo $section["idsection"]; ?>"><?php echo $section["intitulesection"]; ?></option>
+                                                                    <?php
+                                                                    }
+                                                                    ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group m-2">
+                                                                <input type="text" name="option" placeholder="Entrer l'option" class="form-control " />
+                                                            </div>
+                                                            <div class="form-group m-2">
+                                                                <button type="submit" class="btn btn-warning" value="Submit">Créer</button>
+                                                            </div>
+                                                        </div>
                                                         <div class="form-group">
-                                                            <div class="">
-                                                                <table class="" id="dynamic_field">
-                                                                    <tr>
-                                                                        <td>
-                                                                            <div class="form-line mb-2 mr-2">
-                                                                                <select type="text" id="email_address" name="faculte" class="form-control" placeholder="Banque" required focus>
-                                                                                    <option value="">Choisissez une section ...</option>
-                                                                                    <?php foreach ($sections as $section) {
-                                                                                    ?>
-                                                                                        <option value="<?php echo $section["idsection"]; ?>"><?php echo $section["intitulesection"]; ?></option>
-                                                                                    <?php
-                                                                                    }
-                                                                                    ?>
-                                                                                </select>
-                                                                            </div>
-                                                                        </td>
-                                                                        <td><input type="text" name="addmore[][intituleOptions]" placeholder="Entrer l'option" class="form-control mb-2 mr-2 name_list" required="" /></td>
-                                                                        <td><button type="button" name="add" id="add" class="btn btn-warning mb-2 ml-2">Ajouter l'option</button></td>
-                                                                    </tr>
-                                                                </table>
-                                                            </div>
-                                                            <div class="mt-3">
-                                                                <button type="submit" name="submit" id="submit" class="btn btn-warning" value="Submit">Créer</button>
-                                                            </div>
+                                                            <p class="ml-3 text-muted"><i class="fa fa-info-cirlce text-danger"></i>Vous pouvez ajouter plusieurs options en les séparant par une virgule : Ex. option1, option2, option3, ...</p>
+                                                            <p><b class="text-<?= $this->session->classe3; ?>"><?= $this->session->message3; ?></b></p>
+                                                            <p><b class="text-<?= $this->session->classe; ?>"><?= $this->session->message; ?></b></p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -85,8 +82,6 @@
                         </div>
                     </div>
                 </div>
-
-
                 <div class="settingSidebar">
                     <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
                     </a>
@@ -178,21 +173,7 @@
         </div>
     </div>
     <?php include("footer.php"); ?>
-    <script>
-        $(function() {
-            var i = 1;
 
-            $('#add').click(function() {
-                i++;
-                $('#dynamic_field').append('<tr id="row' + i + '" class="dynamic-added"><td><input type="text" name="addmore[][intituleOptions]" placeholder="Entrer l\'option" class="form-control name_list" required /></td><td><button type="button" name="remove" id="' + i + '" class="btn btn-danger btn_remove">X Supprimer</button></td></tr>');
-            });
-
-            $(document).on('click', '.btn_remove', function() {
-                var button_id = $(this).attr("id");
-                $('#row' + button_id + '').remove();
-            });
-        })
-    </script>
 </body>
 
 </html>

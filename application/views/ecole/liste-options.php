@@ -48,6 +48,18 @@
                                                         </tr>
                                                     <?php
                                                     }
+                                                    // normalement options ou options2 :: pas les deux
+                                                    foreach ($options2 as $opt) {
+                                                    ?>
+                                                        <tr>
+                                                            <td><?php echo $i = $i + 1; ?></td>
+                                                            <td> - </td>
+                                                            <td class="text-center">
+                                                                <?= $opt->intituleclasse ?>
+                                                            </td>
+                                                        </tr>
+                                                    <?php
+                                                    }
                                                     ?>
                                                 </tbody>
                                             </table>

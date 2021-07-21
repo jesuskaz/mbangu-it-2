@@ -44,11 +44,7 @@ class Modele extends CI_Model
 		$i = '';
 		if ($type == 'eleve') {
 
-			$this->db->join('classe', 'classe.idclasse=eleve.idclasse');
-			$this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
-			$this->db->join('section', 'section.idsection=optionecole.idsection');
-			$this->db->where('section.idecole', $this->session->ecole_session);
-			$this->db->where('classe.idannee_scolaire_ecole', $this->session->annee_scolaire);
+			$this->db->where('idecole', $this->session->ecole_session);
 			$i = count($this->db->get('eleve')->result()) + 1;
 		} else if ($type == 'etudiant') {
 

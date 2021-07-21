@@ -260,7 +260,7 @@
                     $(res.options).each(function(i, d) {
                         // var url = '<?= site_url('ecole/classe/') ?>' + d.id;
                         str += `
-                        <option value="${d.id}">${d.option} (${d.section})</option>`;
+                        <option value="${d.id}">${d.option} (${d.classe})</option>`;
                     })
                     $('select[name=option]').html(str);
                     $('select[name=classe]').html('<option value="">Classe</option>');
@@ -285,13 +285,13 @@
                 }, function(res) {
                     var str = '<option value="">Classe</option>';
                     $(res).each(function(i, d) {
-                        var url = '<?= site_url('ecole/classe/') ?>' + d.id;
                         str += `
-                        <option value="${d.idclasse}">${d.classe} (${d.option})</option>`;
+                        <option value="${d.idclasse}">${d.classe}</option>`;
                     })
                     $('select[name=classe]').html(str);
                     data();
                 })
+                // data();
             })
 
             $('#classe').change(function() {

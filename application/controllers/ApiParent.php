@@ -429,9 +429,21 @@
             $data = $this->ApiParentModel->getAllHistoriquePaiement($ideleve);
             echo json_encode($data);
         }
+        public function getAllChild($login)
+        {
+            $idparent = $this->db->get_where('parent', ['login' => $login])->row("idparent");
+            $data = $this->ApiParentModel->getAllChild($idparent);
+            echo json_encode($data);
+        }
         public function getAllTarif($ideleve)
         {
             $data = $this->ApiParentModel->getTarif($ideleve);
+            echo json_encode($data);
+        }
+        public function getAllTarifChild($login)
+        {
+            $idparent = $this->db->get_where('parent', ['login' => $login])->row('idparent');
+            $data = $this->ApiParentModel->getAllTarifChild($idparent);
             echo json_encode($data);
         }
         public function getStatistic($ideleve)
@@ -447,6 +459,58 @@
             $this->db->group_by('paiement_ecole.idfrais_ecole');
             $query = $this->db->get()->result_array();
 
+            if ($query) 
+            {
+                $frais = array();
+                foreach ($query as $key => $value) {
+                    $idfrais = $value['idfrais_ecole'];
+
+                    $this->db->select('idfrais_ecole, montant');
+                    $this->db->from('frais_ecole');
+                    $this->db->where('idfrais_ecole', $idfrais);
+                    $data = $this->db->get()->result_array();
+
+                    $frais[$key] = $data;
+                }
+                foreach ($query as $key => $value) {
+                    foreach ($frais as $f => $v) {
+                        if ($value["idfrais_ecole"] == $v[0]["idfrais_ecole"]) {
+                            $tab[$value["idfrais_ecole"]] = $v[0]["montant"] - $value["montant"];
+                        }
+                    }
+                }
+
+                $d = $query;
+                $i = 0;
+                foreach ($tab as $ke => $va) {
+
+                    foreach ($d as $k => $val) {
+                        if ($ke == $val["idfrais_ecole"]) {
+                            $query[$i]["montant"] = $va;
+                        }
+                    }
+                    $i += 1;
+                }
+            }
+            echo json_encode($query);
+        }
+        public function getAllStatistique($login)
+        {
+            $idparent = $this->db->get_where("parent", ["login" => $login])->row("idparent");
+        
+            $this->db->select('sum(paiement_ecole.montant) as montant, 
+            frais_ecole.montant as montantTotal, paiement_ecole.idfrais_ecole, 
+            devise.nomDevise, intitulefrais, compte, parent_has_eleve.ideleve');
+            $this->db->from('paiement_ecole');
+            $this->db->join('eleve', 'paiement_ecole.ideleve = eleve.ideleve');
+            $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
+            $this->db->join('parent', 'parent.idparent = parent_has_eleve.idparent');
+            $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');           
+            $this->db->join('devise', 'devise.iddevise = paiement_ecole.iddevise');
+            $this->db->where('parent.idparent', $idparent);
+            $this->db->group_by('paiement_ecole.iddevise');
+            $this->db->group_by('paiement_ecole.idfrais_ecole');
+            $query = $this->db->get()->result_array();
             if ($query) 
             {
                 $frais = array();

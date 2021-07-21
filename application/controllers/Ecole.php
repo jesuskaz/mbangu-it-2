@@ -299,47 +299,80 @@ class Ecole extends CI_Controller
     public function option_a()
     {
         $option = $this->input->post("option");
-        $idsection = $this->input->post("section");
+        $section = $this->input->post("section");
+        $classe = $this->input->post("classe");
 
-        if (!count($this->db->where(['idsection' => $idsection, 'idecole' => $this->idecole])->get('section')->result())) {
+        // var_dump($_POST);
+        // die;
+
+        if (!count($this->db->where(['idsection' => $section, 'idecole' => $this->idecole])->get('section')->result())) {
             redirect();
         }
 
-        if (empty($option)) {
-            $message["message"] = "champ vide ";
+        if (empty($classe)) {
+            $message["message"] = "champ vide pour la classe.";
             $message["classe"] = "danger";
             redirect('ecole/option');
         }
 
-        $options = explode(',', $option);
 
         $ignoreliste = $addliste = '';
-        foreach ($options as $opt) {
-            $opt = trim($opt);
-            $this->db->join('section', 'section.idsection=optionecole.idsection');
-            if (count($this->db->where(["section.idecole" => $this->idecole, 'optionecole.intituleOption' => $opt, 'optionecole.idsection' => $idsection])->get('optionecole')->result())) {
-                $ignoreliste .= $opt . ', ';
-            } else {
-                if (!empty($opt)) {
-                    $this->db->insert('optionecole', [
-                        'intituleOption' => $opt,
-                        'idsection' => $idsection
-                    ]);
-                    $addliste .= $opt . ', ';
+        $isoption = false;
+
+        if (empty($option)) {
+            $isoption = true;
+            foreach ($classe as $cl) {
+                if (count($this->db->where(['idsection' => $section, 'idclasse' => $cl])->get('section_has_classe')->result())) {
+                    $r = @$this->db->where(['idclasse' => $cl, 'idannee_scolaire_ecole' => $this->idannee])->get('classe')->result()[0];
+                    $ignoreliste .= @$r->intituleclasse . ', ';
                 } else {
-                    $message["message3"] = "Format de données incorrect : $option";
-                    $message["classe3"] = "danger";
+                    $this->db->insert('section_has_classe', ['idsection' => $section, 'idclasse' => $cl]);
+                    $r = @$this->db->where(['idclasse' => $cl, 'idannee_scolaire_ecole' => $this->idannee])->get('classe')->result()[0];
+                    $addliste .= @$r->intituleclasse . ', ';
+                }
+            }
+        } else {
+            $options = explode(',', $option);
+            foreach ($classe as $cl) {
+                foreach ($options as $opt) {
+                    $opt = trim($opt);
+                    $this->db->join('section', 'section.idsection=optionecole.idsection');
+                    if (count($this->db->where(["section.idecole" => $this->idecole, 'optionecole.intituleOption' => $opt, 'idclasse' => $cl, 'optionecole.idsection' => $section])->get('optionecole')->result())) {
+                        $ignoreliste .= $opt . ', ';
+                    } else {
+                        if (!empty($opt)) {
+                            $this->db->insert('optionecole', [
+                                'intituleOption' => $opt,
+                                'idsection' => $section,
+                                'idclasse' => $cl
+                            ]);
+                            $addliste .= $opt . ', ';
+                        } else {
+                            $message["message3"] = "Format de données incorrect : $option";
+                            $message["classe3"] = "danger";
+                        }
+                    }
                 }
             }
         }
 
         if (!empty($addliste)) {
-            $message["message"] = "Option(s) ajoutée(s) avec succès : " . substr($addliste, 0, -2);
-            $message["classe"] = "success";
+            if ($isoption) {
+                $message["message"] = "Classe(s) ajoutée(s) avec succès : " . substr($addliste, 0, -2);
+                $message["classe"] = "success";
+            } else {
+                $message["message"] = "Option(s) ajoutée(s) avec succès : " . substr($addliste, 0, -2);
+                $message["classe"] = "success";
+            }
         }
         if (!empty($ignoreliste)) {
-            $message["message3"] = "Option(s) existante(s) : " . substr($ignoreliste, 0, -2);
-            $message["classe3"] = "warning";
+            if ($isoption) {
+                $message["message3"] = "Classe(s) existante(s) : " . substr($ignoreliste, 0, -2);
+                $message["classe3"] = "warning";
+            } else {
+                $message["message3"] = "Option(s) existante(s) : " . substr($ignoreliste, 0, -2);
+                $message["classe3"] = "warning";
+            }
         }
 
         $this->session->set_flashdata($message ?? []);
@@ -373,8 +406,17 @@ class Ecole extends CI_Controller
         }
 
         $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
+        $this->db->group_by('optionecole.idoptionecole');
+        $o = $this->db->where(['idsection' => $idsection])->get('optionecole')->result();
+
+        $this->db->join('section_has_classe', 'section_has_classe.idclasse=classe.idclasse');
+        $this->db->join('section', 'section.idsection=section_has_classe.idsection');
         $this->db->group_by('classe.idclasse');
-        $data["options"] = $this->db->where(['idsection' => $idsection])->get('optionecole')->result();
+        $this->db->order_by('classe.idclasse');
+        $oo = $this->db->where(['section.idsection' => $idsection])->get('classe')->result();
+
+        $data["options"] = $o;
+        $data["options2"] = $oo;
         $data["section"] = $fac[0]->intitulesection;
         $this->load->view("ecole/liste-options", $data);
     }
@@ -402,6 +444,7 @@ class Ecole extends CI_Controller
     {
         $this->db->order_by('idsection', 'desc');
         $data["sections"] = $this->db->get_where('section', ['idecole' => $this->idecole])->result();
+        $data["classes"] = $this->db->get_where('classe', ['idannee_scolaire_ecole' => $this->idannee])->result();
         $this->load->view("ecole/eleves", $data);
     }
 
@@ -414,7 +457,7 @@ class Ecole extends CI_Controller
 
         $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
         $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
-        $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
+        $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
         $this->db->join('section', 'section.idsection=optionecole.idsection');
 
         $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
@@ -441,13 +484,33 @@ class Ecole extends CI_Controller
             'classe.idannee_scolaire_ecole' => $this->idannee,
             'section.idecole' => $this->idecole,
         ];
+
+        $this->db->select('eleve.ideleve, classe.idclasse, eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, eleve.adresse, 
+        classe.intituleclasse, optionecole.intituleOption, section.intitulesection
+        ');
         $this->db->join('classe', 'eleve.idclasse=classe.idclasse');
-        $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
+        $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
         $this->db->join('section', 'optionecole.idsection=optionecole.idsection');
         $this->db->group_by('eleve.ideleve');
-        if (!count($et = $this->db->where($where)->get('eleve')->result())) {
+        $a = $this->db->where($where)->get('eleve')->result();
+
+        $this->db->select('eleve.ideleve, classe.idclasse, eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, eleve.adresse, 
+        classe.intituleclasse, section.intitulesection
+        ');
+        $this->db->join('classe', 'eleve.idclasse=classe.idclasse');
+        $this->db->join('section_has_classe', 'section_has_classe.idclasse=classe.idclasse');
+        $this->db->join('section', 'section.idsection=section_has_classe.idsection');
+        $this->db->group_by('eleve.ideleve');
+        $b = $this->db->where($where)->get('eleve')->result();
+
+        if (!count($a) && !count($b)) {
             redirect('index/login');
         }
+
+        $et = count($a) ? $a : $b;
+
+        // var_dump($a, $b);
+        // die;
 
         $data['eleve'] = $et[0];
 
