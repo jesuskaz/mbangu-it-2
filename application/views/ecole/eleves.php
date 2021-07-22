@@ -291,7 +291,6 @@
                     $('select[name=classe]').html(str);
                     data();
                 })
-                // data();
             })
 
             $('#classe').change(function() {

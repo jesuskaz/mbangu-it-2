@@ -490,7 +490,7 @@ class Ecole extends CI_Controller
         ');
         $this->db->join('classe', 'eleve.idclasse=classe.idclasse');
         $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
-        $this->db->join('section', 'optionecole.idsection=optionecole.idsection');
+        $this->db->join('section', 'optionecole.idsection=section.idsection');
         $this->db->group_by('eleve.ideleve');
         $a = $this->db->where($where)->get('eleve')->result();
 
@@ -656,5 +656,9 @@ class Ecole extends CI_Controller
         $this->session->set_flashdata('message', 'Eleve supprimé.');
         $this->session->set_flashdata('classe', 'success');
         redirect('ecole/eleves');
+    }
+
+    function annonces() {
+        $this->load->view('ecole/annonces');
     }
 }

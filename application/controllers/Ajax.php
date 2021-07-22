@@ -201,7 +201,7 @@ class Ajax extends CI_Controller
             $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
             $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
             $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
-            $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
+            $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
             $this->db->join('section', 'section.idsection=optionecole.idsection');
 
             $this->db->group_by('paiement_ecole.idpaiement_ecole');
@@ -341,28 +341,27 @@ class Ajax extends CI_Controller
         // die;
         echo json_encode($r);
     }
-    function select_data2()
-    {
-        $section = (int) $this->input->get('section');
-        $option = (int) $this->input->get('option');
-        $source =  $this->input->get('source');
+    // function select_data2()
+    // {
+    //     $section = (int) $this->input->get('section');
+    //     $option = (int) $this->input->get('option');
+    //     $source =  $this->input->get('source');
 
-        if ($source == 'section') {
-            $this->db->select('idoptionecole id, intituleOption nom');
-            $this->db->where('idsection', $section);
-            $r = $this->db->get('optionecole')->result();
-            die(json_encode($r));
-        }
+    //     if ($source == 'section') {
+    //         $this->db->select('idoptionecole id, intituleOption nom');
+    //         $this->db->where('idsection', $section);
+    //         $r = $this->db->get('optionecole')->result();
+    //         die(json_encode($r));
+    //     }
 
-        if ($source == 'option') {
-            $this->db->select('idclasse id, intituleclasse nom');
-            $this->db->where('idoptionecole', $option);
-            $r = $this->db->get('classe')->result();
-            die(json_encode($r));
-        }
-
-        // var_dump($_GET);
-    }
+    //     if ($source == 'option') {
+    //         $this->db->select('idclasse id, intituleclasse nom');
+    //         $this->db->where('idoptionecole', $option);
+    //         $r = $this->db->get('classe')->result();
+    //         die(json_encode($r));
+    //     }
+    //     // var_dump($_GET);
+    // }
     function liste_etudiant()
     {
         $type = $this->input->get('type', true);
@@ -843,10 +842,9 @@ class Ajax extends CI_Controller
         $this->db->select("eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
             eleve.matricule, password code, telephoneparent, eleve.adresse, section.intitulesection section, 
             intituleclasse classe");
-        $this->db->join('section_has_classe', 'section_has_classe.idsection=section.idsection');
-        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
-
-        $this->db->join('eleve', 'eleve.idclasse=classe.idclasse');
+        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+        $this->db->join('section_has_classe', 'section_has_classe.idclasse=classe.idclasse');
+        $this->db->join('section', 'section.idsection=section_has_classe.idsection');
 
         $this->db->where('section.idecole', $idecole);
         $this->db->where('classe.idannee_scolaire_ecole', $annee);
@@ -862,18 +860,193 @@ class Ajax extends CI_Controller
         }
 
         $this->db->group_by('eleve.ideleve');
-        $r2 = $this->db->get('section')->result();
-
+        $r2 = $this->db->get('eleve')->result();
 
         // var_dump($r2, $ide);
         // die;
 
         foreach ($r2 as $ele) {
             $e = $ele;
-            // array_push($r, $e);
+            array_push($r, $e);
+        }
+
+        $r = array_reverse($r);
+
+        echo json_encode(['data' => $r]);
+    }
+
+    function annonce_a()
+    {
+        $type = $this->input->post('type', true);
+        $this->checktype($type);
+
+        $date = $this->input->post('date');
+        $titre = $this->input->post('titre');
+
+        if (strlen($titre) > 128) {
+            $rep['status'] = false;
+            $rep['message'] = 'Le titre doit avoir moins de 128 caractères.';
+            echo json_encode($rep);
+            exit;
         }
 
 
-        echo json_encode(['data' => $r]);
+        $path =  "upload/annonce/";
+        $f = $_FILES['file']['name'] ?? '';
+        $f = explode('.', $f);
+        if (count($f) >= 2) {
+            $exe = end($f);
+            $f = time() . rand(1, 1000) . '.' . $exe;
+        } else {
+            $f = '';
+        }
+        $config = array(
+            'upload_path' => $path,
+            'overwrite' => TRUE,
+            'allowed_types' => "jpg|jpeg|png|gif",
+            'file_name' => $f,
+            'max_width' => 700,
+            'max_height' => 400,
+            'max_size' => 120 // Ko
+        );
+
+
+        $this->load->library('upload', $config);
+
+        if ($this->upload->do_upload('file')) {
+            $d = $this->upload->data();
+            $nomFichier = $path . $d['file_name'];
+
+            if ($type == 'ecole') {
+                $idecole = $this->session->ecole_session;
+                $this->db->insert('annonce', ['type' => 'ecole', 'id' => $idecole, 'titre' => $titre, 'dateexpiration' => $date, 'image' => $nomFichier]);
+            } else if ($type == 'univ') {
+                $id = $this->session->universite_session;
+                $this->db->insert('annonce', ['type' => 'universite', 'id' => $id, 'titre' => $titre, 'dateexpiration' => $date, 'image' => $nomFichier]);
+            } else if ($type == 'banque') {
+                $id = $this->session->bank_session;
+                $this->db->insert('annonce', ['type' => 'banque', 'id' => $id, 'titre' => $titre, 'dateexpiration' => $date, 'image' => $nomFichier]);
+            } else if ($type == 'admin') {
+                $id = $this->session->isadmin;
+                $this->db->insert('annonce', ['type' => 'admin', 'id' => $id, 'titre' => $titre, 'dateexpiration' => $date, 'image' => $nomFichier]);
+            }
+
+            $rep['status'] = true;
+            $rep['message'] = 'Annonce ajoutée.';
+        } else {
+            $rep['status'] = false;
+            $rep['message'] = 'Echec, vérifiez le fichier séléctionné : ' . @$this->upload->error_msg[0];
+        }
+
+        echo json_encode($rep);
+    }
+
+    function annonce()
+    {
+        $type = $this->input->get('type', true);
+        $this->checktype($type);
+
+        if ($type == 'ecole') {
+
+            $idecole = $this->session->ecole_session;
+            $this->db->order_by('idannonce', 'desc');
+            $this->db->where(['type' => 'ecole', 'id' => $idecole]);
+            $r = $this->db->get('annonce')->result();
+        }
+
+        if ($type == 'univ') {
+            $iduniv = $this->session->universite_session;
+            $this->db->order_by('idannonce', 'desc');
+            $this->db->where(['type' => 'universite', 'id' => $iduniv]);
+            $r = $this->db->get('annonce')->result();
+        }
+
+        if ($type == 'banque') {
+            $id = $this->session->bank_session;
+            $this->db->order_by('idannonce', 'desc');
+            $this->db->where(['type' => 'banque', 'id' => $id]);
+            $r = $this->db->get('annonce')->result();
+        }
+
+        if ($type == 'admin') {
+            $id = $this->session->isadmin;
+            $this->db->order_by('idannonce', 'desc');
+            $this->db->where(['type' => 'admin', 'id' => $id]);
+            $r = $this->db->get('annonce')->result();
+        }
+
+
+        echo json_encode($r ?? []);
+    }
+
+
+    function annonce_d()
+    {
+        $type = $this->input->post('type', true);
+        $this->checktype($type);
+
+        $annonce = $this->input->post('annonce', true);
+
+        if ($type == 'ecole') {
+            $idecole = $this->session->ecole_session;
+            if (count($a = $this->db->where(['type' => 'ecole', 'id' => $idecole, 'idannonce' => $annonce])->get('annonce')->result())) {
+
+                $a = $a[0];
+                @unlink($a->image);
+                $this->db->where('idannonce', $annonce)->delete('annonce');
+                $rep['status'] = true;
+                $rep['message'] = 'Annonce supprimée.';
+            } else {
+                $rep['status'] = false;
+                $rep['message'] = 'Erreur de suppression.';
+            }
+        }
+
+        if ($type == 'univ') {
+            $id = $this->session->universite_session;
+            if (count($a = $this->db->where(['type' => 'universite', 'id' => $id, 'idannonce' => $annonce])->get('annonce')->result())) {
+
+                $a = $a[0];
+                @unlink($a->image);
+                $this->db->where('idannonce', $annonce)->delete('annonce');
+                $rep['status'] = true;
+                $rep['message'] = 'Annonce supprimée.';
+            } else {
+                $rep['status'] = false;
+                $rep['message'] = 'Erreur de suppression.';
+            }
+        }
+
+        if ($type == 'banque') {
+            $id = $this->session->bank_session;
+            if (count($a = $this->db->where(['type' => 'banque', 'id' => $id, 'idannonce' => $annonce])->get('annonce')->result())) {
+
+                $a = $a[0];
+                @unlink($a->image);
+                $this->db->where('idannonce', $annonce)->delete('annonce');
+                $rep['status'] = true;
+                $rep['message'] = 'Annonce supprimée.';
+            } else {
+                $rep['status'] = false;
+                $rep['message'] = 'Erreur de suppression.';
+            }
+        }
+
+        if ($type == 'admin') {
+            $id = $this->session->isadmin;
+            if (count($a = $this->db->where(['type' => 'admin', 'id' => $id, 'idannonce' => $annonce])->get('annonce')->result())) {
+
+                $a = $a[0];
+                @unlink($a->image);
+                $this->db->where('idannonce', $annonce)->delete('annonce');
+                $rep['status'] = true;
+                $rep['message'] = 'Annonce supprimée.';
+            } else {
+                $rep['status'] = false;
+                $rep['message'] = 'Erreur de suppression.';
+            }
+        }
+
+        echo json_encode($rep ?? []);
     }
 }

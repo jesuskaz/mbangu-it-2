@@ -283,34 +283,65 @@
       form.change(function() {
         var name = $(this).attr('name');
         if (name == 'section') {
-          getOption('section', 'Option');
+          // getOption('section', 'Option');
+          $.getJSON("<?= site_url('ajax/options-ecole') ?>", {
+            section: $(this).val(),
+            type: 'ecole'
+          }, function(res) {
+            var str = '<option value="">Aucun</option>';
+            $(res.options).each(function(i, d) {
+              str += `<option value="${d.id}">${d.option} (${d.classe})</option>`;
+            })
+            $('select[name=option]').html(str);
+            $('select[name=classe]').html('<option value="">Classe</option>');
+
+            str = '<option value="">Classe</option>';
+            if (res.options.length == 0) {
+              $(res.classes).each(function(i, d) {
+                str += `<option value="${d.idclasse}">${d.intituleclasse} </option>`;
+              })
+              $('select[name=classe]').html(str);
+            }
+            liste();
+          })
         } else if (name == 'option') {
-          getOption('option', 'Classe');
+          // getOption('option', 'Classe');
+          $.getJSON("<?= site_url('ajax/classes-ecole') ?>", {
+            option: $(this).val(),
+            type: 'ecole'
+          }, function(res) {
+            var str = '<option value="">Classe</option>';
+            $(res).each(function(i, d) {
+              str += `<option value="${d.idclasse}">${d.classe}</option>`;
+            })
+            $('select[name=classe]').html(str);
+            liste();
+          })
         } else {
           liste()
         }
       })
 
-      getOption = function(source, label) {
-        var t = `source=${source}&` + form.serialize();
-        $('select').attr('disabled', true);
-        $.getJSON("<?= site_url('ajax/select_data2') ?>", t, function(data) {
-          var str = `<option value="">${label}</option>`;
-          if (data.length > 0) {
-            $(data).each(function(i, j) {
-              var _o = j.nom;
-              var _v = j.id
-              str += `<option value="${_v}">${_o} </option>`;
-            })
-          }
-          $(`select[name=${label.toLowerCase()}]`).html(str);
-          if (source == 'section') {
-            $(`select[name=classe]`).html('<option value="">Classe</option>');
-          }
-          $('select').attr('disabled', false);
-          liste()
-        })
-      }
+      // getOption = function(source, label) {
+      //   var t = `source=${source}&` + form.serialize();
+      //   $('select').attr('disabled', true);
+      //   $.getJSON("<?= site_url('ajax/select_data2') ?>", t, function(data) {
+      //     var str = `<option value="">${label}</option>`;
+      //     if (data.length > 0) {
+      //       $(data).each(function(i, j) {
+      //         var _o = j.nom;
+      //         var _v = j.id
+      //         str += `<option value="${_v}">${_o} </option>`;
+      //       })
+      //     }
+      //     $(`select[name=${label.toLowerCase()}]`).html(str);
+      //     if (source == 'section') {
+      //       $(`select[name=classe]`).html('<option value="">Classe</option>');
+      //     }
+      //     $('select').attr('disabled', false);
+      //     liste()
+      //   })
+      // }
 
 
       colors = ["#786BED", "#ff7694", "#21b0ff"];

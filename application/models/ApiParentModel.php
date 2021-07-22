@@ -373,8 +373,9 @@
         $this->db->join('eleve', 'paiement_ecole.ideleve = eleve.ideleve');
         $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
         $this->db->join('classe', 'eleve.idclasse = classe.idclasse');
-        $this->db->join('optionecole', 'classe.idoptionecole = optionecole.idoptionecole');
-        $this->db->join('section', 'optionecole.idsection = section.idsection');
+        $this->db->join('section_has_classe', 'classe.idclasse = section_has_classe.idclasse');
+        $this->db->join('section', 'section_has_classe.idsection = section.idsection');
+        $this->db->join('optionecole', 'section.idsection = optionecole.idsection');
         $this->db->join('annee_scolaire_ecole', 'classe.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
         $this->db->join('ecole', 'annee_scolaire_ecole.idecole = annee_scolaire_ecole.idecole');
         // $this->db->where('parent_has_eleve.idparent', $idparent);
@@ -422,9 +423,11 @@
         $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole = paiement_ecole.idfrais_ecole');
         $this->db->join('devise', 'frais_ecole.iddevise = devise.iddevise');
         $this->db->join('eleve', 'paiement_ecole.ideleve = eleve.ideleve');
+        $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
         $this->db->join('classe', 'eleve.idclasse = classe.idclasse');
-        $this->db->join('optionecole', 'classe.idoptionecole = optionecole.idoptionecole');
-        $this->db->join('section', 'optionecole.idsection = section.idsection');
+        $this->db->join('section_has_classe', 'classe.idclasse = section_has_classe.idclasse');
+        $this->db->join('section', 'section_has_classe.idsection = section.idsection');
+        $this->db->join('optionecole', 'section.idsection = optionecole.idsection');
         $this->db->join('annee_scolaire_ecole', 'classe.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
         $this->db->join('ecole', 'annee_scolaire_ecole.idecole = annee_scolaire_ecole.idecole');
         $this->db->where('eleve.ideleve', $ideleve);
@@ -443,6 +446,34 @@
             paiement_ecole.commission, intitulefrais,
             compte, nomDevise,codeQr, paiement_ecole.ideleve,
             eleve.nom, eleve.prenom, eleve.postnom, eleve.matricule,
+            intitulesection, intituleOption, intituleclasse, nomecole, idparent
+            ");
+        $this->db->from("paiement_ecole");
+        $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole = paiement_ecole.idfrais_ecole');
+        $this->db->join('devise', 'frais_ecole.iddevise = devise.iddevise');
+        $this->db->join('eleve', 'paiement_ecole.ideleve = eleve.ideleve');
+        $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
+        $this->db->join('classe', 'eleve.idclasse = classe.idclasse');
+        $this->db->join('section_has_classe', 'classe.idclasse = section_has_classe.idclasse');
+        $this->db->join('section', 'section_has_classe.idsection = section.idsection');
+        $this->db->join('optionecole', 'section.idsection = optionecole.idsection');
+        $this->db->join('annee_scolaire_ecole', 'classe.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
+        $this->db->join('ecole', 'annee_scolaire_ecole.idecole = annee_scolaire_ecole.idecole');
+        $this->db->where('parent_has_eleve.idparent', $idparent);
+        $this->db->order_by("idpaiement", "desc");
+        $this->db->group_by('idpaiement');
+        $query = $this->db->get()->result_array();
+        return $query;
+        print("Checking");
+        
+        $this->db->select("
+            frais_ecole.montant as fraisMontant,
+            (frais_ecole.montant - paiement_ecole.montant) as reste,
+            paiement_ecole.idpaiement_ecole as idpaiement,
+            paiement_ecole.montant as montant, date, paiement_ecole.typeOperation,
+            paiement_ecole.commission, intitulefrais,
+            compte, nomDevise,codeQr, paiement_ecole.ideleve,
+            eleve.nom, eleve.prenom, eleve.postnom, eleve.matricule,
             intitulesection, intituleOption, intituleclasse, nomecole,
             ");
         $this->db->from("paiement_ecole");
@@ -451,8 +482,9 @@
         $this->db->join('eleve', 'paiement_ecole.ideleve = eleve.ideleve');
         $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
         $this->db->join('classe', 'eleve.idclasse = classe.idclasse');
-        $this->db->join('optionecole', 'classe.idoptionecole = optionecole.idoptionecole');
-        $this->db->join('section', 'optionecole.idsection = section.idsection');
+        $this->db->join('section_has_classe', 'classe.idclasse = section_has_classe.idclasse');
+        $this->db->join('section', 'section_has_classe.idsection = section.idsection');
+        $this->db->join('optionecole', 'section.idsection = optionecole.idsection');
         $this->db->join('annee_scolaire_ecole', 'classe.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
         $this->db->join('ecole', 'annee_scolaire_ecole.idecole = annee_scolaire_ecole.idecole');
         $this->db->where('parent_has_eleve.idparent', $idparent);

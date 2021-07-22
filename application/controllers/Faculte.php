@@ -298,4 +298,8 @@ class Faculte extends CI_Controller
         $this->session->set_flashdata($message);
         redirect('faculte/listefaculte');
     }
+
+    function annonces() {
+        $this->load->view('universite/annonces');
+    }
 }

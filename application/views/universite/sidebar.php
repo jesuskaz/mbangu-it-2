@@ -38,6 +38,18 @@
       </ul>
     </li>
     <li class="dropdown">
+      <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-tag"></i><span>Annonces</span></a>
+      <ul class="dropdown-menu">
+        <li><a class="nav-link" href="<?php echo site_url("faculte/annonces"); ?>">Nos annonces</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-shopping-bag"></i><span>Magasin</span></a>
+      <ul class="dropdown-menu">
+        <li><a class="nav-link" href="<?php echo site_url("faculte/magasin"); ?>">Articles</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
       <a href="#" class="menu-toggle nav-link has-dropdown"><i class=" fa fa-cog"></i><span>Paramètres</span></a>
       <ul class="dropdown-menu">
         <li><a class="nav-link" href="<?php echo site_url("banque/profil"); ?>">Profil</a></li>

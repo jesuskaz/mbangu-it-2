@@ -5,7 +5,7 @@ class Manager extends CI_Controller
     {
         parent::__construct();
         if (!$this->session->isadmin) {
-            redirect('AdminCredential/adminConnexion');
+            redirect('index/login');
         };
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
         $this->load->model("BanqueModel");
@@ -133,5 +133,9 @@ class Manager extends CI_Controller
         // die;
         $data['comptes'] = $compte;
         $this->load->view("admin/detail_etudiant", $data);
+    }
+
+    function annonces() {
+        $this->load->view('admin/annonces');
     }
 }

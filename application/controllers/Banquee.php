@@ -81,4 +81,8 @@ class Banquee extends CI_Controller
         $u = $this->db->where('idbanque', $idbank)->get('banque')->result()[0];
         $this->load->view("banque/profil", ['bank' => $u]);
     }
+
+    function annonces() {
+        $this->load->view('banque/annonces');
+    }
 }
