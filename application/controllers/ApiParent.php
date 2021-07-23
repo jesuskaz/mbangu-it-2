@@ -440,6 +440,11 @@
             $data = $this->ApiParentModel->getTarif($ideleve);
             echo json_encode($data);
         }
+        public function getEleveData($ideleve)
+        {
+            $data = $this->ApiParentModel->getEleveData($ideleve);
+            echo json_encode($data);
+        }
         public function getAllTarifChild($login)
         {
             $idparent = $this->db->get_where('parent', ['login' => $login])->row('idparent');

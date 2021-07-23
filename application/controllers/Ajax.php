@@ -905,8 +905,8 @@ class Ajax extends CI_Controller
             'overwrite' => TRUE,
             'allowed_types' => "jpg|jpeg|png|gif",
             'file_name' => $f,
-            'max_width' => 700,
-            'max_height' => 400,
+            'max_width' => 1000,
+            'max_height' => 500,
             'max_size' => 120 // Ko
         );
 
@@ -1041,6 +1041,146 @@ class Ajax extends CI_Controller
                 $this->db->where('idannonce', $annonce)->delete('annonce');
                 $rep['status'] = true;
                 $rep['message'] = 'Annonce supprimée.';
+            } else {
+                $rep['status'] = false;
+                $rep['message'] = 'Erreur de suppression.';
+            }
+        }
+
+        echo json_encode($rep ?? []);
+    }
+
+    function article()
+    {
+        $type = $this->input->get('type', true);
+        $this->checktype($type);
+
+        if ($type == 'ecole') {
+            $idecole = $this->session->ecole_session;
+            $this->db->order_by('idarticle', 'desc');
+            $this->db->where(['idecole' => $idecole]);
+            $this->db->join('devise','devise.iddevise=article_ecole.iddevise');
+            $r = $this->db->get('article_ecole')->result();
+        }
+
+        if ($type == 'univ') {
+            $iduniv = $this->session->universite_session;
+            $this->db->order_by('idarticle', 'desc');
+            $this->db->where(['iduniversite' => $iduniv]);
+            $this->db->join('devise','devise.iddevise=article_universite.iddevise');
+            $r = $this->db->get('article_universite')->result();
+        }
+
+
+        echo json_encode($r ?? []);
+    }
+
+    function article_a()
+    {
+        $type = $this->input->post('type', true);
+        $this->checktype($type);
+
+        $devise = $this->input->post('devise');
+        $titre = $this->input->post('titre');
+        $prix = $this->input->post('prix');
+
+        if (strlen($titre) > 128) {
+            $rep['status'] = false;
+            $rep['message'] = 'Le titre doit avoir moins de 128 caractères.';
+            echo json_encode($rep);
+            exit;
+        }
+
+        if (!file_exists('upload/article/')) {
+            mkdir('upload/article/');
+        }
+        $path =  "upload/article/";
+        $f = $_FILES['file']['name'] ?? '';
+        $f = explode('.', $f);
+        if (count($f) >= 2) {
+            $exe = end($f);
+            $f = time() . rand(1, 1000) . '.' . $exe;
+        } else {
+            $f = '';
+        }
+        $config = array(
+            'upload_path' => $path,
+            'overwrite' => TRUE,
+            'allowed_types' => "jpg|jpeg|png|gif",
+            'file_name' => $f,
+            'max_width' => 1000,
+            'max_height' => 500,
+            'max_size' => 120 // Ko
+        );
+
+        $this->load->library('upload', $config);
+
+        if ($this->upload->do_upload('file')) {
+            $d = $this->upload->data();
+            $nomFichier = $path . $d['file_name'];
+
+            if ($type == 'ecole') {
+                $idecole = $this->session->ecole_session;
+                $this->db->insert('article_ecole', ['idecole' => $idecole, 'iddevise' => $devise, 'description' => $titre, 'prix' => $prix, 'image' => $nomFichier]);
+            } else if ($type == 'univ') {
+                $id = $this->session->universite_session;
+                $this->db->insert('article_universite', ['iduniversite' => $id, 'iddevise' => $devise, 'description' => $titre, 'prix' => $prix, 'image' => $nomFichier]);
+            }
+            $rep['status'] = true;
+            $rep['message'] = 'Article ajouté.';
+        } else {
+            $rep['status'] = false;
+            $rep['message'] = 'Echec, vérifiez le fichier séléctionné : ' . @$this->upload->error_msg[0];
+        }
+
+        echo json_encode($rep);
+    }
+
+    function article_d()
+    {
+        $type = $this->input->post('type', true);
+        $this->checktype($type);
+
+        $idarticle = $this->input->post('id', true);
+
+        if ($type == 'ecole') {
+            $idecole = $this->session->ecole_session;
+            if (count($a = $this->db->where(['idecole' => $idecole, 'idarticle' => $idarticle])->get('article_ecole')->result())) {
+                $this->db->join('achat_article_ecole', 'achat_article_ecole.idarticle=article_ecole.idarticle');
+                if (count($this->db->where(['article_ecole.idecole' => $idecole, 'article_ecole.idarticle' => $idarticle])->get('article_ecole')->result())) {
+                    $rep['status'] = false;
+                    $rep['message'] = 'Il existe deja un paiement pour cet article.';
+                    echo json_encode($rep);
+                    exit;
+                }
+
+                $a = $a[0];
+                @unlink($a->image);
+                $this->db->where('idarticle', $idarticle)->delete('article_ecole');
+                $rep['status'] = true;
+                $rep['message'] = 'Article supprimé.';
+            } else {
+                $rep['status'] = false;
+                $rep['message'] = 'Erreur de suppression.';
+            }
+        }
+
+        if ($type == 'univ') {
+            $iduniversite = $this->session->universite_session;
+            if (count($a = $this->db->where(['iduniversite' => $iduniversite, 'idarticle' => $idarticle])->get('article_universite')->result())) {
+                $this->db->join('achat_article_universite', 'achat_article_universite.idarticle=article_universite.idarticle');
+                if (count($this->db->where(['article_universite.iduniversite' => $iduniversite, 'article_universite.idarticle' => $idarticle])->get('article_universite')->result())) {
+                    $rep['status'] = false;
+                    $rep['message'] = 'Il existe deja un paiement pour cet article.';
+                    echo json_encode($rep);
+                    exit;
+                }
+
+                $a = $a[0];
+                @unlink($a->image);
+                $this->db->where('idarticle', $idarticle)->delete('article_universite');
+                $rep['status'] = true;
+                $rep['message'] = 'Article supprimé.';
             } else {
                 $rep['status'] = false;
                 $rep['message'] = 'Erreur de suppression.';

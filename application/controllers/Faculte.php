@@ -18,6 +18,9 @@ class Faculte extends CI_Controller
 
     public function addAnne()
     {
+        if (!$this->session->universite_session) {
+            redirect('index/login');
+        }
         $id = $this->session->universite_session;
 
         $to = $this->input->post("to");
@@ -44,14 +47,14 @@ class Faculte extends CI_Controller
     public function anneeAcademique()
     {
         if (!$this->session->universite_session) {
-            redirect();
+            redirect('index/login');
         }
         $this->load->view("universite/anneAcademique");
     }
     public function listeFaculte()
     {
         if (!$this->session->universite_session) {
-            redirect();
+            redirect('index/login');
         }
         $login = $this->session->userdata("universite_session");
 
@@ -64,7 +67,7 @@ class Faculte extends CI_Controller
     {
 
         if (!$login = $this->session->universite_session) {
-            redirect();
+            redirect('index/login');
         }
         $idfaculte = (int) $idfaculte;
 
@@ -89,14 +92,14 @@ class Faculte extends CI_Controller
     public function promotion()
     {
         if (!$this->session->universite_session) {
-            redirect();
+            redirect('index/login');
         }
         $this->load->view("universite/promotion");
     }
     public function option()
     {
         if (!$this->session->universite_session) {
-            redirect();
+            redirect('index/login');
         }
         $id = $this->session->userdata('universite_session');
 
@@ -114,6 +117,9 @@ class Faculte extends CI_Controller
 
     public function addPromo()
     {
+        if (!$this->session->universite_session) {
+            redirect('index/login');
+        }
         $listePromo = $this->input->post("addmore");
         $state = "error";
 
@@ -146,6 +152,9 @@ class Faculte extends CI_Controller
 
     public function addPromotion()
     {
+        if (!$this->session->universite_session) {
+            redirect('index/login');
+        }
         $listeOption = $this->input->post("addmore");
         $idFaculte = $this->input->post("faculte");
 
@@ -225,6 +234,9 @@ class Faculte extends CI_Controller
 
     public function addOption()
     {
+        if (!$this->session->universite_session) {
+            redirect('index/login');
+        }
         $listePromotion = $this->input->post("addmore");
         $idOption = $this->input->post("option");
         $nomOption = $this->FaculteModel->getOption($idOption);
@@ -271,6 +283,9 @@ class Faculte extends CI_Controller
 
     public function createFaculte()
     {
+        if (!$this->session->universite_session) {
+            redirect('index/login');
+        }
         $faculte = $this->input->post("faculte");
         $logEcole = $this->session->userdata("login");
 
@@ -299,7 +314,78 @@ class Faculte extends CI_Controller
         redirect('faculte/listefaculte');
     }
 
-    function annonces() {
+    function annonces()
+    {
+        if (!$this->session->universite_session) {
+            redirect('index/login');
+        }
         $this->load->view('universite/annonces');
+    }
+
+    function magasin()
+    {
+        if (!$this->session->universite_session) {
+            redirect('index/login');
+        }
+        $this->load->view('universite/magasin', ['devises' => $this->db->get('devise')->result()]);
+    }
+
+    function achat()
+    {
+        if (!$iduniv = $this->session->universite_session) {
+            redirect('index/login');
+        }
+        $this->db->select('devise.nomDevise devise, sum(prix) total');
+        $this->db->join('article_universite', 'article_universite.idarticle=achat_article_universite.idarticle');
+        $this->db->join('devise', 'devise.iddevise=article_universite.iddevise');
+        $this->db->group_by('devise.iddevise');
+        $this->db->where('article_universite.iduniversite', $iduniv);
+        $data['solde'] = $this->db->get('achat_article_universite')->result();
+
+        $this->db->select('article_universite.idarticle, devise.nomDevise devise, sum(prix) total, article_universite.prix, article_universite.description article');
+        $this->db->join('article_universite', 'article_universite.idarticle=achat_article_universite.idarticle');
+        $this->db->join('devise', 'devise.iddevise=article_universite.iddevise');
+        $this->db->group_by('article_universite.idarticle');
+        $this->db->order_by('achat_article_universite.idachat', 'desc');
+        $this->db->where('article_universite.iduniversite', $iduniv);
+        $data['achats'] = $this->db->get('achat_article_universite')->result();
+
+        $this->load->view('universite/achat', $data);
+    }
+
+    function detail_achat($idarticle = null)
+    {
+        $idarticle = (int) $idarticle;
+        if (!$iduniv = $this->session->universite_session) {
+            redirect('index/login');
+        }
+
+        $this->db->where('article_universite.idarticle', $idarticle);
+        $this->db->where('article_universite.iduniversite', $iduniv);
+        $this->db->join('devise', 'devise.iddevise=article_universite.iddevise');
+        $article = $this->db->get('article_universite')->result();
+        if (!count($article)) {
+            redirect('faculte/achat');
+        }
+
+        $this->db->select('etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, devise.nomDevise devise,
+         article_universite.prix, article_universite.description article, achat_article_universite.date');
+        $this->db->join('etudiant', 'etudiant.idetudiant=achat_article_universite.idetudiant');
+        $this->db->join('article_universite', 'article_universite.idarticle=achat_article_universite.idarticle');
+        $this->db->join('devise', 'devise.iddevise=article_universite.iddevise');
+        $this->db->order_by('achat_article_universite.idachat', 'desc');
+        $this->db->where('article_universite.idarticle', $idarticle);
+        $this->db->where('article_universite.iduniversite', $iduniv);
+        $data['achats']  = $ar = $this->db->get('achat_article_universite')->result();
+
+        $data['article'] = $article[0];
+
+        $tot = 0;
+        foreach ($ar as $aaa) {
+            $tot += $aaa->prix;
+        }
+        $data['total'] = $tot;
+
+        $this->load->view('universite/detail-achat', $data);
     }
 }

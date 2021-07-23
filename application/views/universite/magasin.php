@@ -21,7 +21,7 @@
                         <div class="col-md-12">
                             <div class="card ">
                                 <div class="card-header">
-                                    <h4>Ajouter une annonce</h4>
+                                    <h4>Ajouter un article</h4>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
@@ -30,15 +30,23 @@
                                             <small>Taille max pour l'image: 100 Ko (Dimensions max : 1000x500)</small>
                                             <form id="f-add" method="post" class="form-inline">
                                                 <div class="form-group m-2 d-block">
-                                                    <span>Annonce</span> <br>
-                                                    <input maxlength="128" name="titre" type="text" class="form-control" placeholder="Titre de l'annonce" required>
+                                                    <span>Description</span> <br>
+                                                    <input maxlength="128" name="titre" type="text" class="form-control" placeholder="Description de l'article" required>
                                                 </div>
                                                 <div class="form-group m-2 d-block">
-                                                    <span>Date limite</span> <br>
-                                                    <input name="date" type="text" class="form-control datepicker" placeholder="" required>
+                                                    <span>Prix</span> <br>
+                                                    <input name="prix" type="number" min='1' class="form-control" placeholder="Prix" required>
                                                 </div>
                                                 <div class="form-group m-2 d-block">
-                                                    <span>Image de l'annonce</span> <br>
+                                                    <span>Devise</span> <br>
+                                                    <select name="devise" id="" class="custom-select">
+                                                        <?php foreach ($devises as $dev) { ?>
+                                                            <option value="<?= $dev->iddevise ?>"><?= $dev->nomDevise ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group m-2 d-block">
+                                                    <span>Image de l'article</span> <br>
                                                     <div class="custom-file">
                                                         <input required accept=".png,.gif,.jpg, jpeg" type="file" class="custom-file-input" id="customFile" name="file">
                                                         <label class="custom-file-label" for="customFile">image</label>
@@ -57,7 +65,7 @@
                         <div class="col-md-12">
                             <div class="card ">
                                 <div class="card-header">
-                                    <h4>Nos annonces</h4>
+                                    <h4>Nos articles</h4>
                                 </div>
                                 <div class="card-body">
                                     <div class="row" id="data"></div>
@@ -172,8 +180,8 @@
                 </div>
                 <form id="f-del" method="post">
                     <div class="modal-footer">
-                        <input type="hidden" name="annonce" value="">
-                        <input type="hidden" name="type" value="ecole">
+                        <input type="hidden" name="id" value="">
+                        <input type="hidden" name="type" value="univ">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
                         <button type="submit" class="btn btn-danger">Supprimer</button>
                     </div>
@@ -182,21 +190,8 @@
         </div>
     </div>
 
-    <script type="text/javascript" src="<?= base_url('assets/js/daterangepicker/moment.js') ?>"></script>
-    <script type="text/javascript" src="<?= base_url('assets/js/daterangepicker/daterangepicker.js') ?>"></script>
-    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/js/daterangepicker/daterangepicker.css') ?>" />
-
     <script>
         $(function() {
-
-            $('.datepicker').daterangepicker({
-                locale: {
-                    format: 'YYYY-MM-DD',
-                },
-                singleDatePicker: true,
-                showDropdowns: true,
-                minDate: "<?= date('Y-m-d') ?>"
-            });
 
             $(".custom-file-input").on("change", function() {
                 var fileName = $(this).val().split("\\").pop();
@@ -208,39 +203,23 @@
             annonce()
 
             function annonce() {
-                $.getJSON("<?= site_url('ajax/annonce') ?>", "type=ecole", function(f) {
+                $.getJSON("<?= site_url('ajax/article') ?>", "type=univ", function(f) {
                     var str = '';
                     var url = "<?= base_url('/') ?>";
-                    var today = moment('<?= date('Y-m-d') ?>', 'YYYY-M-D');
+                    var url2 = "<?= site_url('faculte/detail-achat/') ?>";
 
                     $(f).each(function(i, a) {
-                        var b = moment(a.dateexpiration, 'YYYY-M-D');
-                        diffDays = b.diff(today, 'days');
-
-                        if (diffDays == 0) {
-                            em = "Expire ajourd'hui";
-                            cl = 'warning';
-                        } else if (diffDays == 1) {
-                            em = "Expire demain.";
-                            cl = 'success';
-                        } else if (diffDays > 1) {
-                            em = `Expire dans ${diffDays} jours`;
-                            cl = 'success';
-                        } else {
-                            em = "Annonce expirée.";
-                            cl = 'danger';
-                        }
-
                         str += `
                         <div class="col-md-4">
                             <div class="card" style="width: 100%">
                                 <img class="card-img-top" src="${url+a.image}" alt="image" height=250>
                                 <div class="card-body">
-                                    <p class="card-text">${a.titre}</p>
+                                    <p class="card-text">${a.description}</p>
                                 </div>
                                 <div class="card-footer d-flex justify-content-between">
-                                    <button value='${a.idannonce}' class='btn btn-link delete' ><i class='fa fa-trash text-danger' ></i></button>
-                                    <b class='text-${cl}' >${em}</b>
+                                    <button value='${a.idarticle}' class='btn btn-link delete' ><i class='fa fa-trash text-danger' ></i></button>
+                                    <b>${a.prix } ${a.nomDevise}</b>
+                                    <a href='${url2+a.idarticle}'> <i class='fa fa-eye'></i> Details achat</a>
                                 </div>
                             </div>
                         </div>
@@ -260,14 +239,14 @@
                 m.html('');
                 var f = $(this);
                 var d = new FormData(this);
-                d.append('type', 'ecole');
+                d.append('type', 'univ');
                 $(':input', f).attr('disabled', true);
                 var btn = $(':submit', f);
                 text = btn.text();
                 btn.html(spin);
 
                 $.ajax({
-                    url: '<?= site_url('ajax/annonce_a') ?>',
+                    url: '<?= site_url('ajax/article_a') ?>',
                     type: 'POST',
                     data: d,
                     timeout: 0,
@@ -279,14 +258,7 @@
                             f.get(0).reset();
                             annonce();
                             m.removeClass().addClass('text-success').html(res.message);
-                            $('.datepicker').off('daterangepicker').daterangepicker({
-                                locale: {
-                                    format: 'YYYY-MM-DD',
-                                },
-                                singleDatePicker: true,
-                                showDropdowns: true,
-                                minDate: "<?= date('Y-m-d') ?>"
-                            });
+
                         } else {
                             m.removeClass().addClass('text-danger').html(res.message);
                         }
@@ -305,7 +277,7 @@
 
             function del() {
                 $('.delete').off('click').click(function() {
-                    $('input[name=annonce]', fdel).val($(this).val())
+                    $('input[name=id]', fdel).val($(this).val())
                     $('#d-msg').html('Procéder à la suppression ?');
                     modal.modal()
                 })
@@ -321,7 +293,7 @@
                 <div class="spinner-border spinner-border-sm text-white" role="status"></div>`;
                 btn.html(spin);
 
-                $.post("<?= site_url('ajax/annonce_d') ?>", fdel.serialize(), function(d) {
+                $.post("<?= site_url('ajax/article_d') ?>", fdel.serialize(), function(d) {
                     d = JSON.parse(d);
 
                     if (d.status == true) {

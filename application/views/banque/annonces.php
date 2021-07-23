@@ -27,7 +27,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <p id="rep"></p>
-                                            <small>Taille max pour l'image: 100 Ko (Dimensions max : 700x400)</small>
+                                            <small>Taille max pour l'image: 100 Ko (Dimensions max : 1000x500)</small>
                                             <form id="f-add" method="post" class="form-inline">
                                                 <div class="form-group m-2 d-block">
                                                     <span>Annonce</span> <br>

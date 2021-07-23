@@ -464,7 +464,6 @@
         $this->db->group_by('idpaiement');
         $query = $this->db->get()->result_array();
         return $query;
-        print("Checking");
         
         $this->db->select("
             frais_ecole.montant as fraisMontant,
@@ -509,12 +508,25 @@
     public function getTarif($ideleve)
     {
         $this->db->select('*');
-        $this->db->from('frais_ecole');
-        $this->db->join('annee_scolaire_ecole', 'annee_scolaire_ecole.idannee_scolaire_ecole = frais_ecole.idannee_scolaire_ecole');
-        $this->db->join('classe', 'annee_scolaire_ecole.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
-        $this->db->join('eleve', 'classe.idclasse = eleve.idclasse');
-        $this->db->where("ideleve", $ideleve);
-        $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
+        $this->db->from('eleve');
+        $this->db->join('ecole', 'eleve.idecole = ecole.idecole');
+        $this->db->join('annee_scolaire_ecole', 'ecole.idecole = annee_scolaire_ecole.idecole');
+        $this->db->join('frais_ecole', 'annee_scolaire_ecole.idannee_scolaire_ecole = frais_ecole.idannee_scolaire_ecole');
+        $this->db->where('eleve.ideleve', $ideleve);
+        $this->db->join('devise', 'devise.iddevise = frais_ecole.iddevise');
+        $query = $this->db->get()->result_array();
+        return $query;
+    }
+    public function getEleveData($ideleve)
+    {
+        $this->db->select('*');
+        $this->db->from('eleve');
+        $this->db->join('ecole', 'eleve.idecole = ecole.idecole');
+        $this->db->join('section', 'ecole.idecole = section.idecole');
+        $this->db->join('optionecole', 'section.idsection = optionecole.idsection');
+        $this->db->join('classe', 'optionecole.idclasse = classe.idclasse');
+        $this->db->where('eleve.ideleve', $ideleve);
+        $this->db->group_by('eleve.ideleve');
         $query = $this->db->get()->result_array();
         return $query;
     }
@@ -527,6 +539,7 @@
         $this->db->join('eleve', 'classe.idclasse = eleve.idclasse');
         $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
         $this->db->where("idparent", $idparent);
+        $this->db->group_by('idfrais_ecole');
         $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
         $query = $this->db->get()->result_array();
         return $query;

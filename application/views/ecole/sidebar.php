@@ -47,6 +47,7 @@
       <a href="#" class="menu-toggle nav-link has-dropdown"><i class="fa fa-shopping-bag"></i><span>Magasin</span></a>
       <ul class="dropdown-menu">
         <li><a class="nav-link" href="<?php echo site_url("ecole/magasin"); ?>">Articles</a></li>
+        <li><a class="nav-link" href="<?php echo site_url("ecole/achat"); ?>">Achat</a></li>
       </ul>
     </li>
     <li class="dropdown">

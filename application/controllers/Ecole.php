@@ -658,7 +658,66 @@ class Ecole extends CI_Controller
         redirect('ecole/eleves');
     }
 
-    function annonces() {
+    function annonces()
+    {
         $this->load->view('ecole/annonces');
+    }
+
+    function magasin()
+    {
+        $this->load->view('ecole/magasin', ['devises' => $this->db->get('devise')->result()]);
+    }
+
+    function achat()
+    {
+        $this->db->select('devise.nomDevise devise, sum(prix) total');
+        $this->db->join('article_ecole', 'article_ecole.idarticle=achat_article_ecole.idarticle');
+        $this->db->join('devise', 'devise.iddevise=article_ecole.iddevise');
+        $this->db->group_by('devise.iddevise');
+        $this->db->where('article_ecole.idecole', $this->idecole);
+        $data['solde'] = $this->db->get('achat_article_ecole')->result();
+
+        $this->db->select('article_ecole.idarticle, devise.nomDevise devise, sum(prix) total, article_ecole.prix, article_ecole.description article');
+        $this->db->join('article_ecole', 'article_ecole.idarticle=achat_article_ecole.idarticle');
+        $this->db->join('devise', 'devise.iddevise=article_ecole.iddevise');
+        $this->db->group_by('article_ecole.idarticle');
+        $this->db->order_by('achat_article_ecole.idachat', 'desc');
+        $this->db->where('article_ecole.idecole', $this->idecole);
+        $data['achats'] = $this->db->get('achat_article_ecole')->result();
+
+        $this->load->view('ecole/achat', $data);
+    }
+
+    function detail_achat($idarticle = null)
+    {
+        $idarticle = (int) $idarticle;
+
+        $this->db->where('article_ecole.idarticle', $idarticle);
+        $this->db->where('article_ecole.idecole', $this->idecole);
+        $this->db->join('devise', 'devise.iddevise=article_ecole.iddevise');
+        $article = $this->db->get('article_ecole')->result();
+        if (!count($article)) {
+            redirect('faculte/achat');
+        }
+
+        $this->db->select('eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, devise.nomDevise devise,
+         article_ecole.prix, article_ecole.description article, achat_article_ecole.date');
+        $this->db->join('eleve', 'eleve.ideleve=achat_article_ecole.ideleve');
+        $this->db->join('article_ecole', 'article_ecole.idarticle=achat_article_ecole.idarticle');
+        $this->db->join('devise', 'devise.iddevise=article_ecole.iddevise');
+        $this->db->order_by('achat_article_ecole.idachat', 'desc');
+        $this->db->where('article_ecole.idarticle', $idarticle);
+        $this->db->where('article_ecole.idecole', $this->idecole);
+        $data['achats']  = $ar = $this->db->get('achat_article_ecole')->result();
+
+        $data['article'] = $article[0];
+
+        $tot = 0;
+        foreach ($ar as $aaa) {
+            $tot += $aaa->prix;
+        }
+        $data['total'] = $tot;
+
+        $this->load->view('ecole/detail-achat', $data);
     }
 }
