@@ -38,7 +38,7 @@
                         </div>
                         <div class="row font-weight-600 text-muted">
                           <div class="col-2">Option </div>
-                          <div class="col-10"> : <?= "$eleve->intituleOption" ?></div>
+                          <div class="col-10"> : <?= $eleve->intituleOption ?? '-' ?></div>
                         </div>
                         <div class="row font-weight-600 text-muted">
                           <div class="col-2">Matricule </div>

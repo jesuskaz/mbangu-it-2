@@ -188,8 +188,8 @@ class Banque extends CI_Controller
             paiement.montant, devise.nomDevise, promotion.idpromotion, options.idoptions");
 
         $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+        $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
 
         $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
@@ -253,9 +253,9 @@ class Banque extends CI_Controller
             'anneeAcademique.iduniversite' => $iduniv,
         ];
         $this->db->join('anneeAcademique', 'etudiant.idanneeAcademique=anneeAcademique.idanneeAcademique');
-        $this->db->join('promotion', 'etudiant.idpromotion=promotion.idpromotion');
-        $this->db->join('options', 'promotion.idpromotion=options.idpromotion');
-        $this->db->join('faculte', 'options.idfaculte=faculte.idfaculte');
+        $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
+        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->group_by('etudiant.idetudiant');
         if (!count($et = $this->db->where($where)->get('etudiant')->result())) {
             redirect('index/login');
@@ -379,9 +379,9 @@ class Banque extends CI_Controller
             'anneeAcademique.iduniversite' => $iduniv,
         ];
         $this->db->join('anneeAcademique', 'etudiant.idanneeAcademique=anneeAcademique.idanneeAcademique');
-        $this->db->join('promotion', 'etudiant.idpromotion=promotion.idpromotion');
-        $this->db->join('options', 'promotion.idpromotion=options.idpromotion');
-        $this->db->join('faculte', 'options.idfaculte=faculte.idfaculte');
+        $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
+        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->group_by('etudiant.idetudiant');
         if (!count($et = $this->db->where($where)->get('etudiant')->result())) {
             redirect('index/login');

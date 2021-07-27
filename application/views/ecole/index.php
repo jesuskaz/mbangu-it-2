@@ -35,11 +35,11 @@
                     </div>
                     <div class="col-lg-3">
                       <div class="row mt-5">
-                        <div class="col-7 col-xl-7 mb-3"><a href="<?= site_url('banque/listeetudiant') ?>">Total élève</a></div>
+                        <div class="col-7 col-xl-7 mb-3"><a href="<?= site_url('ecole/eleves') ?>">Total élève</a></div>
                         <div class="col-5 col-xl-5 mb-3">
                           <span class="text-big"> <?= $tot_eleve ?> </span>
                         </div>
-                        <div class="col-7 col-xl-7 mb-3"><a href="<?= site_url('banque/listerapport') ?>">Elève ayant payés</a></div>
+                        <div class="col-7 col-xl-7 mb-3"><a href="<?= site_url('ecole/rapport') ?>">Elève ayant payés</a></div>
                         <div class="col-5 col-xl-5 mb-3">
                           <span class="text-big"> <?= $eleve_paie ?> </span>
                         </div>
@@ -266,7 +266,7 @@
               <td>${data.matricule}</td>
 							<td>${data.compte}</td>
 							<td>${data.frais}</td>
-							<td>${data.option}</td>
+							<td>${data.option ? data.option : '-'}</td>
 							<td>${data.classe}</td>
 							<td style="text-align:right">${data.montant} ${data.devise}</td>
               <td>${data.date}</td>
@@ -290,7 +290,7 @@
           }, function(res) {
             var str = '<option value="">Aucun</option>';
             $(res.options).each(function(i, d) {
-              str += `<option value="${d.id}">${d.option} (${d.classe})</option>`;
+              str += `<option value="${d.option}">${d.option}</option>`;
             })
             $('select[name=option]').html(str);
             $('select[name=classe]').html('<option value="">Classe</option>');

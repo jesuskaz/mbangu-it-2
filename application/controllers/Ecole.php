@@ -17,18 +17,28 @@ class Ecole extends CI_Controller
         $data["devises"] = $this->db->get('devise')->result();
         $data["sections"] = $this->db->where('idecole', $this->idecole)->get('section')->result();
 
-        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
         $this->db->join('annee_scolaire_ecole', 'annee_scolaire_ecole.idannee_scolaire_ecole=classe.idannee_scolaire_ecole');
         $this->db->where('annee_scolaire_ecole.idannee_scolaire_ecole', $this->idannee);
-        $data["tot_eleve"] = $te = count($this->db->get('eleve')->result());
+        $this->db->group_by('eleve.ideleve');
+        $te1 = count($this->db->get('eleve')->result());
+
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
+        $this->db->join('annee_scolaire_ecole', 'annee_scolaire_ecole.idannee_scolaire_ecole=classe.idannee_scolaire_ecole');
+        $this->db->where('annee_scolaire_ecole.idannee_scolaire_ecole', $this->idannee);
+        $this->db->group_by('eleve.ideleve');
+        $data["tot_eleve"] = $te1 + $te2 = count($this->db->get('eleve')->result());
 
         $sql = "SELECT * from eleve where ideleve 
-            in (select paiement_ecole.ideleve from paiement_ecole join eleve ON paiement_ecole.ideleve=eleve.ideleve join classe on classe.idclasse=eleve.idclasse 
-            join annee_scolaire_ecole on classe.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole
-            where annee_scolaire_ecole.idannee_scolaire_ecole=$this->idannee)";
+            in (
+                select paiement_ecole.ideleve from paiement_ecole join eleve ON paiement_ecole.ideleve=eleve.ideleve 
+                join frais_ecole ON frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole 
+                where frais_ecole.idannee_scolaire_ecole=$this->idannee group by paiement_ecole.idpaiement_ecole)";
         $data["eleve_paie"] = $ep = count($this->db->query($sql)->result());
 
-        $data["eleve_pas_paie"] = $te - $ep;
+        $data["eleve_pas_paie"] = $te1 + $te2 - $ep;
 
         $this->load->view("ecole/index", $data);
     }
@@ -444,20 +454,19 @@ class Ecole extends CI_Controller
     {
         $this->db->order_by('idsection', 'desc');
         $data["sections"] = $this->db->get_where('section', ['idecole' => $this->idecole])->result();
-        $data["classes"] = $this->db->get_where('classe', ['idannee_scolaire_ecole' => $this->idannee])->result();
         $this->load->view("ecole/eleves", $data);
     }
 
     public function rapport()
     {
-        $this->db->select("paiement_ecole.*, eleve.nom, eleve.postnom,
+        $this->db->select("paiement_ecole.*, eleve.ideleve, eleve.nom, eleve.postnom,
         eleve.prenom, eleve.matricule, section.intitulesection section, 
         optionecole.intituleOption option, frais_ecole.intitulefrais frais, frais_ecole.compte, banque.denomination banque, 
         paiement_ecole.montant, devise.nomDevise devise, classe.intituleclasse classe ");
 
         $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
-        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
-        $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
         $this->db->join('section', 'section.idsection=optionecole.idsection');
 
         $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
@@ -467,8 +476,42 @@ class Ecole extends CI_Controller
         $this->db->where('section.idecole', $this->idecole);
 
         $this->db->group_by('paiement_ecole.idpaiement_ecole');
-        $data["paies"] = $r = $this->db->get('paiement_ecole')->result_array();
+        $r = $this->db->get('paiement_ecole')->result_array();
 
+        $ide = '';
+        foreach ($r as $el) {
+            $ide .= $el['ideleve'] . ", ";
+        }
+        $ide = substr($ide, 0, -2);
+        /////
+        $this->db->select("paiement_ecole.*, eleve.nom, eleve.postnom,
+        eleve.prenom, eleve.matricule, section.intitulesection section, 
+        frais_ecole.intitulefrais frais, frais_ecole.compte, banque.denomination banque, 
+        paiement_ecole.montant, devise.nomDevise devise, classe.intituleclasse classe ");
+
+        $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+        $this->db->join('section', 'section.idsection=section_has_classe.idsection');
+
+        $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
+        $this->db->join('banque', 'banque.idbanque=frais_ecole.idbanque');
+        $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
+        $this->db->where('frais_ecole.idannee_scolaire_ecole', $this->idannee);
+        $this->db->where('section.idecole', $this->idecole);
+        if (!empty($ide)) {
+            $this->db->where("`eleve`.`ideleve` NOT IN ($ide)", NULL, FALSE);
+        }
+
+        $this->db->group_by('paiement_ecole.idpaiement_ecole');
+        $r2 = $this->db->get('paiement_ecole')->result_array();
+
+        foreach ($r2 as $ele) {
+            $e = $ele;
+            array_push($r, $e);
+        }
+
+        $data["paies"] = $r;
         $this->load->view("ecole/rapport", $data);
     }
     function profil()
@@ -488,19 +531,18 @@ class Ecole extends CI_Controller
         $this->db->select('eleve.ideleve, classe.idclasse, eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, eleve.adresse, 
         classe.intituleclasse, optionecole.intituleOption, section.intitulesection
         ');
-        $this->db->join('classe', 'eleve.idclasse=classe.idclasse');
-        $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
-        $this->db->join('section', 'optionecole.idsection=section.idsection');
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
         $this->db->group_by('eleve.ideleve');
         $a = $this->db->where($where)->get('eleve')->result();
 
-        $this->db->select('eleve.ideleve, classe.idclasse, eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, eleve.adresse, 
-        classe.intituleclasse, section.intitulesection
-        ');
-        $this->db->join('classe', 'eleve.idclasse=classe.idclasse');
-        $this->db->join('section_has_classe', 'section_has_classe.idclasse=classe.idclasse');
+        $this->db->select('eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, eleve.adresse, 
+        section.intitulesection, classe.idclasse, classe.intituleclasse');
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
         $this->db->join('section', 'section.idsection=section_has_classe.idsection');
-        $this->db->group_by('eleve.ideleve');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+        // $this->db->group_by('eleve.ideleve');
         $b = $this->db->where($where)->get('eleve')->result();
 
         if (!count($a) && !count($b)) {
@@ -578,15 +620,24 @@ class Ecole extends CI_Controller
             'classe.idannee_scolaire_ecole' => $this->idannee,
             'section.idecole' => $this->idecole,
         ];
-        $this->db->join('classe', 'eleve.idclasse=classe.idclasse');
-        $this->db->join('optionecole', 'optionecole.idoptionecole=classe.idoptionecole');
-        $this->db->join('section', 'optionecole.idsection=optionecole.idsection');
-        $this->db->group_by('eleve.ideleve');
-        if (!count($et = $this->db->where($where)->get('eleve')->result())) {
+
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
+        $this->db->where($where);
+        $a = $this->db->get('eleve')->result();
+
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+        $this->db->join('section', 'section.idsection=section_has_classe.idsection');
+        $this->db->where($where);
+        $b = $el = $this->db->get('eleve')->result();
+
+        if (!count($a) && !count($b)) {
             redirect('index/login');
         }
 
-        $data['eleve'] = $et[0];
+        $data['eleve'] = count($a) > 0 ? $a[0] : $b[0];
         $this->db->join('devise', 'devise.iddevise=paiement_ecole.iddevise');
         $this->db->select('ecole.*, devise.nomDevise,frais_ecole.intitulefrais, frais_ecole.montant montant_frais,frais_ecole.compte, paiement_ecole.date, paiement_ecole.montant montant_paye');
         $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
@@ -603,7 +654,8 @@ class Ecole extends CI_Controller
     {
         $ideleve = (int) $ideleve;
 
-        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
         $this->db->where(['classe.idannee_scolaire_ecole' => $this->idannee, 'eleve.ideleve' => $ideleve]);
 
         if (!count($el = $this->db->get('eleve')->result())) {
@@ -631,10 +683,17 @@ class Ecole extends CI_Controller
 
     function eleve_s($ideleve = '')
     {
-        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
         $this->db->where(['classe.idannee_scolaire_ecole' => $this->idannee, 'eleve.ideleve' => $ideleve]);
+        $a = count($this->db->get('eleve')->result());
 
-        if (!count($el = $this->db->get('eleve')->result())) {
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+        $this->db->where(['classe.idannee_scolaire_ecole' => $this->idannee, 'eleve.ideleve' => $ideleve]);
+        $b = count($el = $this->db->get('eleve')->result());
+
+        if (!$a && !$b) {
             $this->session->set_flashdata('message', 'Erreur');
             $this->session->set_flashdata('classe', 'danger');
             redirect('ecole/eleves');
@@ -719,5 +778,68 @@ class Ecole extends CI_Controller
         $data['total'] = $tot;
 
         $this->load->view('ecole/detail-achat', $data);
+    }
+
+    function detail_solde($idfrais = null)
+    {
+        if (is_null(($idfrais))) {
+            redirect('ecole/solde');
+        }
+        $annee = (int) $this->session->userdata("ecole_session");
+        if (!count($fr =  $this->db->where(['idfrais_ecole' => $idfrais, 'idannee_scolaire_ecole' => $annee])->get('frais_ecole')->result())) {
+            redirect('ecole/solde');
+        }
+        $fr = $fr[0];
+        $data['frais'] = $fr->intitulefrais;
+
+        $this->db->select('eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, compte, classe.intituleclasse classe, 
+            intitulesection section, date, paiement_ecole.montant, nomDevise devise ');
+
+        $this->db->join('devise', 'devise.iddevise=paiement_ecole.iddevise');
+        $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
+        $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
+        $this->db->group_by('paiement_ecole.idpaiement_ecole');
+        $this->db->where('frais_ecole.idfrais_ecole', $idfrais);
+
+        $r = $this->db->where(['section.idecole' => $this->idecole, 'frais_ecole.idannee_scolaire_ecole' => $annee])->get('paiement_ecole')->result();
+
+        $ide = '';
+        foreach ($r as $el) {
+            $ide .= $el->ideleve . ", ";
+        }
+        $ide = substr($ide, 0, -2);
+        /////
+
+        $this->db->select('eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, compte, classe.intituleclasse classe, 
+        intitulesection section, date, paiement_ecole.montant, nomDevise devise ');
+
+        $this->db->join('devise', 'devise.iddevise=paiement_ecole.iddevise');
+        $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
+        $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
+        $this->db->join('section', 'section.idsection=section_has_classe.idsection');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+        $this->db->group_by('paiement_ecole.idpaiement_ecole');
+        $this->db->where('frais_ecole.idfrais_ecole', $idfrais);
+        if (!empty($ide)) {
+            $this->db->where("`eleve`.`ideleve` NOT IN ($ide)", NULL, FALSE);
+        }
+
+        if (!empty($ide)) {
+            $this->db->where("`eleve`.`ideleve` NOT IN ($ide)", NULL, FALSE);
+        }
+
+        $this->db->group_by('paiement_ecole.idpaiement_ecole');
+        $r2 = $this->db->where(['section.idecole' => $this->idecole, 'frais_ecole.idannee_scolaire_ecole' => $annee])->get('paiement_ecole')->result();
+
+        foreach ($r2 as $ele) {
+            $e = $ele;
+            array_push($r, $e);
+        }
+        $data['paiement'] = $r;
+        $this->load->view("ecole/detail_solde", $data);
     }
 }

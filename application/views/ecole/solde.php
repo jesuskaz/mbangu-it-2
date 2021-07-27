@@ -251,7 +251,7 @@
 				$('#res').html(spinner);
 				link.fadeOut('slow');
 
-				lien = '<?= site_url('index/detail-solde/') ?>';
+				lien = '<?= site_url('ecole/detail-solde/') ?>';
 
 				$.getJSON("<?= site_url('ajax/solde') ?>", "type=ecole&" + form.serialize(), function(f) {
 					var str = '';

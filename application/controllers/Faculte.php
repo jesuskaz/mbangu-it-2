@@ -76,7 +76,6 @@ class Faculte extends CI_Controller
         }
 
         $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
-        $this->db->group_by('promotion.idpromotion');
         $data["options"] = $this->db->where(['idfaculte' => $idfaculte])->get('options')->result();
         $data["faculte"] = $fac[0]->nomFaculte;
 

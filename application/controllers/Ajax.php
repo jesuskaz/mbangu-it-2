@@ -116,8 +116,6 @@ class Ajax extends CI_Controller
         $type = $this->input->get('type', true);
         $this->checktype($type);
 
-        // var_dump($_GET); die;
-
         $d = $this->input->get('date', true);
         $d = explode('-', $d);
         $debut = str_replace('/', '-', trim(@$d[0]));
@@ -139,14 +137,13 @@ class Ajax extends CI_Controller
             $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
             $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
             $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
-            $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-            $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+            $this->db->join('options', 'options.idoptions=etudiant.idoptions');
+            $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
             $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
             $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
 
             // var_dump($_GET);
             // die;
-
 
             if ($type == 'univ') {
                 $this->db->where('universite.iduniversite', $this->session->userdata("universite_session"));
@@ -159,7 +156,7 @@ class Ajax extends CI_Controller
                 $this->db->where('promotion.idpromotion', $promotion);
             }
             if (!empty($option)) {
-                $this->db->where('options.idoptions', $option);
+                $this->db->where('options.intituleOptions', $option);
             }
             if (!empty($devise)) {
                 $this->db->where('paiement.iddevise', $devise);
@@ -169,21 +166,23 @@ class Ajax extends CI_Controller
             $r = $this->db->get('paiement')->result();
         } else {
             $section = (int) $this->input->get('section', true);
-            $option = (int) $this->input->get('option', true);
+            $option = $this->input->get('option', true);
             $classe = (int) $this->input->get('classe', true);
+            $idecole = $this->session->ecole_session;
 
             $this->db->select("paiement_ecole.idpaiement_ecole, paiement_ecole.date, eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, compte, 
             intitulefrais frais, intituleclasse classe, intituleOption option, paiement_ecole.montant, devise.nomDevise devise");
 
             $this->db->where('cast(paiement_ecole.date as date) >=', $debut);
             $this->db->where('cast(paiement_ecole.date as date) <=', $fin);
+            $this->db->where('section.idecole', $idecole);
 
             if ($section) {
                 $this->db->where('section.idsection', $section);
             }
 
             if ($option) {
-                $this->db->where('optionecole.idoptionecole', $option);
+                $this->db->where('optionecole.intituleOption', $option);
             }
 
             if ($classe) {
@@ -200,12 +199,62 @@ class Ajax extends CI_Controller
             $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
             $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
             $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
-            $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
-            $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
+            $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+            $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
             $this->db->join('section', 'section.idsection=optionecole.idsection');
 
             $this->db->group_by('paiement_ecole.idpaiement_ecole');
+            $this->db->order_by('paiement_ecole.idpaiement_ecole', 'desc');
             $r = $this->db->get('paiement_ecole')->result();
+
+            $ide = '';
+            foreach ($r as $el) {
+                $ide .= $el->ideleve . ", ";
+            }
+            $ide = substr($ide, 0, -2);
+
+            //////////
+            $r2 = [];
+            $this->db->select("paiement_ecole.idpaiement_ecole, paiement_ecole.date, eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, eleve.matricule, compte, 
+            intitulefrais frais, intituleclasse classe, paiement_ecole.montant, devise.nomDevise devise");
+
+            $this->db->where('cast(paiement_ecole.date as date) >=', $debut);
+            $this->db->where('cast(paiement_ecole.date as date) <=', $fin);
+            $this->db->where('section.idecole', $idecole);
+
+            if ($section) {
+                $this->db->where('section.idsection', $section);
+            }
+
+            if ($classe) {
+                $this->db->where('classe.idclasse', $classe);
+            }
+
+            if ($devise) {
+                $this->db->where('frais_ecole.iddevise', $devise);
+            }
+
+            $annee = $this->session->annee_scolaire;
+            $this->db->where('frais_ecole.idannee_scolaire_ecole', $annee);
+
+            $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
+            $this->db->join('devise', 'devise.iddevise=frais_ecole.iddevise');
+            $this->db->join('eleve', 'eleve.ideleve=paiement_ecole.ideleve');
+            $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
+            $this->db->join('section', 'section.idsection=section_has_classe.idsection');
+            $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+            if (!empty($ide)) {
+                $this->db->where("`eleve`.`ideleve` NOT IN ($ide)", NULL, FALSE);
+            }
+            $this->db->group_by('paiement_ecole.idpaiement_ecole');
+            $this->db->order_by('paiement_ecole.idpaiement_ecole', 'desc');
+            $r2 = $this->db->get('paiement_ecole')->result();
+            /////////////          
+
+            foreach ($r2 as $ele) {
+                $e = $ele;
+                array_push($r, $e);
+            }
         }
         echo json_encode([
             'data' => $r
@@ -321,47 +370,47 @@ class Ajax extends CI_Controller
 
     function select_data()
     {
+        $type = $this->input->get('type');
+        $this->checktype($type);
         $faculte = (int) $this->input->get('faculte');
-        $promotion = (int) $this->input->get('promotion');
+        $iduniv = $this->session->universite_session;
 
-        $this->db->select('options.idoptions,options.idfaculte,options.idpromotion, intituleOptions, promotion.intitulePromotion promotion');
+        $r = [];
         if ($faculte) {
-            $where['options.idfaculte'] = $faculte;
-        }
-        if ($promotion) {
-            $where['options.idpromotion'] = $promotion;
-        }
-        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
-        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
-        $where['faculte.iduniversite'] = $this->session->universite_session;
-        $this->db->group_by('options.idoptions');
-        $r = $this->db->where($where)->get('options')->result();
+            if (!count($this->db->where(['iduniversite' => $iduniv, 'idfaculte' => $faculte])->get('faculte')->result())) {
+                echo json_encode(['error']);
+                exit;
+            }
+            $this->db->where(['options.idfaculte' => $faculte]);
+            $this->db->where('faculte.iduniversite', $iduniv);
 
+            $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+            $this->db->select('idoptions id, intituleOptions option, faculte.nomFaculte faculte');
+            $this->db->group_by('options.intituleOptions');
+            $r = $this->db->get('options')->result();
+        }
         // var_dump($_GET, $r);
         // die;
+        echo json_encode(['options' => $r]);
+    }
+
+    function promotion()
+    {
+        $type = $this->input->get('type');
+        $this->checktype($type);
+        $univ = $this->session->universite_session;
+
+        $option = $this->input->get('option');
+
+        $this->db->select('intitulePromotion promotion, promotion.idpromotion');
+        $this->db->group_by('promotion.idpromotion');
+        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+        $this->db->join('universite', 'universite.iduniversite=promotion.iduniversite');
+        $this->db->where('options.intituleOptions', $option);
+        $r = $this->db->where('universite.iduniversite', $univ)->get('promotion')->result();
         echo json_encode($r);
     }
-    // function select_data2()
-    // {
-    //     $section = (int) $this->input->get('section');
-    //     $option = (int) $this->input->get('option');
-    //     $source =  $this->input->get('source');
 
-    //     if ($source == 'section') {
-    //         $this->db->select('idoptionecole id, intituleOption nom');
-    //         $this->db->where('idsection', $section);
-    //         $r = $this->db->get('optionecole')->result();
-    //         die(json_encode($r));
-    //     }
-
-    //     if ($source == 'option') {
-    //         $this->db->select('idclasse id, intituleclasse nom');
-    //         $this->db->where('idoptionecole', $option);
-    //         $r = $this->db->get('classe')->result();
-    //         die(json_encode($r));
-    //     }
-    //     // var_dump($_GET);
-    // }
     function liste_etudiant()
     {
         $type = $this->input->get('type', true);
@@ -373,8 +422,8 @@ class Ajax extends CI_Controller
         $this->db->select("etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, 
             etudiant.matricule, etudiant.adresse, etudiant.email, faculte.nomFaculte faculte, 
             promotion.intitulePromotion promotion, etudiant.telephone ");
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion', 'left');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion', 'left');
+        $this->db->join('options', 'options.idoptions=etudiant.idoptions');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->group_by('etudiant.idetudiant');
         $iduniv = $this->session->userdata("universite_session");
@@ -389,7 +438,7 @@ class Ajax extends CI_Controller
         }
 
         if ($option) {
-            $this->db->where('options.idoptions', $option);
+            $this->db->where('options.intituleOptions', $option);
         }
         $this->db->group_by('etudiant.idetudiant');
         $r = $this->db->get('etudiant')->result();
@@ -426,8 +475,8 @@ class Ajax extends CI_Controller
         frais.designation frais, frais.numeroCompte compte, banque.denomination banque, paiement.montant, paiement.commission, devise.nomDevise devise, nomUniversite universite");
 
         $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+        $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
 
@@ -708,8 +757,8 @@ class Ajax extends CI_Controller
         $this->db->where('section.idecole', $idecole);
 
         $this->db->join('section', 'section.idsection=optionecole.idsection');
-        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
-        $this->db->select('idoptionecole id, intituleOption option, section.intitulesection section, intituleclasse classe');
+        $this->db->select('idoptionecole id, intituleOption option, section.intitulesection section');
+        $this->db->group_by('optionecole.intituleOption');
         $r = $this->db->get('optionecole')->result();
 
         $cl = [];
@@ -722,47 +771,29 @@ class Ajax extends CI_Controller
         echo json_encode(['options' => $r, 'classes' => $cl]);
     }
 
+
+
     function classes_ecole()
     {
         $type = $this->input->get('type');
         $this->checktype($type);
         $annee = $this->session->annee_scolaire;
 
-        $option = (int) $this->input->get('option');
+        $option = $this->input->get('option');
 
         $this->db->select('intituleclasse classe, classe.idclasse');
         $this->db->group_by('classe.idclasse');
         $this->db->order_by('classe.idclasse', 'desc');
         $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
-        $this->db->where('optionecole.idoptionecole', $option);
+        $this->db->where('optionecole.intituleOption', $option);
         $r = $this->db->where('idannee_scolaire_ecole', $annee)->get('classe')->result();
         echo json_encode($r);
     }
 
     function add_classe()
     {
-        // $idsection = $this->input->post('section2');
-        // $idoption = $this->input->post('option2');
         $classe = $this->input->post('classe');
-        // if (empty($idsection)) {
-        //     echo json_encode(['status' => false, 'message' => "Veuillez selectionner la section", 'classe' => 'danger']);
-        //     die;
-        // }
-
-        $idecole = $this->session->ecole_session;
         $annee = $this->session->annee_scolaire;
-
-        // if (!count($this->db->where(['idsection' => $idsection, 'idecole' => $idecole])->get('section')->result())) {
-        //     echo json_encode(['status' => false, 'message' => "Erreur section"]);
-        //     die;
-        // }
-
-        // $this->db->join('section', 'optionecole.idsection=section.idsection');
-        // $o = $this->db->where('optionecole.idoptionecole', $idoption)->get('optionecole')->result();
-        // if (!count($o)) {
-        //     echo json_encode(['status' => false, 'message' => "Erreur option"]);
-        //     die;
-        // }
 
         $classes = explode(',', $classe);
 
@@ -797,6 +828,7 @@ class Ajax extends CI_Controller
         }
         echo json_encode($message);
     }
+
     function liste_eleve()
     {
         $type = $this->input->get('type', true);
@@ -807,9 +839,9 @@ class Ajax extends CI_Controller
 
         $this->db->select("eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
             eleve.matricule, password code, telephoneparent, eleve.adresse, section.intitulesection section, 
-            optionecole.intituleOption option, intituleclasse classe");
-        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
-        $this->db->join('optionecole', 'optionecole.idclasse=classe.idclasse');
+            optionecole.intituleOption option, intituleclasse classe, optionecole.intituleOption option");
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
         $this->db->join('section', 'section.idsection=optionecole.idsection');
 
         $idecole = $this->session->ecole_session;
@@ -825,7 +857,7 @@ class Ajax extends CI_Controller
             $this->db->where('section.idsection', $section);
         }
         if ($option) {
-            $this->db->where('optionecole.idoptionecole', $option);
+            $this->db->where('optionecole.intituleOption', $option);
         }
 
         $this->db->group_by('eleve.ideleve');
@@ -842,9 +874,9 @@ class Ajax extends CI_Controller
         $this->db->select("eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
             eleve.matricule, password code, telephoneparent, eleve.adresse, section.intitulesection section, 
             intituleclasse classe");
-        $this->db->join('classe', 'classe.idclasse=eleve.idclasse');
-        $this->db->join('section_has_classe', 'section_has_classe.idclasse=classe.idclasse');
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
         $this->db->join('section', 'section.idsection=section_has_classe.idsection');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
 
         $this->db->where('section.idecole', $idecole);
         $this->db->where('classe.idannee_scolaire_ecole', $annee);
@@ -853,7 +885,7 @@ class Ajax extends CI_Controller
         }
 
         if ($classe) {
-            $this->db->where('eleve.idclasse', $classe);
+            $this->db->where('classe.idclasse', $classe);
         }
         if ($section) {
             $this->db->where('section.idsection', $section);
@@ -861,9 +893,6 @@ class Ajax extends CI_Controller
 
         $this->db->group_by('eleve.ideleve');
         $r2 = $this->db->get('eleve')->result();
-
-        // var_dump($r2, $ide);
-        // die;
 
         foreach ($r2 as $ele) {
             $e = $ele;
@@ -1059,7 +1088,7 @@ class Ajax extends CI_Controller
             $idecole = $this->session->ecole_session;
             $this->db->order_by('idarticle', 'desc');
             $this->db->where(['idecole' => $idecole]);
-            $this->db->join('devise','devise.iddevise=article_ecole.iddevise');
+            $this->db->join('devise', 'devise.iddevise=article_ecole.iddevise');
             $r = $this->db->get('article_ecole')->result();
         }
 
@@ -1067,7 +1096,7 @@ class Ajax extends CI_Controller
             $iduniv = $this->session->universite_session;
             $this->db->order_by('idarticle', 'desc');
             $this->db->where(['iduniversite' => $iduniv]);
-            $this->db->join('devise','devise.iddevise=article_universite.iddevise');
+            $this->db->join('devise', 'devise.iddevise=article_universite.iddevise');
             $r = $this->db->get('article_universite')->result();
         }
 

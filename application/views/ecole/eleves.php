@@ -88,6 +88,7 @@
                                                         <th>Nom</th>
                                                         <th>Post-nom</th>
                                                         <th>Section</th>
+                                                        <th>Option</th>
                                                         <th>Classe</th>
                                                         <th>Matricule</th>
                                                         <th>Code</th>
@@ -235,6 +236,7 @@
 							<td>${data.nom}</td>
 							<td>${data.postnom}</td>
 							<td>${data.section}</td>
+							<td>${data.option ? data.option : '-'}</td>
 							<td>${data.classe}</td>
                             <td>${data.matricule ? data.matricule : ''}</td>
                             <td>${data.code}</td>
@@ -258,9 +260,8 @@
                 }, function(res) {
                     var str = '<option value="">Aucun</option>';
                     $(res.options).each(function(i, d) {
-                        // var url = '<?= site_url('ecole/classe/') ?>' + d.id;
                         str += `
-                        <option value="${d.id}">${d.option} (${d.classe})</option>`;
+                        <option value="${d.option}">${d.option}</option>`;
                     })
                     $('select[name=option]').html(str);
                     $('select[name=classe]').html('<option value="">Classe</option>');

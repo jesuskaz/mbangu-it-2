@@ -47,12 +47,15 @@ class Index extends CI_Controller
             $data["faculte"] = count($this->db->get_where('faculte', ["iduniversite" => $this->session->universite_session])->result());
             $data["selectFaculte"] = $this->db->get_where('faculte', ["iduniversite" => $this->session->universite_session])->result_array();
 
-            $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
+            $this->db->join('options', 'options.idoptions=etudiant.idoptions');
+            $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
             $this->db->where('promotion.iduniversite', $iduniv);
             $data["tot_etudiant"] = $te = count($this->db->get('etudiant')->result());
 
             $sql = "SELECT * from etudiant where idetudiant 
-            in (select paiement.idetudiant from paiement join etudiant ON paiement.idetudiant=etudiant.idetudiant join promotion on promotion.idpromotion=etudiant.idpromotion 
+            in (select paiement.idetudiant from paiement join etudiant ON paiement.idetudiant=etudiant.idetudiant 
+            join options on options.idoptions=etudiant.idoptions 
+            join promotion on promotion.idpromotion=options.idpromotion 
             where promotion.iduniversite=$iduniv)";
             $data["etudiant_paie"] = $ep = count($this->db->query($sql)->result());
 
@@ -107,13 +110,13 @@ class Index extends CI_Controller
             $this->db->join('devise', 'devise.iddevise=paiement.iddevise');
             $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
             $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
-            $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-            $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+            $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+            $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
             $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
             $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
-            $this->db->group_by('paiement.idpaiement');
-
             $this->db->where('frais.idfrais', $idfrais);
+            $this->db->group_by('paiement.idpaiement');
+            $this->db->order_by('paiement.idpaiement', 'desc');
 
             $data['paiement'] = $this->db->where(['frais.iduniversite' => $iduniv, 'frais.idanneeAcademique' => $ann])->get('paiement')->result();
 
@@ -122,4 +125,6 @@ class Index extends CI_Controller
             redirect("index/login");
         }
     }
+
+    
 }

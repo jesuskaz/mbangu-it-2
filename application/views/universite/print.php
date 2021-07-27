@@ -34,7 +34,7 @@
                         </div>
                         <div class="row font-weight-600 text-muted">
                           <div class="col-2">Promotion </div>
-                          <div class="col-10"> : <?= "$etudiant->intitulePromotion" ?></div>
+                          <div class="col-10"> : <?= $etudiant->intitulePromotion ?></div>
                         </div>
                         <div class="row font-weight-600 text-muted">
                           <div class="col-2">Option </div>

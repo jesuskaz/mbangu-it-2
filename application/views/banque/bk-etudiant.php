@@ -36,7 +36,7 @@
                           <th>Promotion</th>
                           <th>Email</th>
                           <th>Téléphone</th>
-                          <th>Détails</th>
+                          <!-- <th>Détails</th> -->
                         </tr>
                       </thead>
                       <tbody>
@@ -55,7 +55,7 @@
                               <td><?php echo $etudiant->intitulePromotion  ?></td>
                               <td><?php echo $etudiant->email  ?></td>
                               <td><?php echo $etudiant->telephone ?></td>
-                              <td></td>
+                              <!-- <td></td> -->
                             </tr>
                         <?php
                           }

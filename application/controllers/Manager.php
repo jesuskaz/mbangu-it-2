@@ -15,8 +15,8 @@ class Manager extends CI_Controller
     {
         $this->load->model("EtudiantModel");
         $this->db->select("etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, etudiant.email, faculte.nomFaculte, promotion.intitulePromotion, etudiant.adresse, etudiant.telephone");
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+        $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->group_by('etudiant.idetudiant');
 
@@ -84,9 +84,9 @@ class Manager extends CI_Controller
 
         $idetudiant = (int) $idetudiant;
         $this->db->join('anneeAcademique', 'etudiant.idanneeAcademique=anneeAcademique.idanneeAcademique');
-        $this->db->join('promotion', 'etudiant.idpromotion=promotion.idpromotion');
-        $this->db->join('options', 'promotion.idpromotion=options.idpromotion');
-        $this->db->join('faculte', 'options.idfaculte=faculte.idfaculte');
+        $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
+        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->group_by('etudiant.idetudiant');
         if (!count($et = $this->db->where('idetudiant', $idetudiant)->get('etudiant')->result())) {
             redirect('manager');
@@ -135,7 +135,8 @@ class Manager extends CI_Controller
         $this->load->view("admin/detail_etudiant", $data);
     }
 
-    function annonces() {
+    function annonces()
+    {
         $this->load->view('admin/annonces');
     }
 }

@@ -17,9 +17,8 @@ class Banquee extends CI_Controller
     {
 
         $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, etudiant.email, faculte.nomFaculte, promotion.intitulePromotion, etudiant.adresse, etudiant.telephone, universite.nomUniversite");
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
-
+        $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
         $this->db->group_by('etudiant.idetudiant');
@@ -44,14 +43,15 @@ class Banquee extends CI_Controller
         frais.designation, frais.numeroCompte, banque.denomination, paiement.montant, devise.nomDevise");
 
         $this->db->join('etudiant', 'etudiant.idetudiant=paiement.idetudiant');
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+        $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
 
         $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
         $this->db->join('banque', 'banque.idbanque=frais.idbanque');
         $this->db->join('devise', 'devise.iddevise=frais.iddevise');
         $this->db->group_by('paiement.idpaiement');
+        $this->db->order_by('paiement.idpaiement', 'desc');
 
         $data["paies"] = $r = $this->db->get('paiement')->result();
 
@@ -66,8 +66,8 @@ class Banquee extends CI_Controller
         $this->db->select("etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, 
         etudiant.email, etudiant.telephone, faculte.nomFaculte, promotion.intitulePromotion, etudiant.adresse, 
         etudiant.telephone");
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
+        $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+        $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->group_by('etudiant.idetudiant');
 
@@ -82,7 +82,8 @@ class Banquee extends CI_Controller
         $this->load->view("banque/profil", ['bank' => $u]);
     }
 
-    function annonces() {
+    function annonces()
+    {
         $this->load->view('banque/annonces');
     }
 }

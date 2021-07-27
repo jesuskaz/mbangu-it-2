@@ -63,7 +63,7 @@
 										<form class='' method="">
 											<div class="form-inline">
 												<div class="form-group m-2">
-													<select name="faculte" style="width:130px" class="custom-select form-change">
+													<select name="faculte" style="width:130px" id="faculte" class="custom-select form-change">
 														<option value="">Faculte</option>
 														<?php foreach ($selectFaculte as $facultes) {
 														?>
@@ -73,18 +73,13 @@
 													</select>
 												</div>
 												<div class="form-group m-2">
-													<select name="promotion" style="width:130px" class="custom-select form-change">
-														<option value="">Promotion</option>
-														<?php
-														foreach ($promotions as $promotion) {
-														?>
-															<option value="<?php echo $promotion['idpromotion']  ?>"><?php echo $promotion['intitulePromotion'] ?></option>
-														<?php } ?>
+													<select name="option" style="width:130px" id="option" class="custom-select form-change">
+														<option value="">Option</option>
 													</select>
 												</div>
 												<div class="form-group m-2">
-													<select name="option" style="width:130px" class="custom-select form-change">
-														<option value="">Option</option>
+													<select name="promotion" style="width:130px" id="promotion" class="custom-select form-change">
+														<option value="">Promotion</option>
 													</select>
 												</div>
 												<div class="form-group m-2">
@@ -100,17 +95,7 @@
 												</div>
 											</div>
 										</form>
-										<style>
-											.custom-select {
-												position: relative;
-												font-family: Arial;
-											}
 
-											.custom-select select {
-												display: none;
-												/*hide original SELECT element: */
-											}
-										</style>
 									</div>
 								</div>
 							</div>
@@ -300,27 +285,71 @@
 				var name = $(this).attr('name');
 				$('select').attr('disabled', true);
 
-				if (name == 'faculte' || name == 'promotion') {
+				if (name == 'faculte') {
 					$.getJSON("<?= site_url('ajax/select-data') ?>", {
 						'faculte': s_faculte.val(),
-						'promotion': s_promotion.val()
-					}, function(d) {
+						type: 'univ'
+					}, function(res) {
 						var str = '<option value="">Option</option>';
-						if (d.length > 0) {
-							$(d).each(function(i, j) {
-								var _o = j.intituleOptions;
-								var _v = j.idoptions;
-								str += `<option value="${j.idoptions}">${j.intituleOptions} (${j.promotion})</option>`;
-							})
-						}
+						$(res.options).each(function(i, d) {
+							str += `<option value="${d.option}">${d.option}</option>`;
+						})
 						$('select[name=option]').html(str);
-						$('select').attr('disabled', true);
-						data()
+						$('select[name=classe]').html('<option value="">Classe</option>');
+						data();
+					})
+				} else if (name == 'option') {
+					$.getJSON("<?= site_url('ajax/promotion') ?>", {
+						option: $(this).val(),
+						type: 'univ'
+					}, function(res) {
+						var str = '<option value="">Promotion</option>';
+						$(res).each(function(i, d) {
+							str += `<option value="${d.idpromotion}">${d.promotion}</option>`;
+						})
+						$('select[name=promotion]').html(str);
+						data();
 					})
 				} else {
 					data()
 				}
 			})
+
+			// $('#faculte').change(function() {
+			// 	$('select').attr('disabled', true);
+			// 	$.getJSON("<?= site_url('ajax/select-data') ?>", {
+			// 		'faculte': s_faculte.val(),
+			// 		type: 'univ'
+			// 	}, function(res) {
+			// 		var str = '<option value="">Option</option>';
+			// 		$(res.options).each(function(i, d) {
+			// 			str += `<option value="${d.option}">${d.option}</option>`;
+			// 		})
+			// 		$('select[name=option]').html(str);
+			// 		$('select[name=classe]').html('<option value="">Classe</option>');
+			// 		data();
+			// 	})
+			// })
+
+			// $('#option').change(function() {
+			// 	$('select').attr('disabled', true);
+			// 	$.getJSON("<?= site_url('ajax/promotion') ?>", {
+			// 		option: $(this).val(),
+			// 		type: 'univ'
+			// 	}, function(res) {
+			// 		var str = '<option value="">Promotion</option>';
+			// 		$(res).each(function(i, d) {
+			// 			str += `<option value="${d.idpromotion}">${d.promotion}</option>`;
+			// 		})
+			// 		$('select[name=promotion]').html(str);
+			// 		data();
+			// 	})
+			// })
+
+			// $('#promotion').change(function() {
+			// 	$('select').attr('disabled', true);
+			// 	data();
+			// })
 
 			colors = ["#786BED", "#ff7694", "#21b0ff"];
 			var options = {

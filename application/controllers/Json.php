@@ -65,6 +65,15 @@ class Json extends CI_Controller
         }
 
         $nooption = empty($option);
+        $sec = $this->db->where(['idsection' => $section, 'idclasse' => $classe])->get('section_has_classe')->result();
+        $sec = @$sec[0];
+        $idsection_has_classe = @$sec->idsection_has_classe;
+
+        $idoptionecole = $this->db->where(['idsection' => $section, 'idclasse' => $classe, 'intituleOption'=>$option])->get('optionecole')->result();
+        $idoptionecole = @$idoptionecole[0];
+        $idoptionecole = @$idoptionecole->idoptionecole;
+
+        
 
         $file_mimes = array(
             'text/x-comma-separated-values',
@@ -145,7 +154,13 @@ class Json extends CI_Controller
                     if (!empty($nom) and !empty($postnom) and !empty($prenom)) {
                         $matricule = !empty($matricule) ? $matricule : $this->Modele->matricule('eleve', [$nom, $postnom, $prenom]);
                         $code = $this->Modele->code();
-                        if (!count($this->db->where(['nom' => $nom, 'postnom' => $postnom, 'prenom' => $prenom, 'idclasse' => $classe])->get('eleve')->result())) {
+                        if ($nooption) {
+                            $a = count($this->db->where(['nom' => $nom, 'postnom' => $postnom, 'prenom' => $prenom, 'idsection_has_classe' => $idsection_has_classe])->get('eleve')->result());
+                        } else {
+                            $a = count($this->db->where(['nom' => $nom, 'postnom' => $postnom, 'prenom' => $prenom, 'idoptionecole' => $option])->get('eleve')->result());
+                        }
+
+                        if (!$a) {
                             $add++;
 
                             if ($nooption) {
@@ -155,7 +170,7 @@ class Json extends CI_Controller
                                     'prenom' => $prenom,
                                     'matricule' => $matricule,
                                     'adresse' => $adresse,
-                                    'idclasse' => $classe,
+                                    'idsection_has_classe' => $idsection_has_classe,
                                     'telephoneparent' => $telephone,
                                     'password' => $code,
                                     'idecole' => $this->session->ecole_session
@@ -167,11 +182,10 @@ class Json extends CI_Controller
                                     'prenom' => $prenom,
                                     'matricule' => $matricule,
                                     'adresse' => $adresse,
-                                    'idclasse' => $classe,
                                     'telephoneparent' => $telephone,
                                     'password' => $code,
                                     'idecole' => $this->session->ecole_session,
-                                    'idoptionecole' => $option
+                                    'idoptionecole' => $idoptionecole
                                 ];
                             }
 
@@ -207,6 +221,10 @@ class Json extends CI_Controller
         if (empty($option)) {
             die(json_encode(['status' => false, 'message' => "Veuillez spécifier l'option"]));
         }
+
+        $idoption = $this->db->where(['idfaculte' => $faculte, 'idpromotion' => $promotion, 'intituleOptions'=>$option])->get('options')->result();
+        $idoption = @$idoption[0];
+        $idoption = @$idoption->idoptions;
 
         $file_mimes = array(
             'text/x-comma-separated-values',
@@ -291,7 +309,7 @@ class Json extends CI_Controller
 
                     if (!empty($nom) and !empty($postnom) and !empty($prenom)) {
                         $matricule = !empty($matricule) ? $matricule : $this->Modele->matricule('etudiant', [$nom, $postnom, $prenom]);
-                        if (!count($this->db->where(['nom' => $nom, 'postnom' => $postnom, 'prenom' => $prenom, 'sexe' => $sexe, 'idpromotion' => $promotion])->get('etudiant')->result())) {
+                        if (!count($this->db->where(['nom' => $nom, 'postnom' => $postnom, 'prenom' => $prenom, 'sexe' => $sexe, 'idoptions' => $idoption])->get('etudiant')->result())) {
                             $add++;
                             $this->db->insert('etudiant', [
                                 'nom' => $nom,
@@ -299,7 +317,7 @@ class Json extends CI_Controller
                                 'prenom' => $prenom,
                                 'matricule' => $matricule,
                                 'adresse' => $adresse,
-                                'idpromotion' => $promotion,
+                                'idoptions' => $idoption,
                                 'telephone' => $telephone,
                                 'sexe' => $sexe,
                                 'email' => $email,

@@ -28,9 +28,9 @@ class AdmEtudiant extends CI_Controller
         promotion.intitulePromotion, etudiant.adresse, 
         etudiant.telephone, nomUniversite universite"
         );
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion=promotion.idpromotion');
-        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+        $this->db->join('options', 'etudiant.idoptions=options.idoptions');
+            $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
+            $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
         $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
         $this->db->group_by('etudiant.idetudiant');
         $data["etudiants"] =  $this->db->get('etudiant')->result();
