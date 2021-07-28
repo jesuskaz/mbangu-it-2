@@ -1,5 +1,8 @@
 <?php
-    class ApiParent extends CI_Controller
+
+use function Complex\rho;
+
+class ApiParent extends CI_Controller
     {
         public function __construct()
         {
@@ -100,13 +103,17 @@
             $montant = $this->input->post("montant");
     
             $idparent = $this->db->get_where("parent", ["login" => $login])->row("idparent");
-            $idDevise = $this->db->get_where("devise", ["nomDevise" => $devise])->row("iddevise");
-            if ($idDevise) {
+            $iddevise = $this->db->get_where("devise", ["nomDevise" => $devise])->row("iddevise");
+
+            if ($iddevise) 
+            {
                 $idOperateur = $this->db->get_where("operateur", ["nomOperateur" => $operateur])->row("idoperateur");
-                if ($idOperateur) {
+
+                if ($idOperateur) 
+                {
                     $data = array(
                         "idoperateur" => $idOperateur,
-                        "iddevise" => $idDevise,
+                        "iddevise" => $iddevise,
                         "idparent" => $idparent,
                         "montant" => $montant,
                         // "typeOperation" => "Depot effectue",
@@ -200,7 +207,8 @@
             $this->db->from('frais_ecole')  ;
             $this->db->join('annee_scolaire_ecole', 'frais_ecole.idannee_scolaire_ecole=annee_scolaire_ecole.idannee_scolaire_ecole');
             $this->db->join('classe', 'annee_scolaire_ecole.idannee_scolaire_ecole=classe.idannee_scolaire_ecole');
-            $this->db->join("eleve", "classe.idclasse = eleve.idclasse");
+            $this->db->join("optionecole", "classe.idclasse = optionecole.idclasse");
+            $this->db->join('eleve', 'optionecole.idoptionecole = eleve.idoptionecole');
             $this->db->where('ideleve', $ideleve);
             $this->db->where('frais_ecole.iddevise', $iddevise);
             
@@ -556,6 +564,82 @@
             $query = $this->ApiParentModel->getInfoNav($login);
             echo json_encode($query);
         }
+        public function getevery($login)
+        {  
+
+            $this->db->select('ecole.idecole as id');
+            $this->db->from('parent');
+            $this->db->join('parent_has_eleve', 'parent.idparent = parent_has_eleve.idparent');
+            $this->db->join('eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
+            $this->db->join('ecole', 'ecole.idecole = eleve.idecole');
+            $this->db->group_by('ecole.idecole');
+            $this->db->where('parent.login', $login);
+            $data = $this->db->get()->result_array();
+
+            $r = array();
+            if(count($data) > 0)
+            {
+                for($i = 0; $i < count($data); $i++)
+                {
+                    $id = $data[$i]["id"];
+                    $this->db->select(" * ");
+                    $this->db->from('annonce');
+                    $this->db->where('id',$id);
+                    $this->db->where('type','ecole');
+                    $query = $this->db->limit(4)->get()->result_array();
+                    array_push($r, $query);
+                }     
+
+            }
+            // print_r($r);
+            $banque = $this->db->get_where('annonce', ['type' => 'banque'])->result_array();
+            $admin = $this->db->get_where('annonce', ['type' => 'admin'])->result_array();
+            array_push($r, $banque);
+            array_push($r, $admin);
+            $counter = count($r);
+            for($i = 0; $i < $counter; $i)
+            {
+                if($r[$i] == array())
+                {
+                    unset($r[$i]);
+                }
+            }
+            print_r($r);
+            // echo json_encode($r);
+            
+        }
+        public function getAnnonceSchool($login)
+        {
+            $idecole = $this->db->get_where('ecole')->row('idecole');
+            $this->db->select('*');
+            $this->db->from('annonce');
+            $this->db->where('id', $idecole);
+            $this->db->where('type', 'ecole');
+            $this->db->limit(3);
+            $annonceecole = $this->db->get()->result_array();
+            echo json_encode($annonceecole);
+        }
+        public function getAdminAnnonce()
+        {
+             // Annonce Admin
+            $this->db->select('*');
+            $this->db->from('annonce');
+            $this->db->where('type', 'admin');
+            $this->db->limit(3);
+            $adminannonce = $this->db->get()->result_array();
+             echo json_encode($adminannonce);
+        }
+        public function getBanqueAnnonce()
+        {
+            // banque Annonce
+            $this->db->get_where('annonce', ['type' => 'banque'])->result_array();
+            $this->db->select('*');
+            $this->db->from('annonce');
+            $this->db->where('type', 'banque');
+            $banqueannonce = $this->db->get()->result_array();
+            echo json_encode($banqueannonce);
+        }
+
         public function updateInfo()
         {
             $inputData = $this->input->post("data");
