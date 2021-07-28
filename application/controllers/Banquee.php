@@ -10,6 +10,7 @@ class Banquee extends CI_Controller
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
         $this->load->model("BanqueModel");
         $this->load->model("Manager");
+        $this->idbanque = $this->session->bank_session;
     }
 
 
@@ -46,10 +47,12 @@ class Banquee extends CI_Controller
         $this->db->join('options', 'etudiant.idoptions=options.idoptions');
         $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
-
+       
         $this->db->join('frais', 'frais.idfrais=paiement.idfrais');
         $this->db->join('banque', 'banque.idbanque=frais.idbanque');
         $this->db->join('devise', 'devise.iddevise=frais.iddevise');
+        $this->db->where('banque.idbanque', $this->idbanque);
+
         $this->db->group_by('paiement.idpaiement');
         $this->db->order_by('paiement.idpaiement', 'desc');
 

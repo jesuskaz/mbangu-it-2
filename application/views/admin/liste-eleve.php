@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <?php include("heade.php"); ?>
 
 <body>
@@ -11,77 +10,60 @@
             <?php include("nav.php"); ?>
             <div class="main-sidebar sidebar-style-2">
                 <?php include("sidebar.php"); ?>
+                <div class="sidebar-brand">
+
+                </div>
             </div>
-            <div class="main-content" style="min-height: 675px;">
+            <div class="main-content">
                 <section class="section">
                     <div class="section-body">
                         <div class="row">
                             <div class="col-12">
                                 <div class="card">
-                                    <div class="card-header justify-content-between">
-                                        <h4>Ajouter une classe</h4>
-                                    </div>
-                                    <form class="p-3" method="POST" id="f-add">
-                                        <div class="form-inline">
-                                            <div class="form-group">
-                                                <input type="text" name="classe" placeholder="Nom de la classe" class="form-control name_list m-3" required="" />
-                                            </div>
-                                        </div>
-                                        <div class="form-group ml-3 p-0 m-0">
-                                            <b msg1></b> <br>
-                                            <b msg2></b>
-                                        </div>
-                                        <p class="ml-3 text-muted"><i class="fa fa-info-cirlce text-danger"></i>Vous pouvez ajouter plusieurs classes en les séparant par une virgule : Ex. classe1, classe2, classe3, ...</p>
-                                        <div class="form-group ml-3">
-                                            <button type="submit" class="btn btn-warning" value="Submit">Ajouter</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- <div class="row">
-                            <div class="col-12">
-                                <div class="card">
-                                    <form id="f-data" class="p-3" method="POST">
-                                        <div class="form-inline">
-                                            <div class="form-group-sm">
-                                                <select name="section" id="" class="custom-select change">
-                                                    <option value="">Toutes les sections</option>
-                                                    <?php foreach ($sections as $sec) { ?>
-                                                        <option value="<?= $sec->idsection ?>"><?= $sec->intitulesection ?></option>
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
-                                            <div class="form-group-sm ml-3">
-                                                <select name="option" id="" class="custom-select change">
-                                                    <option value="">Toutes les options</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div> -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="card">
                                     <div class="card-header">
-                                        <h4>Liste de classe</h4>
-                                    </div>
-                                    <div class="col-12 text-center mb-3">
-                                        <b class="text-<?= $this->session->classe; ?>"><?= $this->session->message; ?></b>
+                                        <h4>Liste élèves</h4>
                                     </div>
                                     <div class="card-body">
                                         <div class="table-responsive">
-                                            <table id="t-data" class="table table-striped table-hover" style="width:100%;">
+                                            <table class="table table-striped table-hover" style="width:100%;">
                                                 <thead>
                                                     <tr>
-                                                        <th></th>
+                                                        <th>N°</th>
+                                                        <th>Nom</th>
+                                                        <th>Post-nom</th>
+                                                        <th>Matricule</th>
+                                                        <th>Ecole</th>
+                                                        <th>Section</th>
                                                         <th>Classe</th>
-                                                        <th></th>
+                                                        <th>Téléphone parent</th>
+                                                        <th>Détails</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody></tbody>
+                                                <tbody>
+                                                    <?php
+                                                    $i = 0;
+                                                    foreach ($eleves as $el) {
+                                                        $i = $i + 1;
+                                                    ?>
+                                                        <tr>
+                                                            <td><?php echo $i; ?></td>
+                                                            <td><?php echo $el->nom  ?></td>
+                                                            <td><?php echo $el->postnom  ?></td>
+                                                            <td><?php echo $el->matricule  ?></td>
+                                                            <td><?php echo $el->ecole  ?></td>
+                                                            <td><?php echo $el->section  ?></td>
+                                                            <td><?php echo $el->classe  ?></td>
+                                                            <td><?php echo $el->telephone  ?></td>
+                                                            <td>
+                                                                <a href="<?= site_url('manager/detail-eleve/' . $el->ideleve) ?>">
+                                                                    <i class="fa fa-eye"></i> Détails
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    <?php
+                                                    }
+                                                    ?>
+                                                </tbody>
                                             </table>
                                         </div>
                                     </div>
@@ -178,78 +160,9 @@
                     </div>
                 </div>
             </div>
-            <?php include("footer.php"); ?>
         </div>
     </div>
-    <script>
-        $(function() {
-            opt = {
-                dom: 'Bfrtip',
-                buttons: [
-                    'copy', 'csv', 'excel', 'pdf', 'print'
-                ]
-            };
-
-            table = $('#t-data');
-            form = $('#f-data');
-            select = $('.change');
-            table.DataTable().destroy()
-            table.DataTable(opt);
-
-            $('#f-add').submit(function(e) {
-                e.preventDefault();
-                var form = $(this);
-                var btn = $(':submit', form);
-                btn.attr('disabled', true);
-                btn.html('<i class="fa fa-spinner fa-spin" ></i>');
-                $.post("<?= site_url('ajax/add_classe') ?>", form.serialize(), function(r) {
-                    r = JSON.parse(r);
-
-                    if (r.status == true) {
-                        form.get(0).reset();
-                        $('select[name=option2]').html('');
-                    }
-                    $('b[msg1]').removeClass().addClass(`text-${r.classe}`).html(r.message);
-                    $('b[msg2]').removeClass().addClass(`text-${r.classe1}`).html(r.message1);
-                    setTimeout(() => {
-                        $('b[msg1],b[msg2]').html('');
-                    }, 10000);
-                    btn.attr('disabled', false).html('Ajouter');
-                    getclasse()
-                })
-            })
-
-            getclasse()
-
-            function getclasse() {
-                var val = select.val();
-
-                $('select').attr('disabled', true);
-                $.getJSON("<?= site_url('ajax/classes-ecole-2') ?>", {
-                    option: $('select[name=option]').val(),
-                    type: 'ecole'
-                }, function(data) {
-
-                    var str = '';
-                    $(data).each(function(i, data) {
-                        var url = '<?= site_url('ecole/delete-c/') ?>' + data.idclasse;
-                        str += `
-            			<tr>
-            				<td> ${i+1}</td>
-            				<td>${data.classe}</td>
-            				<td><a class='btn btn-link text-danger' href="${url}"><i class="fa fa-trash"></i> Supprimer</a></td>
-            			</tr>
-            			`;
-                    })
-                    table.DataTable().destroy()
-                    table.children('tbody').html(str)
-                    table.DataTable(opt).draw()
-                    $('select').attr('disabled', false);
-                })
-            }
-
-        })
-    </script>
+    <?php include("footer.php"); ?>
 </body>
 
 </html>

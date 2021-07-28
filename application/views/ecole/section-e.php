@@ -18,75 +18,28 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="card">
-                                    <div class="card-header justify-content-between">
-                                        <h4>Ajouter une classe</h4>
-                                    </div>
-                                    <form class="p-3" method="POST" id="f-add">
-                                        <div class="form-inline">
-                                            <div class="form-group">
-                                                <input type="text" name="classe" placeholder="Nom de la classe" class="form-control name_list m-3" required="" />
-                                            </div>
-                                        </div>
-                                        <div class="form-group ml-3 p-0 m-0">
-                                            <b msg1></b> <br>
-                                            <b msg2></b>
-                                        </div>
-                                        <p class="ml-3 text-muted"><i class="fa fa-info-cirlce text-danger"></i>Vous pouvez ajouter plusieurs classes en les séparant par une virgule : Ex. classe1, classe2, classe3, ...</p>
-                                        <div class="form-group ml-3">
-                                            <button type="submit" class="btn btn-warning" value="Submit">Ajouter</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- <div class="row">
-                            <div class="col-12">
-                                <div class="card">
-                                    <form id="f-data" class="p-3" method="POST">
-                                        <div class="form-inline">
-                                            <div class="form-group-sm">
-                                                <select name="section" id="" class="custom-select change">
-                                                    <option value="">Toutes les sections</option>
-                                                    <?php foreach ($sections as $sec) { ?>
-                                                        <option value="<?= $sec->idsection ?>"><?= $sec->intitulesection ?></option>
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
-                                            <div class="form-group-sm ml-3">
-                                                <select name="option" id="" class="custom-select change">
-                                                    <option value="">Toutes les options</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div> -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="card">
                                     <div class="card-header">
-                                        <h4>Liste de classe</h4>
+                                        <h4>Modification de la section : <b><?= $section->intitulesection ?></b></h4> <br>
+                                        <b class="text-<?= $this->session->classe; ?>"><?php echo $this->session->message; ?></b>
                                     </div>
-                                    <div class="col-12 text-center mb-3">
-                                        <b class="text-<?= $this->session->classe; ?>"><?= $this->session->message; ?></b>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table id="t-data" class="table table-striped table-hover" style="width:100%;">
-                                                <thead>
-                                                    <tr>
-                                                        <th></th>
-                                                        <th>Classe</th>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody></tbody>
-                                            </table>
-                                        </div>
+                                    <div class="row">
+                                        <form class="composeForm" action="<?php echo site_url("ecole/section-u"); ?>" method="POST">
+                                            <div class="col-lg-12">
+                                                <div class="form-inline">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="idsection" value="<?= $section->idsection ?>">
+                                                        <input required type="text" value="<?= $section->intitulesection ?>" class="form-control" name="section" placeholder="Faculté">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <button type="submit" class="ml-3 btn btn-warning">Modifier</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </section>
@@ -178,78 +131,9 @@
                     </div>
                 </div>
             </div>
-            <?php include("footer.php"); ?>
         </div>
     </div>
-    <script>
-        $(function() {
-            opt = {
-                dom: 'Bfrtip',
-                buttons: [
-                    'copy', 'csv', 'excel', 'pdf', 'print'
-                ]
-            };
-
-            table = $('#t-data');
-            form = $('#f-data');
-            select = $('.change');
-            table.DataTable().destroy()
-            table.DataTable(opt);
-
-            $('#f-add').submit(function(e) {
-                e.preventDefault();
-                var form = $(this);
-                var btn = $(':submit', form);
-                btn.attr('disabled', true);
-                btn.html('<i class="fa fa-spinner fa-spin" ></i>');
-                $.post("<?= site_url('ajax/add_classe') ?>", form.serialize(), function(r) {
-                    r = JSON.parse(r);
-
-                    if (r.status == true) {
-                        form.get(0).reset();
-                        $('select[name=option2]').html('');
-                    }
-                    $('b[msg1]').removeClass().addClass(`text-${r.classe}`).html(r.message);
-                    $('b[msg2]').removeClass().addClass(`text-${r.classe1}`).html(r.message1);
-                    setTimeout(() => {
-                        $('b[msg1],b[msg2]').html('');
-                    }, 10000);
-                    btn.attr('disabled', false).html('Ajouter');
-                    getclasse()
-                })
-            })
-
-            getclasse()
-
-            function getclasse() {
-                var val = select.val();
-
-                $('select').attr('disabled', true);
-                $.getJSON("<?= site_url('ajax/classes-ecole-2') ?>", {
-                    option: $('select[name=option]').val(),
-                    type: 'ecole'
-                }, function(data) {
-
-                    var str = '';
-                    $(data).each(function(i, data) {
-                        var url = '<?= site_url('ecole/delete-c/') ?>' + data.idclasse;
-                        str += `
-            			<tr>
-            				<td> ${i+1}</td>
-            				<td>${data.classe}</td>
-            				<td><a class='btn btn-link text-danger' href="${url}"><i class="fa fa-trash"></i> Supprimer</a></td>
-            			</tr>
-            			`;
-                    })
-                    table.DataTable().destroy()
-                    table.children('tbody').html(str)
-                    table.DataTable(opt).draw()
-                    $('select').attr('disabled', false);
-                })
-            }
-
-        })
-    </script>
+    <?php include("footer.php"); ?>
 </body>
 
 </html>

@@ -285,15 +285,61 @@ class Ecole extends CI_Controller
     function delete_s($idsection = null)
     {
         $idsection = (int) $idsection;
-        if (!count($this->db->where(['idsection' => $idsection, 'idecole' => $this->idecole])->get('section')->result())) {
-            redirect();
+
+        $this->db->where(['section.idsection' => $idsection, 'section.idecole' => $this->idecole]);
+        if (!count($this->db->get('section')->result())) {
+            $this->session->set_flashdata(['classe2' => 'danger', 'message2' => 'Ereur.']);
+            redirect('ecole/section');
         }
+
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
         $this->db->join('section', 'section.idsection=optionecole.idsection');
-        if (count($this->db->where(['optionecole.idsection' => $idsection])->get('optionecole')->result())) {
-            $this->session->set_flashdata(['message2' => "Vous ne pouvez plus supprimer cette section, car elle contient une ou plusieurs options.", 'classe2' => 'danger']);
-        } else {
-            $this->db->delete('section', ['idsection' => $idsection]);
-            $this->session->set_flashdata(['message2' => "Section supprimée.", 'classe2' => 'success']);
+        $this->db->where(['section.idsection' => $idsection, 'section.idecole' => $this->idecole]);
+        $a = $this->db->get('eleve')->result();
+
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
+        $this->db->join('section', 'section.idsection=section_has_classe.idsection');
+        $this->db->where(['section.idsection' => $idsection, 'section.idecole' => $this->idecole]);
+        $b = $this->db->get('eleve')->result();
+
+        if (count($a) or count($b)) {
+            $this->session->set_flashdata(['classe2' => 'warning', 'message2' => 'Vous devez supprimer tous les éleves dans cette section avant la suppression.']);
+            redirect('ecole/section');
+        }
+
+        $this->db->trans_start();
+        $this->db->delete('optionecole', ['idsection' => $idsection]);
+        $this->db->delete('section_has_classe', ['idsection' => $idsection]);
+        $this->db->delete('section', ['idsection' => $idsection]);
+        $this->db->trans_complete();
+        $this->session->set_flashdata(['classe2' => 'success', 'message2' => 'Section supprimée.']);
+        redirect('ecole/section');
+    }
+
+    public function edit_s($idsection = null)
+    {
+        $this->db->where(['section.idsection' => $idsection, 'idecole' => $this->idecole]);
+        if (!count($fac =  $this->db->get('section')->result())) {
+            $this->session->set_flashdata(['classe' => 'danger', 'message2' => 'Ereur.']);
+            redirect('ecole/section');
+        }
+        $this->load->view('ecole/section-e', ['section' => $fac[0]]);
+    }
+
+    public function section_u()
+    {
+        $id = $this->input->post('idsection');
+        $section = $this->input->post('section');
+
+        $this->db->where(['section.idsection' => $id, 'idecole' => $this->idecole]);
+        if (!count($this->db->get('section')->result())) {
+            $this->session->set_flashdata(['classe2' => 'danger', 'message2' => 'Ereur.']);
+            redirect('ecole/section');
+        }
+
+        if (!empty($section)) {
+            $this->db->update('section', ['intitulesection' => $section], ['idsection' => $id]);
+            $this->session->set_flashdata(['classe2' => 'success', 'message2' => 'Section mise a jour.']);
         }
         redirect('ecole/section');
     }
@@ -402,9 +448,7 @@ class Ecole extends CI_Controller
 
     public function classes()
     {
-        $this->db->order_by('idclasse', 'desc');
-        $data["classes"] = $this->db->get_where('classe', ['idannee_scolaire_ecole' => $this->idannee])->result();
-        $this->load->view("ecole/classes", $data);
+        $this->load->view("ecole/classes");
     }
 
     public function options($idsection = null)
@@ -440,14 +484,53 @@ class Ecole extends CI_Controller
             $this->session->set_flashdata(['message' => "Erreur", "classe" => "danger"]);
             redirect('ecole/classes');
         }
-        if (count($this->db->where(['idclasse' => $idclasse])->get('eleve')->result())) {
-            $this->session->set_flashdata(['message' => "Vous ne pouvez pas supprimer cette classe, car elle contient un plusieurs élèves.", "classe" => "warning"]);
+
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
+        $this->db->where(['classe.idclasse' => $idclasse]);
+        $a = count($this->db->get('eleve')->result());
+
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+        $this->db->where(['classe.idclasse' => $idclasse]);
+        $b = count($this->db->get('eleve')->result());
+
+        if ($a or $b) {
+            $this->session->set_flashdata(['message' => "Vous ne pouvez pas supprimer cette classe, car elle contient un ou plusieurs élèves.", "classe" => "warning"]);
             redirect('ecole/classes');
         }
 
+        $this->db->trans_start();
+        $this->db->where('idclasse', $idclasse)->delete('section_has_classe');
         $this->db->where('idclasse', $idclasse)->delete('classe');
+        $this->db->trans_complete();
         $this->session->set_flashdata(['message' => "Classe supprimée.", "classe" => "success"]);
         redirect('ecole/classes');
+    }
+
+    function delete_o($idoption = null, $idsection = null)
+    {
+        $idoption = (int) $idoption;
+        $idsection = (int) $idsection;
+
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
+        if (!count($this->db->where(['optionecole.idoptionecole' => $idoption, 'section.idecole' => $this->idecole, 'section.idsection' => $idsection])->get('optionecole')->result())) {
+            $this->session->set_flashdata(['message' => "Erreur", "classe" => "danger"]);
+            redirect('ecole/options/' . $idsection);
+        }
+
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
+        $this->db->where(['eleve.idoptionecole' => $idoption]);
+        $a = count($this->db->get('eleve')->result());
+
+        if ($a) {
+            $this->session->set_flashdata(['message' => "Vous ne pouvez pas supprimer cette option, car elle contient un ou plusieurs élèves.", "classe" => "warning"]);
+            redirect('ecole/options/' . $idsection);
+        }
+        $this->db->where('idoptionecole', $idoption)->delete('optionecole');
+        $this->session->set_flashdata(['message' => "Option supprimée.", "classe" => "success"]);
+        redirect('ecole/options/' . $idsection);
     }
 
     public function eleves()

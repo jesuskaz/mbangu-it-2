@@ -25,13 +25,15 @@
                   <div class="row">
                     <form class="composeForm" action="<?php echo site_url("Faculte/createFaculte"); ?>" method="POST">
                       <div class="col-lg-12">
-                        <div class="form-group">
-                          <div class="form-line">
+                        <div class="form-inline">
+                          <div class="form-group">
                             <input required type="text" id="email_address" class="form-control" name="faculte" placeholder="Faculté">
+                          </div>
+                          <div class="form-group">
+                            <button type="submit" class="ml-3 btn btn-warning">Créer</button>
                           </div>
                         </div>
                       </div>
-                      <button type="submit" class="ml-3 btn btn-warning">Créer</button>
                     </form>
                   </div>
                 </div>
@@ -41,6 +43,11 @@
                   <div class="card-header">
                     <h4>Liste de Faculté</h4>
                   </div>
+                  <?php if ($this->session->message2) : ?>
+                    <div class="card-header">
+                      <b class="text-<?= $this->session->classe ?>"><?= $this->session->message2 ?></b>
+                    </div>
+                  <?php endif ?>
                   <div class="card-body">
                     <div class="table-responsive">
                       <table class="table table-striped table-hover" style="width:100%;">
@@ -63,6 +70,12 @@
                                 <td class="text-center">
                                   <a href="<?= site_url('faculte/options/' . $faculte['idfaculte']) ?>">
                                     <i class="fa fa-eye"></i> voir les options
+                                  </a>
+                                  <a class="text-success p-3" href="<?= site_url('faculte/faculte-e/' . $faculte['idfaculte']) ?>">
+                                    <i class="fa fa-edit"></i> Modifier
+                                  </a>
+                                  <a class="text-danger p-3" href="<?= site_url('faculte/faculte-d/' . $faculte['idfaculte']) ?>">
+                                    <i class="fa fa-trash"></i> Supprimer
                                   </a>
                                 </td>
                               </tr>

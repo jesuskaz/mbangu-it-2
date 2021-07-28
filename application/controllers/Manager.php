@@ -27,19 +27,117 @@ class Manager extends CI_Controller
         $data['nb_faculte'] = count($this->db->get('faculte')->result());
         $data['nb_etudiant'] = count($this->db->get('etudiant')->result());
 
-        $sql = "SELECT sum(montant) montant, sum(commission) commission, nomDevise devise from paiement
+        $data['nb_eleve'] = count($this->db->get('eleve')->result());
+        $data['ecoles'] = $this->db->get('ecole')->result();
+
+        $sql = "SELECT sum(montant) montant, sum(commission) commission, nomDevise devise, paiement.iddevise from paiement
         join devise on devise.iddevise=paiement.iddevise 
         where cast(date as date)  >= curdate() group by paiement.iddevise ";
-        $data['nb_ca_jour'] = $f = $this->db->query($sql)->result();
+        $cajour_univ = $this->db->query($sql)->result();
 
-        $sql = "SELECT sum(montant) montant, sum(commission) commission, nomDevise devise from paiement
+        $sql = "SELECT sum(montant) montant, sum(commission) commission, nomDevise devise, paiement.iddevise from paiement
         join devise on devise.iddevise=paiement.iddevise 
         where MONTH(date) = MONTH(CURRENT_DATE) AND YEAR(date) = YEAR(CURRENT_DATE) group by paiement.iddevise ";
-        $data['nb_ca_mensuel'] = $f = $this->db->query($sql)->result();
-        // var_dump($f);
+        $camoi_univ = $this->db->query($sql)->result();
+        ///
+        $sql = "SELECT sum(montant) montant, sum(commission) commission, nomDevise devise, paiement_ecole.iddevise from paiement_ecole
+        join devise on devise.iddevise=paiement_ecole.iddevise 
+        where cast(date as date)  >= curdate() group by paiement_ecole.iddevise ";
+        $cajour_ecole = $this->db->query($sql)->result();
+
+        $sql = "SELECT sum(montant) montant, sum(commission) commission, nomDevise devise, paiement_ecole.iddevise from paiement_ecole
+        join devise on devise.iddevise=paiement_ecole.iddevise 
+        where MONTH(date) = MONTH(CURRENT_DATE) AND YEAR(date) = YEAR(CURRENT_DATE) group by paiement_ecole.iddevise ";
+        $camoi_ecole = $this->db->query($sql)->result();
+
+        $cajour = $camoi = [];
+
+        // foreach ($cajour_univ as $cau) {
+        //     foreach ($cajour_ecole as $cae) {
+        //         if ($cau->iddevise = $cae->iddevise) {
+        //             $o = new stdClass();
+        //             $o->iddevise = $cau->iddevise;
+        //             $o->devise = $cau->devise;
+        //             $o->montant = $cau->montant + $cae->montant;
+        //             $o->commission = $cau->commission + $cae->commission;
+        //             array_push($cajour, $o);
+        //         }
+        //     }
+        // }
+
+        // foreach ($camoi_univ as $cmu) {
+        //     $find = false;
+        //     foreach ($camoi_ecole as $cme) {
+        //         if ($cmu->iddevise = $cme->iddevise) {
+        //             $o = new stdClass();
+        //             $o->iddevise = $cmu->iddevise;
+        //             $o->devise = $cmu->devise;
+        //             $o->montant = $cmu->montant + $cme->montant;
+        //             $o->commission = $cmu->commission + $cme->commission;
+        //             array_push($camoi, $o);
+        //             $find = true;
+        //         }
+        //     }
+        // }
+
+        $data['nb_ca_mensuel'] = $camoi;
+        $data['nb_ca_jour'] = $cajour;
+
+        // var_dump($camoi_univ, $camoi_ecole, $camoi_univ, $camoi_ecole);
         // die;
+
+        $this->db->order_by('eleve.ideleve', 'desc');
+        $this->db->select(
+            "eleve.ideleve,
+        eleve.nom, eleve.postnom, eleve.prenom, 
+        eleve.matricule, section.intitulesection section, 
+        classe.intituleclasse classe, eleve.adresse, 
+        eleve.telephoneparent telephone, nomecole ecole"
+        );
+        $this->db->join('optionecole', 'eleve.idoptionecole=optionecole.idoptionecole');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
+        $this->db->join('ecole', 'ecole.idecole=section.idecole');
+        $this->db->group_by('eleve.ideleve');
+
+        $r =  $this->db->get('eleve')->result();
+        $ide = '';
+        foreach ($r as $el) {
+            $ide .= "$el->ideleve, ";
+        }
+        $ide = substr($ide, 0, -2);
+
+        //////////
+        $r2 = [];
+        $this->db->order_by('eleve.ideleve', 'desc');
+        $this->db->select(
+            "eleve.ideleve,
+        eleve.nom, eleve.postnom, eleve.prenom, 
+        eleve.matricule, section.intitulesection section, 
+        classe.intituleclasse classe, eleve.adresse, 
+        eleve.telephoneparent telephone, nomecole ecole"
+        );
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
+        $this->db->join('section', 'section.idsection=section_has_classe.idsection');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+
+        $this->db->join('ecole', 'ecole.idecole=section.idecole');
+        if (!empty($ide)) {
+            $this->db->where("`ideleve` NOT IN ($ide)", NULL, FALSE);
+        }
+        $this->db->group_by('eleve.ideleve');
+
+        $r2 =  $this->db->get('eleve')->result();
+
+        foreach ($r2 as $ele) {
+            $e = $ele;
+            array_push($r, $e);
+        }
+        $data["eleves"] = $r;
+
         $this->load->view("admin/adm-index", $data);
     }
+
     public function devise()
     {
         $this->load->view('admin/devise');
@@ -133,6 +231,36 @@ class Manager extends CI_Controller
         // die;
         $data['comptes'] = $compte;
         $this->load->view("admin/detail_etudiant", $data);
+    }
+
+    function detail_eleve($ideleve = null)
+    {
+
+        $ideleve = (int) $ideleve;
+        $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
+        $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
+        $this->db->join('section', 'section.idsection=optionecole.idsection');
+        $this->db->where(['eleve.ideleve' => $ideleve]);
+        $a = $this->db->get('eleve')->result();
+
+        $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
+        $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+        $this->db->join('section', 'section.idsection=section_has_classe.idsection');
+        $this->db->where(['eleve.ideleve' => $ideleve]);
+        $b = $this->db->get('eleve')->result();
+
+        if (!count($a) && !count($b)) {
+            redirect('manager');
+        }
+
+        $data['eleve'] = count($a) > 0 ? $a[0] : $b[0];
+
+        $this->db->select('frais_ecole.montant montant_frais, paiement_ecole.montant montant_paye, frais_ecole.intitulefrais frais, devise.nomDevise devise, commission, date');
+        $this->db->join('frais_ecole', 'frais_ecole.idfrais_ecole=paiement_ecole.idfrais_ecole');
+        $this->db->join('devise', 'devise.iddevise=paiement_ecole.iddevise');
+        $this->db->where('paiement_ecole.ideleve', $ideleve);
+        $data['paiements'] = $this->db->get('paiement_ecole')->result();
+        $this->load->view("admin/detail_eleve", $data);
     }
 
     function annonces()

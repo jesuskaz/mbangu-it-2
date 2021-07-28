@@ -24,6 +24,11 @@
                                             <i class="fa fa-arrow-left"></i>
                                         </button>
                                     </div>
+                                    <?php if ($this->session->message) : ?>
+                                        <div class="card-header">
+                                            <b class="text-<?= $this->session->classe ?>"><?= $this->session->message ?></b>
+                                        </div>
+                                    <?php endif ?>
                                     <div class="card-body">
                                         <div class="table-responsive">
                                             <table class="table table-striped table-hover" style="width:100%;">
@@ -32,6 +37,7 @@
                                                         <th>N°</th>
                                                         <th>Options</th>
                                                         <th class="text-center">CLasses</th>
+                                                        <th></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -45,6 +51,9 @@
                                                             <td class="text-center">
                                                                 <?= $opt->intituleclasse ?>
                                                             </td>
+                                                            <td>
+                                                                <a href="<?= site_url('ecole/delete-o/' . $opt->idoptionecole . '/' . $opt->idsection) ?> " class="btn link text-danger"><i class="fa fa-trash"></i> Supprimer cette option</a>
+                                                            </td>
                                                         </tr>
                                                     <?php
                                                     }
@@ -56,6 +65,9 @@
                                                             <td> - </td>
                                                             <td class="text-center">
                                                                 <?= $opt->intituleclasse ?>
+                                                            </td>
+                                                            <td>
+
                                                             </td>
                                                         </tr>
                                                     <?php

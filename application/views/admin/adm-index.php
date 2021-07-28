@@ -23,7 +23,9 @@
                         <div class="card-content">
                           <h5 class="font-15"> <a href="<?= site_url('admUniversite/loaduniversite') ?>">Universités : <?= count($universites)  ?></a></h5>
                           <h5 class="font-15"><a href="<?= site_url('admFaculte/listefaculte') ?>">Facultés : <?= $nb_faculte ?></a></h5>
+                          <h5 class="font-15"> <a href="<?= site_url('admUniversite/ecole') ?>">Ecole : <?= count($ecoles) ?></a></h5>
                         </div>
+
                       </div>
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
                         <div class="banner-img">
@@ -43,6 +45,7 @@
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
                         <div class="card-content">
                           <h5 class="font-15"> <a href="<?= site_url('admEtudiant/listeetudiant') ?>">Etudiants : <?= $nb_etudiant ?></a></h5>
+                          <h5 class="font-15"> <a href="<?= site_url('admBanque/listeeleve') ?>">Elèves : <?= $nb_eleve ?></a></h5>
                         </div>
                       </div>
                       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
@@ -114,7 +117,7 @@
             <div class="col-12 col-sm-12 col-lg-12">
               <div class="card ">
                 <div class="card-header">
-                  <h4>Statistique de Paiement</h4>
+                  <h4>Statistique de Paiement universit&eacute;</h4>
                   <div class="card-header-action">
                     <form class="form-inline form">
                       <div class="form-group p-0 ">
@@ -144,6 +147,45 @@
                     <div class="col-lg-3">
                       <div class="row mt-5">
                         <div class="col-12 mb-3">Légende :<b><span class="ml-2" id='legende'></span></b></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-12 col-lg-12">
+              <div class="card ">
+                <div class="card-header">
+                  <h4>Statistique de Paiement &Eacute;cole</h4>
+                  <div class="card-header-action">
+                    <form class="form-inline form2">
+                      <div class="form-group p-0 ">
+                        <select name="devise" class="custom-select">
+                          <option value="">Choisissez la devise</option>
+                          <?php foreach ($devises as $de) : ?>
+                            <option value="<?= $de->iddevise ?>"><?= $de->nomDevise ?></option>
+                          <?php endforeach ?>
+                        </select>
+                      </div>
+                      <div class="form-group p-1 ">
+                        <select name="ecole" class="custom-select">
+                          <option value="">Choisissez l'ecole</option>
+                          <?php foreach ($ecoles as $de) : ?>
+                            <option value="<?= $de->idecole ?>"><?= $de->nomecole ?></option>
+                          <?php endforeach ?>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-lg-9">
+                      <div id="graph2"></div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="row mt-5">
+                        <div class="col-12 mb-3">Légende :<b><span class="ml-2" id='legende2'></span></b></div>
                       </div>
                     </div>
                   </div>
@@ -198,6 +240,57 @@
                               </tr>
                           <?php
                             }
+                          }
+                          ?>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Liste élèves</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-striped table-hover" style="width:100%;">
+                        <thead>
+                          <tr>
+                            <th>N°</th>
+                            <th>Nom</th>
+                            <th>Post-nom</th>
+                            <th>Matricule</th>
+                            <th>Ecole</th>
+                            <th>Section</th>
+                            <th>Classe</th>
+                            <th>Téléphone parent</th>
+                            <th>Détails</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <?php
+                          $i = 0;
+                          foreach ($eleves as $el) {
+                            $i = $i + 1;
+                          ?>
+                            <tr>
+                              <td><?php echo $i; ?></td>
+                              <td><?php echo $el->nom  ?></td>
+                              <td><?php echo $el->postnom  ?></td>
+                              <td><?php echo $el->matricule  ?></td>
+                              <td><?php echo $el->ecole  ?></td>
+                              <td><?php echo $el->section  ?></td>
+                              <td><?php echo $el->classe  ?></td>
+                              <td><?php echo $el->telephone  ?></td>
+                              <td>
+                                <a href="<?= site_url('manager/detail-eleve/' . $el->ideleve) ?>">
+                                  <i class="fa fa-eye"></i> Détails
+                                </a>
+                              </td>
+                            </tr>
+                          <?php
                           }
                           ?>
                         </tbody>
@@ -372,12 +465,16 @@
           offsetX: -5
         }
       };
-      var chart = new ApexCharts(document.querySelector("#graph"), options);
+      var chart  = new ApexCharts(document.querySelector("#graph"), options);
+      var chart2  = new ApexCharts(document.querySelector("#graph2"), options);
       chart.render();
+      chart2.render();
 
       form = $('.form');
+      form2 = $('.form2');
 
       chart_data()
+      chart_data_2()
 
       function chart_data() {
 
@@ -399,10 +496,31 @@
         })
       }
 
+      function chart_data_2() {
+        $.get("<?= site_url('ajax/chart-data-2') ?>", "type=admin&" + form2.serialize(), function(d) {
+          d = JSON.parse(d)
+          var tab_data = [];
+          leg = '';
+          var c = 0;
+          $.each(d, function(i, j) {
+            tab_data.push({
+              name: i,
+              data: j
+            });
+            leg += `<span class="badge text-white" style="background: ${colors[c]}; margin: 5px">${i}</span>`;
+            c++;
+          })
+          $('#legende2').html(leg);
+          chart2.updateSeries(tab_data)
+        })
+      }
+
       form.change(function() {
         chart_data();
       })
-
+      form2.change(function() {
+        chart_data_2();
+      })
 
     })
   </script>

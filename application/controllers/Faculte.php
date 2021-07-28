@@ -81,13 +81,7 @@ class Faculte extends CI_Controller
 
         $this->load->view("universite/liste-options", $data);
     }
-    // public function ajouterFaculte()
-    // {
-    //     if (!$this->session->universite_session) {
-    //         redirect();
-    //     }
-    //     $this->load->view("universite/ajouter-faculte");
-    // }
+
     public function promotion()
     {
         if (!$this->session->universite_session) {
@@ -386,5 +380,71 @@ class Faculte extends CI_Controller
         $data['total'] = $tot;
 
         $this->load->view('universite/detail-achat', $data);
+    }
+
+    public function faculte_d($idfaculte = null)
+    {
+        if (!$iduniv = $this->session->universite_session) {
+            redirect('index/login');
+        }
+        $idfaculte = (int) $idfaculte;
+
+        $this->db->where(['faculte.idfaculte' => $idfaculte, 'iduniversite' => $iduniv]);
+        if (!count($this->db->get('faculte')->result())) {
+            $this->session->set_flashdata(['classe' => 'danger', 'message2' => 'Ereur.']);
+            redirect('faculte/listefaculte');
+        }
+
+        $this->db->join('options', 'options.idoptions=etudiant.idoptions');
+        $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+        $this->db->where(['faculte.idfaculte' => $idfaculte, 'iduniversite' => $iduniv]);
+        if (count($this->db->get('etudiant')->result())) {
+            $this->session->set_flashdata(['classe' => 'warning', 'message2' => 'Vous devez supprimer tous les étudiants dans cette faculté avant la suppression.']);
+            redirect('faculte/listefaculte');
+        }
+
+        $this->db->trans_start();
+        $this->db->delete('options', ['idfaculte' => $idfaculte]);
+        $this->db->delete('faculte', ['idfaculte' => $idfaculte]);
+        $this->db->trans_complete();
+        $this->session->set_flashdata(['classe' => 'success', 'message2' => 'Faculté supprimée.']);
+        redirect('faculte/listefaculte');
+    }
+
+    public function faculte_e($idfaculte = null)
+    {
+        if (!$iduniv = $this->session->universite_session) {
+            redirect('index/login');
+        }
+
+        $this->db->where(['faculte.idfaculte' => $idfaculte, 'iduniversite' => $iduniv]);
+        if (!count($fac =  $this->db->get('faculte')->result())) {
+            $this->session->set_flashdata(['classe' => 'danger', 'message2' => 'Ereur.']);
+            redirect('faculte/listefaculte');
+        }
+        $this->load->view('universite/faculte-e', ['faculte' => $fac[0]]);
+    }
+
+    public function faculte_u()
+    {
+        if (!$iduniv = $this->session->universite_session) {
+            redirect('index/login');
+        }
+
+        $id = $this->input->post('idfaculte');
+        $faculte = $this->input->post('faculte');
+
+        $this->db->where(['faculte.idfaculte' => $id, 'iduniversite' => $iduniv]);
+        if (!count($this->db->get('faculte')->result())) {
+            $this->session->set_flashdata(['classe' => 'danger', 'message2' => 'Ereur.']);
+            redirect('faculte/listefaculte');
+        }
+
+
+        if (!empty($faculte)) {
+            $this->db->update('faculte', ['nomFaculte' => $faculte], ['idfaculte' => $id]);
+            $this->session->set_flashdata(['classe' => 'success', 'message2' => 'Faculté mise a jour.']);
+        }
+        redirect('faculte/listefaculte');
     }
 }

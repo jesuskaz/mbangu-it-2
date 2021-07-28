@@ -68,8 +68,9 @@
                                                             <td><?php echo  $i; ?></td>
                                                             <td><?php echo $sec->intitulesection; ?></td>
                                                             <td class="text-center">
-                                                                <a class="btn-link ml-2 text-danger" href="<?= site_url('ecole/delete-s/' . $sec->idsection) ?>"> <i class="fa fa-trash"></i> Supprimer </a>
                                                                 <a class="btn-link ml-2" href="<?= site_url('ecole/options/' . $sec->idsection) ?>"> <i class="fa fa-eye"></i> Affichier les classes </a>
+                                                                <a class="btn-link ml-2 text-success" href="<?= site_url('ecole/edit-s/' . $sec->idsection) ?>"> <i class="fa fa-edit"></i> Modifier </a>
+                                                                <a class="btn-link ml-2 text-danger" href="<?= site_url('ecole/delete-s/' . $sec->idsection) ?>"> <i class="fa fa-trash"></i> Supprimer </a>
                                                             </td>
                                                         </tr>
                                                     <?php
