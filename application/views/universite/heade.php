@@ -29,4 +29,22 @@
 
 	<link rel='shortcut icon' type='image/x-icon' href="<?php echo base_url() . 'assets/img/favicon.ico'; ?>" /> 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<style>
+    .page-item.active .page-link {
+      color: #fff !important;
+      background-color: #ffc107 !important;
+      border-color: #ffc107 !important;
+    }
+    .page-link {
+      color: #ffc107 !important;
+      background-color: #fff !important;
+      border: 1px solid #dee2e6 !important;
+    }
+
+    .page-link:hover {
+      color: #fff !important;
+      background-color: #ffc107 !important;
+      border-color: #ffc107 !important;
+    }
+  </style>
 </head>

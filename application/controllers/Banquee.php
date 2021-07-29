@@ -5,6 +5,7 @@ class Banquee extends CI_Controller
     {
         parent::__construct();
         if (!$this->session->bank_session) {
+            $this->session->sess_destroy();
             redirect();
         }
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
@@ -88,5 +89,14 @@ class Banquee extends CI_Controller
     function annonces()
     {
         $this->load->view('banque/annonces');
+    }
+
+    function annonce_e($idannonce = null)
+    {
+        $idannonce  = (int) $idannonce;
+        if (!count($annonce = $this->db->where(['idannonce' => $idannonce, 'type' => 'banque', 'id' => $this->idbanque])->get('annonce')->result())) {
+            redirect('banquee/annonces');
+        }
+        $this->load->view('banque/annonce-e', ['annonce' => $annonce[0]]);
     }
 }

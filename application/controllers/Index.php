@@ -6,6 +6,7 @@ class Index extends CI_Controller
         parent::__construct();
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
         $this->load->model("Manager");
+        $this->load->model("Modele");
     }
 
     public function index()
@@ -36,6 +37,7 @@ class Index extends CI_Controller
 
     public function login()
     {
+        $this->Modele->is_connected();
         $this->load->view('first/login');
     }
 
@@ -65,6 +67,7 @@ class Index extends CI_Controller
             $data["devises"] = $this->db->get('devise')->result();
             $this->load->view("universite/index", $data);
         } else {
+            $this->session->sess_destroy();
             redirect("index/login");
         }
     }
@@ -87,6 +90,7 @@ class Index extends CI_Controller
 
             $this->load->view("universite/solde", $data);
         } else {
+            $this->session->sess_destroy();
             redirect("index/login");
         }
     }
@@ -122,9 +126,8 @@ class Index extends CI_Controller
 
             $this->load->view("universite/detail_solde", $data);
         } else {
+            $this->session->sess_destroy();
             redirect("index/login");
         }
     }
-
-    
 }

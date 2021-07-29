@@ -5,6 +5,7 @@ class AdmFaculte extends CI_Controller
     {
         parent::__construct();
         if (!$this->session->isadmin) {
+            $this->session->sess_destroy();
             redirect('index/login');
         }
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");

@@ -315,6 +315,15 @@ class Faculte extends CI_Controller
         $this->load->view('universite/annonces');
     }
 
+    function annonce_e($idannonce = null)
+    {
+        $idannonce  = (int) $idannonce;
+        if (!count($annonce = $this->db->where(['idannonce' => $idannonce, 'type' => 'universite', 'id' => $this->id])->get('annonce')->result())) {
+            redirect('faculte/annonces');
+        }
+        $this->load->view('universite/annonce-e', ['annonce' => $annonce[0]]);
+    }
+
     function magasin()
     {
         if (!$this->session->universite_session) {

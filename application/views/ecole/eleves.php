@@ -72,9 +72,14 @@
                                 </div>
                             </div>
                             <div class="col-12">
+
                                 <div class="card">
-                                    <div class="card-header">
-                                        <h4>Liste d'Elèves</h4> <br>
+                                    <div class="col-12 mt-3 d-flex justify-content-center">
+                                        <b id="sms-rep" class=""></b>
+                                    </div>
+                                    <div class="card-header d-flex justify-content-between">
+                                        <h4>Liste d'Elèves</h4>
+                                        <button class="btn btn-warning all-sms" style="border-radius: 5px;"><i class="fa fa-sms"></i> Envoyer SMS</button>
                                     </div>
                                     <div class="card-header">
                                         <b class="text-<?= $this->session->classe; ?> mb-3"><?= $this->session->message; ?></b>
@@ -241,12 +246,16 @@
                             <td>${data.matricule ? data.matricule : ''}</td>
                             <td>${data.code}</td>
                             <td>${data.telephoneparent ? data.telephoneparent : ''}</td>
-							<td style="text-align:center"><a href="${url}"><i class="fa fa-eye"></i> Détail</a></td>
+							<td style="text-align:center">
+                                <a href="${url}"><i class="fa fa-eye"></i> Détail</a>
+                                <button value='${data.ideleve}' class='btn btn-warning btn-sm ml-2 sms'><i class="fa fa-envelope"></i> SMS</button>
+                            </td>
 						</tr>
 						`;
                     })
                     table.DataTable().destroy()
                     table.children('tbody').html(str)
+                    sms();
                     table.DataTable(opt).draw()
                     $('select').attr('disabled', false);
                 })
@@ -338,6 +347,35 @@
 
                     }
                 })
+            })
+
+            function sms() {
+                $('.sms').off('click').click(function() {
+                    var eleve = $(this).val();
+                    
+                })
+            }
+
+            $('.all-sms').click(function() {
+                var btn = $(this);
+                var txt = btn.html();
+                btn.attr('disabled', true);
+                btn.html(`<div class='spinner-border spinner-border-sm'></div>`);
+                $('#sms-rep').html('');
+                $.post('<?= site_url('sms/notification') ?>', {
+                    type: 'ecole'
+                }, function(d) {
+                    d = JSON.parse(d);
+                    if (d.status == true) {
+                        $('#sms-rep').removeClass().addClass('text-success').html(d.message);
+
+                    } else {
+                        $('#sms-rep').removeClass().addClass('text-danger').html(d.message);
+                    }
+                    btn.attr('disabled', false).html(txt);
+
+                })
+
             })
         })
     </script>

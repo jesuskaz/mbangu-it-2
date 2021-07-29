@@ -22,4 +22,22 @@
   <link rel="stylesheet" href="<?php echo base_url() . 'assets/bundles/jquery-selectric/selectric.css'; ?>">
 
   <link rel='shortcut icon' type='image/x-icon' href="<?php echo base_url() . 'assets/img/favicon.ico'; ?>" />
+
+  <style>
+    .page-item.active .page-link {
+      color: #fff !important;
+      background-color: #ffc107 !important;
+      border-color: #ffc107 !important;
+    }
+    .page-link {
+      color: #ffc107 !important;
+      background-color: #fff !important;
+      border: 1px solid #dee2e6 !important;
+    }
+    .page-link:hover {
+      color: #fff !important;
+      background-color: #ffc107 !important;
+      border-color: #ffc107 !important;
+    }
+  </style>
 </head>

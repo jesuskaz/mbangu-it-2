@@ -1295,4 +1295,42 @@ class Ajax extends CI_Controller
 
         echo json_encode($rep ?? []);
     }
+
+    function annonce_u()
+    {
+        $type = $this->input->post('type', true);
+        $this->checktype($type);
+
+        $idannonce = $this->input->post('idannonce', true);
+        $titre = $this->input->post('titre', true);
+        $rep['status'] = false;
+        if (strlen($titre) > 128) {
+            $rep['message'] = 'Le titre doit avoir moins de 128 caractères.';
+            echo json_encode($rep);
+            exit;
+        }
+
+        if ($type == 'admin') {
+            $this->db->update('annonce', ['titre' => $titre], ['idannonce' => $idannonce, 'type' => 'admin']);
+            $rep['status'] = true;
+            $rep['message'] = "Annonce mise à jour.";
+        } else if ($type == 'ecole') {
+            $idecole = $this->session->ecole_session;
+            $this->db->update('annonce', ['titre' => $titre], ['idannonce' => $idannonce, 'type' => 'ecole', 'id' => $idecole]);
+            $rep['status'] = true;
+            $rep['message'] = "Annonce mise à jour.";
+        } else if ($type == 'univ') {
+            $iduniv = $this->session->universite_session;
+            $this->db->update('annonce', ['titre' => $titre], ['idannonce' => $idannonce, 'type' => 'universite', 'id' => $iduniv]);
+            $rep['status'] = true;
+            $rep['message'] = "Annonce mise à jour.";
+        } else if ($type == 'banque') {
+            $idbank = $this->session->bank_session;
+            $this->db->update('annonce', ['titre' => $titre], ['idannonce' => $idannonce, 'type' => 'banque', 'id' => $idbank]);
+            $rep['status'] = true;
+            $rep['message'] = "Annonce mise à jour.";
+        }
+
+        echo json_encode($rep);
+    }
 }

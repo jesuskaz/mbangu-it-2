@@ -240,6 +240,7 @@
                                 </div>
                                 <div class="card-footer d-flex justify-content-between">
                                     <button value='${a.idannonce}' class='btn btn-link delete' ><i class='fa fa-trash text-danger' ></i></button>
+                                    <a href='${url}faculte/annonce-e/${a.idannonce}' class='btn btn-link' ><i class='fa fa-edit' ></i></a>
                                     <b class='text-${cl}' >${em}</b>
                                 </div>
                             </div>

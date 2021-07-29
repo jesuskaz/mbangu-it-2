@@ -5,6 +5,7 @@ class Ecole extends CI_Controller
     {
         parent::__construct();
         if (!$ide = $this->session->ecole_session) {
+            $this->session->sess_destroy();
             redirect('index/login');
         }
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
@@ -803,6 +804,15 @@ class Ecole extends CI_Controller
     function annonces()
     {
         $this->load->view('ecole/annonces');
+    }
+
+    function annonce_e($idannonce = null)
+    {
+        $idannonce  = (int) $idannonce;
+        if (!count($annonce = $this->db->where(['idannonce' => $idannonce, 'type' => 'ecole', 'id' => $this->idecole])->get('annonce')->result())) {
+            redirect('ecole/annonces');
+        }
+        $this->load->view('ecole/annonce-e', ['annonce' => $annonce[0]]);
     }
 
     function magasin()

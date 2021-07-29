@@ -5,6 +5,7 @@ class Manager extends CI_Controller
     {
         parent::__construct();
         if (!$this->session->isadmin) {
+            $this->session->sess_destroy();
             redirect('index/login');
         };
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
@@ -13,7 +14,6 @@ class Manager extends CI_Controller
     }
     public function index()
     {
-        $this->load->model("EtudiantModel");
         $this->db->select("etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.matricule, etudiant.email, faculte.nomFaculte, promotion.intitulePromotion, etudiant.adresse, etudiant.telephone");
         $this->db->join('options', 'etudiant.idoptions=options.idoptions');
         $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
@@ -39,6 +39,9 @@ class Manager extends CI_Controller
         join devise on devise.iddevise=paiement.iddevise 
         where MONTH(date) = MONTH(CURRENT_DATE) AND YEAR(date) = YEAR(CURRENT_DATE) group by paiement.iddevise ";
         $camoi_univ = $this->db->query($sql)->result();
+
+        // var_dump($camoi_univ);
+        // die;
         ///
         $sql = "SELECT sum(montant) montant, sum(commission) commission, nomDevise devise, paiement_ecole.iddevise from paiement_ecole
         join devise on devise.iddevise=paiement_ecole.iddevise 
@@ -52,38 +55,38 @@ class Manager extends CI_Controller
 
         $cajour = $camoi = [];
 
-        // foreach ($cajour_univ as $cau) {
-        //     foreach ($cajour_ecole as $cae) {
-        //         if ($cau->iddevise = $cae->iddevise) {
-        //             $o = new stdClass();
-        //             $o->iddevise = $cau->iddevise;
-        //             $o->devise = $cau->devise;
-        //             $o->montant = $cau->montant + $cae->montant;
-        //             $o->commission = $cau->commission + $cae->commission;
-        //             array_push($cajour, $o);
-        //         }
-        //     }
-        // }
+        foreach ($cajour_univ as $cau) {
+            foreach ($cajour_ecole as $cae) {
+                if ($cau->iddevise == $cae->iddevise) {
+                    $o = new stdClass();
+                    $o->iddevise = $cau->iddevise;
+                    $o->devise = $cau->devise;
+                    $o->montant = $cau->montant + $cae->montant;
+                    $o->commission = $cau->commission + $cae->commission;
+                    array_push($cajour, $o);
+                    break;
+                }
+            }
+        }
 
-        // foreach ($camoi_univ as $cmu) {
-        //     $find = false;
-        //     foreach ($camoi_ecole as $cme) {
-        //         if ($cmu->iddevise = $cme->iddevise) {
-        //             $o = new stdClass();
-        //             $o->iddevise = $cmu->iddevise;
-        //             $o->devise = $cmu->devise;
-        //             $o->montant = $cmu->montant + $cme->montant;
-        //             $o->commission = $cmu->commission + $cme->commission;
-        //             array_push($camoi, $o);
-        //             $find = true;
-        //         }
-        //     }
-        // }
+        foreach ($camoi_univ as $cmu) {
+            foreach ($camoi_ecole as $cme) {
+                if ($cmu->iddevise == $cme->iddevise) {
+                    $o = new stdClass();
+                    $o->iddevise = $cmu->iddevise;
+                    $o->devise = $cmu->devise;
+                    $o->montant = $cmu->montant + $cme->montant;
+                    $o->commission = $cmu->commission + $cme->commission;
+                    array_push($camoi, $o);
+                    break;
+                }
+            }
+        }
 
         $data['nb_ca_mensuel'] = $camoi;
         $data['nb_ca_jour'] = $cajour;
 
-        // var_dump($camoi_univ, $camoi_ecole, $camoi_univ, $camoi_ecole);
+        // var_dump($camoi_univ, $camoi_ecole, $camoi);
         // die;
 
         $this->db->order_by('eleve.ideleve', 'desc');
@@ -173,7 +176,6 @@ class Manager extends CI_Controller
 
     public function accueil()
     {
-        $login = $this->session->userdata("login");
         $this->load->view("banque/bk-index");
     }
 
@@ -266,5 +268,15 @@ class Manager extends CI_Controller
     function annonces()
     {
         $this->load->view('admin/annonces');
+    }
+
+
+    function annonce_e($idannonce = null)
+    {
+        $idannonce  = (int) $idannonce;
+        if (!count($annonce = $this->db->where(['idannonce'=> $idannonce, 'type' => 'admin'])->get('annonce')->result())) {
+            redirect('manager/annonces');
+        }
+        $this->load->view('admin/annonce-e', ['annonce' => $annonce[0]]);
     }
 }

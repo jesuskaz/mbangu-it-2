@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+use Twilio\Rest\Client;
+
 class Modele extends CI_Model
 {
 	public function __construct()
@@ -65,5 +67,48 @@ class Modele extends CI_Model
 	function code()
 	{
 		return uniqid();
+	}
+
+	function is_connected()
+	{
+		$adm = $this->session->isadmin;
+		$adm_url = site_url('manager');
+		$bank = $this->session->bank_session;
+		$bank_url  = site_url('banquee');
+		$ecole =  $this->session->ecole_session;
+		$ecole_url = site_url('ecole');
+		$univ =  $this->session->universite_session;
+		$univ_url = site_url('index/home');
+		if (!empty($adm)) {
+			redirect($adm_url);
+		} else if (!empty($bank)) {
+			redirect($bank_url);
+		} else if (!empty($ecole)) {
+			redirect($ecole_url);
+		} else if (!empty($univ)) {
+			redirect($univ_url);
+		}
+	}
+
+	function sms($to = '', $msg = '')
+	{
+		if (empty($to) or empty($msg)) {
+			return false;
+		}
+
+		$account_sid = 'ACe53f2cb9eca5a7240beee2cf58a006a5';
+		$auth_token = '422ed09d1f5db6a74fc26d41ba731e7e';
+		$twilio_number = "+15082839672";
+
+		$client = new Client($account_sid, $auth_token);
+		$a = $client->messages->create(
+			$to,
+			array(
+				'from' => 'MbanguPay',
+				'body' => $msg
+			)
+		);
+		// return TRUE;
+		// var_dump($a);
 	}
 }
