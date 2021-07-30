@@ -97,7 +97,7 @@ class Modele extends CI_Model
 		}
 
 		$account_sid = 'ACe53f2cb9eca5a7240beee2cf58a006a5';
-		$auth_token = '422ed09d1f5db6a74fc26d41ba731e7e';
+		$auth_token = 'fb5e9afa73aad965d2b92c58a71d8257';
 		$twilio_number = "+15082839672";
 
 		$client = new Client($account_sid, $auth_token);
