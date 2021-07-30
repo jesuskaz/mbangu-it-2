@@ -66,7 +66,7 @@ class Modele extends CI_Model
 
 	function code()
 	{
-		return uniqid();
+		return (int) substr(rand(time(), time() * time()), 0, 4);
 	}
 
 	function is_connected()

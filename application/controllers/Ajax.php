@@ -487,10 +487,11 @@ class Ajax extends CI_Controller
 
         $this->db->select("etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, 
             etudiant.matricule, etudiant.adresse, etudiant.email, faculte.nomFaculte faculte, 
-            promotion.intitulePromotion promotion, etudiant.telephone ");
+            promotion.intitulePromotion promotion, etudiant.telephone, sms_universite.nb nb_sms ");
         $this->db->join('options', 'options.idoptions=etudiant.idoptions');
         $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
         $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
+        $this->db->join('sms_universite', 'sms_universite.idetudiant=etudiant.idetudiant', 'left');
         $this->db->group_by('etudiant.idetudiant');
         $iduniv = $this->session->userdata("universite_session");
         $this->db->where('promotion.iduniversite', $iduniv);
@@ -916,10 +917,11 @@ class Ajax extends CI_Controller
 
         $this->db->select("eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
             eleve.matricule, password code, telephoneparent, eleve.adresse, section.intitulesection section, 
-            optionecole.intituleOption option, intituleclasse classe, optionecole.intituleOption option");
+            optionecole.intituleOption option, intituleclasse classe, optionecole.intituleOption option, sms_ecole.nb nb_sms");
         $this->db->join('optionecole', 'optionecole.idoptionecole=eleve.idoptionecole');
         $this->db->join('classe', 'classe.idclasse=optionecole.idclasse');
         $this->db->join('section', 'section.idsection=optionecole.idsection');
+        $this->db->join('sms_ecole', 'sms_ecole.ideleve=eleve.ideleve', 'left');
 
         $idecole = $this->session->ecole_session;
         $annee = $this->session->annee_scolaire;
@@ -950,15 +952,16 @@ class Ajax extends CI_Controller
 
         $this->db->select("eleve.ideleve, eleve.nom, eleve.postnom, eleve.prenom, 
             eleve.matricule, password code, telephoneparent, eleve.adresse, section.intitulesection section, 
-            intituleclasse classe");
+            intituleclasse classe, , sms_ecole.nb nb_sms");
         $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe=eleve.idsection_has_classe');
         $this->db->join('section', 'section.idsection=section_has_classe.idsection');
         $this->db->join('classe', 'classe.idclasse=section_has_classe.idclasse');
+        $this->db->join('sms_ecole', 'sms_ecole.ideleve=eleve.ideleve', 'left');
 
         $this->db->where('section.idecole', $idecole);
         $this->db->where('classe.idannee_scolaire_ecole', $annee);
         if (!empty($ide)) {
-            $this->db->where("`ideleve` NOT IN ($ide)", NULL, FALSE);
+            $this->db->where("`eleve`.`ideleve` NOT IN ($ide)", NULL, FALSE);
         }
 
         if ($classe) {

@@ -235,6 +235,7 @@
                         data = d.data;
                     $(data).each(function(i, data) {
                         var url = "<?= site_url('ecole/detail-eleve/') ?>" + data.ideleve;
+                        var sms = data.nb_sms > 0 ? `<i style='cursor:pointer' title="SMS déjà envoyé aux parents" class="fa fa-check-circle text-success"></i>` : '';
                         str += `
 						<tr>
 							<td>${i+1}</td>
@@ -246,9 +247,10 @@
                             <td>${data.matricule ? data.matricule : ''}</td>
                             <td>${data.code}</td>
                             <td>${data.telephoneparent ? data.telephoneparent : ''}</td>
-							<td style="text-align:center">
+							<td style="text-align:center" class='d-inline-flex'>
                                 <a href="${url}"><i class="fa fa-eye"></i> Détail</a>
-                                <button value='${data.ideleve}' class='btn btn-warning btn-sm ml-2 sms'><i class="fa fa-envelope"></i> SMS</button>
+                                <button value='${data.ideleve}' class='btn btn-warning btn-sm ml-2 mr-2 sms'><i class="fa fa-envelope"></i> <i>SMS</i></button>
+                                ${sms}
                             </td>
 						</tr>
 						`;
@@ -352,7 +354,24 @@
             function sms() {
                 $('.sms').off('click').click(function() {
                     var eleve = $(this).val();
-                    
+                    var btn = $(this);
+                    var txt = btn.html();
+                    btn.attr('disabled', true);
+                    btn.html(`<div class='spinner-border spinner-border-sm'></div>`);
+                    $('#sms-rep').html('');
+                    $.post('<?= site_url('sms/resend') ?>', {
+                        type: 'ecole',
+                        eleve: eleve
+                    }, function(d) {
+                        d = JSON.parse(d);
+                        if (d.status == true) {
+                            $('#sms-rep').removeClass().addClass('text-success').html(d.message);
+                            data();
+                        } else {
+                            $('#sms-rep').removeClass().addClass('text-danger').html(d.message);
+                        }
+                        btn.attr('disabled', false).html(txt);
+                    })
                 })
             }
 
@@ -368,14 +387,12 @@
                     d = JSON.parse(d);
                     if (d.status == true) {
                         $('#sms-rep').removeClass().addClass('text-success').html(d.message);
-
+                        data();
                     } else {
                         $('#sms-rep').removeClass().addClass('text-danger').html(d.message);
                     }
                     btn.attr('disabled', false).html(txt);
-
                 })
-
             })
         })
     </script>

@@ -69,11 +69,11 @@ class Json extends CI_Controller
         $sec = @$sec[0];
         $idsection_has_classe = @$sec->idsection_has_classe;
 
-        $idoptionecole = $this->db->where(['idsection' => $section, 'idclasse' => $classe, 'intituleOption'=>$option])->get('optionecole')->result();
+        $idoptionecole = $this->db->where(['idsection' => $section, 'idclasse' => $classe, 'intituleOption' => $option])->get('optionecole')->result();
         $idoptionecole = @$idoptionecole[0];
         $idoptionecole = @$idoptionecole->idoptionecole;
 
-        
+
 
         $file_mimes = array(
             'text/x-comma-separated-values',
@@ -222,7 +222,7 @@ class Json extends CI_Controller
             die(json_encode(['status' => false, 'message' => "Veuillez spécifier l'option"]));
         }
 
-        $idoption = $this->db->where(['idfaculte' => $faculte, 'idpromotion' => $promotion, 'intituleOptions'=>$option])->get('options')->result();
+        $idoption = $this->db->where(['idfaculte' => $faculte, 'idpromotion' => $promotion, 'intituleOptions' => $option])->get('options')->result();
         $idoption = @$idoption[0];
         $idoption = @$idoption->idoptions;
 
@@ -321,6 +321,7 @@ class Json extends CI_Controller
                                 'telephone' => $telephone,
                                 'sexe' => $sexe,
                                 'email' => $email,
+                                'password' => $this->Modele->code(),
                                 'idanneeAcademique' => $this->session->annee_academique
                             ]);
                         } else {

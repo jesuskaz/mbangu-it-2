@@ -73,8 +73,12 @@
               </div>
               <div class="col-12">
                 <div class="card">
-                  <div class="card-header">
-                    <h4>Liste des etudiant</h4>
+                  <div class="col-12 mt-3 d-flex justify-content-center">
+                    <b id="sms-rep" class=""></b>
+                  </div>
+                  <div class="card-header d-flex justify-content-between">
+                    <h4>Liste d'Etudiants</h4>
+                    <button class="btn btn-warning all-sms" style="border-radius: 5px;"><i class="fa fa-sms"></i> Envoyer SMS</button>
                   </div>
                   <div class="card-body">
                     <div class="table-responsive">
@@ -221,6 +225,7 @@
             data = d.data;
           $(data).each(function(i, data) {
             var url = "<?= site_url('banque/detail-etudiant/') ?>" + data.idetudiant;
+            var sms = data.nb_sms > 0 ? `<i style='cursor:pointer' title="SMS déjà envoyé aux parents" class="fa fa-check-circle text-success"></i>` : '';
             str += `
 						<tr>
 							<td>${i+1}</td>
@@ -229,12 +234,17 @@
 							<td>${data.faculte}</td>
 							<td>${data.promotion}</td>
               <td>${data.matricule ? data.matricule : ''}</td>
-							<td style="text-align:center"><a href="${url}"><i class="fa fa-eye"></i> Détail</a></td>
+							<td style="text-align:center" class='d-inline-flex'>
+                <a href="${url}"><i class="fa fa-eye"></i> Détail</a>
+                <button value='${data.ideleve}' class='btn btn-warning btn-sm ml-2 mr-2 sms'><i class="fa fa-envelope"></i> <i>SMS</i></button>
+                ${sms}
+              </td>
 						</tr>
 						`;
           })
           table.DataTable().destroy()
           table.children('tbody').html(str)
+          sms();
           table.DataTable(opt).draw()
           $('select').attr('disabled', false);
         })
@@ -317,6 +327,91 @@
           }
         })
 
+      })
+
+      $('#f-import').change(function(e) {
+        e.preventDefault();
+        var spin = `
+                <div class="spinner-border text-warning" role="status">
+                <span class="sr-only">Loading...</span>
+                </div>`;
+        var m = $('#rep');
+        m.html(spin);
+        var f = $(this);
+        var d = new FormData(this);
+        d.append('type', 'ecole');
+        d.append('section', $('#section').val());
+        d.append('option', $('#option').val());
+        d.append('classe', $('#classe').val());
+
+        $(':input', f).attr('disabled', true);
+        $.ajax({
+          url: '<?= site_url('json/import') ?>',
+          type: 'POST',
+          data: d,
+          timeout: 0,
+          processData: false,
+          contentType: false,
+          success: function(res) {
+            f.get(0).reset();
+            res = $.parseJSON(res);
+            if (res.status) {
+              data();
+            }
+            m.html(res.message);
+            $(':input', f).attr('disabled', false);
+
+          },
+          error: function() {
+            m.html("<b>Une erreur s'est produite.</b>");
+            $(':input', f).attr('disabled', false);
+
+          }
+        })
+      })
+
+      function sms() {
+        $('.sms').off('click').click(function() {
+          var eleve = $(this).val();
+          var btn = $(this);
+          var txt = btn.html();
+          btn.attr('disabled', true);
+          btn.html(`<div class='spinner-border spinner-border-sm'></div>`);
+          $('#sms-rep').html('');
+          $.post('<?= site_url('sms/resend') ?>', {
+            type: 'univ',
+            eleve: eleve
+          }, function(d) {
+            d = JSON.parse(d);
+            if (d.status == true) {
+              $('#sms-rep').removeClass().addClass('text-success').html(d.message);
+              data();
+            } else {
+              $('#sms-rep').removeClass().addClass('text-danger').html(d.message);
+            }
+            btn.attr('disabled', false).html(txt);
+          })
+        })
+      }
+
+      $('.all-sms').click(function() {
+        var btn = $(this);
+        var txt = btn.html();
+        btn.attr('disabled', true);
+        btn.html(`<div class='spinner-border spinner-border-sm'></div>`);
+        $('#sms-rep').html('');
+        $.post('<?= site_url('sms/notification') ?>', {
+          type: 'univ'
+        }, function(d) {
+          d = JSON.parse(d);
+          if (d.status == true) {
+            $('#sms-rep').removeClass().addClass('text-success').html(d.message);
+            data();
+          } else {
+            $('#sms-rep').removeClass().addClass('text-danger').html(d.message);
+          }
+          btn.attr('disabled', false).html(txt);
+        })
       })
 
     })
