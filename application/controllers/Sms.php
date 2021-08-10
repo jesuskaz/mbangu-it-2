@@ -92,6 +92,7 @@ class Sms extends CI_Controller
             $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
             $this->db->join('faculte', 'faculte.idfaculte=options.idfaculte');
             $this->db->join('universite', 'universite.iduniversite=faculte.iduniversite');
+            $this->db->group_by('etudiant.idetudiant');
             $r = $this->db->get('etudiant')->result();
             if (!count($r)) {
                 $rep['message'] = "Veuillez ajouter d'abord les etudiants.";
@@ -102,8 +103,16 @@ class Sms extends CI_Controller
             $this->db->select('etudiant.idetudiant, etudiant.nom, etudiant.postnom, etudiant.prenom, etudiant.telephone, 
             etudiant.matricule, etudiant.password, universite.nomUniversite
             ');
+
+            $sql = "SELECT sms_universite.idetudiant FROM sms_universite JOIN etudiant ON etudiant.idetudiant=sms_universite.idetudiant 
+            JOIN options ON options.idoptions=etudiant.idoptions 
+            JOIN promotion ON promotion.idpromotion=options.idpromotion 
+            JOIN faculte ON faculte.idfaculte=options.idfaculte 
+            JOIN universite ON universite.iduniversite=faculte.iduniversite 
+            WHERE universite.iduniversite=$id group by etudiant.idetudiant";
+
             $this->db->where('universite.iduniversite', $id);
-            $this->db->where("`etudiant`.`idetudiant` NOT IN (SELECT sms_universite.idetudiant FROM sms_universite JOIN etudiant ON etudiant.idetudiant=sms_universite.idetudiant WHERE etudiant.iduniversite=$id group by etudiant.idetudiant )", NULL, FALSE);
+            $this->db->where("`etudiant`.`idetudiant` NOT IN ($sql)", NULL, FALSE);
             $this->db->join('etudiant', 'etudiant.idetudiant=sms_universite.idetudiant', 'right');
             $this->db->join('options', 'options.idoptions=etudiant.idoptions');
             $this->db->join('promotion', 'promotion.idpromotion=options.idpromotion');
@@ -114,19 +123,19 @@ class Sms extends CI_Controller
             if (count($r)) {
                 $n = 0;
                 foreach ($r as $el) {
-                    $tel = $el->telephoneparent;
+                    $tel = $el->telephone;
                     if (!empty($tel)) {
-                        $ecole = $el->nomecole;
-                        $msg = "Chers parents voici le numero matricule et le code de l'etudiant " . ucwords("$el->nom $el->postnom $el->prenom") . ". Matricule : $el->matricule  Code : $el->password. Ecole : $ecole";
+                        $universite = $el->nomUniversite;
+                        $msg = "Cher(e) " . ucwords("$el->nom $el->postnom $el->prenom") . "., voici le numero matricule et le code de connexion. Matricule : $el->matricule  Code : $el->password. Universite : $universite";
                         // $sms = $this->Modele->sms($tel, $msg);
-                        $this->db->insert('sms_universite', ['ideleve' => $el->ideleve, 'nb' => 1]);
+                        $this->db->insert('sms_universite', ['idetudiant' => $el->idetudiant, 'nb' => 1]);
                         $n++;
                     }
                 }
-                $rep['message'] = "Vous avez envoyé un SMS à $n parent(s).";
+                $rep['message'] = "Vous avez envoyé un SMS à $n étudiant(s).";
                 $rep['status'] = true;
             } else {
-                $rep['message'] = "Vous avez déjà envoyé un SMS à tous les parents.";
+                $rep['message'] = "Vous avez déjà envoyé un SMS à tous les étudiants.";
             }
         }
         echo json_encode($rep);

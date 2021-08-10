@@ -66,7 +66,7 @@ class User extends CI_Controller
         $firstname = $this->input->post("postnom");
         $lastname = $this->input->post("prenom");
         $matricule = $this->input->post("matricule");
-        $idpromotion = $this->input->post("idpromotion");
+        $idoption = $this->input->post("options");
         $password = $this->input->post("password");
         $iduniversite = $this->input->post("iduniversite");
         $telephone = $this->input->post("telephone");
@@ -83,7 +83,7 @@ class User extends CI_Controller
                 "postnom" => $lastname,
                 "prenom" => $firstname,
                 "matricule" => $matricule,
-                "idpromotion" => $idpromotion,
+                "idoptions" => $idoption,
                 "password" => $password,
                 "idville" => 1,
                 "idanneeAcademique " => $anneeAcademique,

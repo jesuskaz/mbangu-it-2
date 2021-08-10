@@ -225,7 +225,7 @@
             data = d.data;
           $(data).each(function(i, data) {
             var url = "<?= site_url('banque/detail-etudiant/') ?>" + data.idetudiant;
-            var sms = data.nb_sms > 0 ? `<i style='cursor:pointer' title="SMS déjà envoyé aux parents" class="fa fa-check-circle text-success"></i>` : '';
+            var sms = data.nb_sms > 0 ? `<i style='cursor:pointer' title="SMS déjà envoyé à l'étudiant " class="fa fa-check-circle text-success"></i>` : '';
             str += `
 						<tr>
 							<td>${i+1}</td>

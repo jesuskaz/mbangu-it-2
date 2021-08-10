@@ -377,7 +377,7 @@
         $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
         $this->db->join('annee_scolaire_ecole', 'classe.idannee_scolaire_ecole = annee_scolaire_ecole.idannee_scolaire_ecole');
         $this->db->join('ecole', 'annee_scolaire_ecole.idecole = annee_scolaire_ecole.idecole');
-        // $this->db->where('parent_has_eleve.idparent', $idparent);
+        $this->db->where('parent_has_eleve.idparent', $idparent);
         $this->db->limit(3);
         $this->db->order_by("idpaiement", "desc");
         $this->db->group_by('idpaiement');

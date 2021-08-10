@@ -196,7 +196,50 @@
                 echo json_encode($univ);
             }
         }
+        public function getevery($matricule)
+        {
+            $this->db->select('universite.iduniversite as id');
+            $this->db->from('etudiant');
+            $this->db->join('options', 'etudiant.idoptions = options.idoptions');
+            $this->db->join('faculte', 'options.idfaculte = faculte.idfaculte');
+            $this->db->join('universite', 'faculte.iduniversite = universite.iduniversite');
+            $this->db->group_by('etudiant.matricule', $matricule);
+            $this->db->where('etudiant.matricule', $matricule);
+            $data = $this->db->get()->result_array();
+            
+            $r = array();
+            if(count($data) > 0)
+            {
+                for($i = 0; $i < count($data); $i++)
+                {
+                    $id = $data[$i]["id"];
+                    $this->db->select(" * ");
+                    $this->db->from('annonce');
+                    $this->db->where('id',$id);
+                    $this->db->where('type','universite');
+                    $query = $this->db->limit(4)->get()->result_array();
+                    array_push($r, $query);
+                }     
 
+            }
+            return $r;
+        }
+        public function operatingAnnonce($matricule)
+        {
+            $banque = $this->db->get_where('annonce', ['type' => 'banque'])->result_array();
+            $admin = $this->db->get_where('annonce', ['type' => 'admin'])->result_array();
+            $merge1 = array_merge($banque, $admin);
+
+            $data = $this->getevery($matricule);
+            foreach($data as $d)
+            {
+                for($i = 0; $i < count($d); $i++)
+                {
+                    array_push($merge1, $d[$i]);
+                }
+            }
+           echo json_encode($merge1);
+        }
         public function option($idEcole)
         {
             $data = $this->ApiModel->getOption($idEcole);

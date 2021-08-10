@@ -133,71 +133,29 @@ class ApiParent extends CI_Controller
         }
         public function soldeUsd($login, $devise = "USD")
         {
-            $idDevise = $this->db->get_where("devise", ["nomDevise" => $devise])->row("iddevise");
-    
-            $idparent = $this->db->get_where('parent', ['login' => $login])->row('idparent');
-            $soldeAppro = $this->ApiParentModel->solde($idparent, $idDevise);
-            $soldePaie = $this->ApiParentModel->soldePaie($idparent, $idDevise);
-    
-            $solde = 0;
-            
-            if ($soldeAppro[0]["montant"] && $soldePaie[0]["montant"]) {
-                $soldeApp = $soldeAppro[0]["montant"];
-                $soldePai = $soldePaie[0]["montant"];
-                if ($soldeApp > $soldePai) {
-                    $nombre = $soldeApp - $soldePai;
-                    $solde = array(["solde" => (round($nombre, 3))]);
-                    echo json_encode($solde);
-                } else {
-                    $solde = array(["solde" => 0]);
-                    echo json_encode($solde);
-                }
-            } else if ($soldeAppro[0]["montant"] != null && $soldePaie[0]["montant"] == null) {
-                $nombre = $soldeAppro[0]["montant"];
-                $solde = array(["solde" => round($nombre, 2)]);
-                echo json_encode($solde);
-            } else {
-                $solde = array(["solde" => 0]);
-                echo json_encode($solde);
-            }
+            $solde = array(["solde" => round($this->solde($login, $devise), 2)]);
+            echo json_encode($solde);
         }
         
         public function soldeCdf($login, $devise = "CDF")
         {
-            
-            $idDevise = $this->db->get_where("devise", ["nomDevise" => $devise])->row("iddevise");
-    
-            $idparent = $this->db->get_where('parent', ['login' => $login])->row('idparent');
-            $soldeAppro = $this->ApiParentModel->solde($idparent, $idDevise);
-            $soldePaie = $this->ApiParentModel->soldePaie($idparent, $idDevise);
-            
-            $solde = 0;
-    
-            if ($soldeAppro[0]["montant"] && $soldePaie[0]["montant"]) {
-                $soldeApp = $soldeAppro[0]["montant"];
-                $soldePai = $soldePaie[0]["montant"];
-    
-                if ($soldeApp > $soldePai) {
-                    $nombre = $soldeApp - $soldePai;
-                    $solde = array(["solde" => (round($nombre, 2))]);
-                    echo json_encode($solde);
-                } else {
-                    $solde = array(["solde" => 0]);
-                    echo json_encode($solde);
-                }
-            } else if ($soldeAppro[0]["montant"] != null && $soldePaie[0]["montant"] == null) {
-                $nombre = $soldeAppro[0]["montant"];
-                $solde = array(["solde" => round($nombre, 2)]);
-                echo json_encode($solde);
-            } else {
-                $solde = array(["solde" => 0]);
-                echo json_encode($solde);
-            }
+            $solde =  $solde = array(["solde" => round($this->solde($login, $devise), 2)]);
+            echo json_encode($solde);
         }
-        public function getEleve($login)
+        public function getEleve($login, $idarticle)
         {
             $idparent = $this->db->get_where("parent", ["login" => $login])->row("idparent");
-            $data = $this->db->query("select * from eleve where ideleve in (select ideleve from parent_has_eleve where idparent = $idparent)")->result_array();
+            $this->db->select('*');
+            $this->db->from('eleve');
+            $this->db->join('parent_has_eleve', 'eleve.ideleve = parent_has_eleve.ideleve');
+            $this->db->join('parent', 'parent.idparent = parent_has_eleve.idparent');
+            $this->db->join('ecole', 'eleve.idecole = ecole.idecole');
+            $this->db->join('article_ecole', 'article_ecole.idecole = ecole.idecole');
+            $this->db->where('parent.login', $login);
+            $this->db->where('article_ecole.idarticle', $idarticle);
+            $data = $this->db->get()->result_array();
+
+            // $data = $this->db->query("select * from eleve where ideleve in (select ideleve from parent_has_eleve where idparent = $idparent)")->result_array();
             echo json_encode($data);
         }
         public function getFrais($devise, $ideleve)
@@ -224,9 +182,9 @@ class ApiParent extends CI_Controller
             $this->db->where('devise.nomDevise', $devise);
             $this->db->where('parent.login', $login);
             $approSolde = $this->db->get()->row('montant');
-        
+
             // Calcul Solde Paiement
-    
+
             $this->db->select("sum(montantTot) as montant");
             $this->db->from("paiement_ecole");
             $this->db->join("devise", "devise.iddevise = paiement_ecole.iddevise");
@@ -235,7 +193,21 @@ class ApiParent extends CI_Controller
             $this->db->join('parent', 'parent_has_eleve.idparent = parent.idparent');
             $this->db->where('parent.login', $login);
             $this->db->where('devise.nomDevise', $devise);
-            $paieSolde = $this->db->get()->row('montant');
+            $paie = $this->db->get()->row('montant');
+
+            // Calcul of paiement article
+
+            $this->db->select("sum(prix) as montant");
+            $this->db->from('parent');
+            $this->db->join('parent_has_eleve', 'parent.idparent = parent_has_eleve.idparent');
+            $this->db->join('eleve', 'parent_has_eleve.ideleve = eleve.ideleve');
+            $this->db->join('achat_article_ecole', 'eleve.ideleve = achat_article_ecole.ideleve');
+            $this->db->join('article_ecole', 'achat_article_ecole.idarticle = article_ecole.idarticle');
+            $this->db->join('devise', 'article_ecole.iddevise = devise.iddevise');
+            $this->db->where('nomDevise', $devise);
+            $achat = $this->db->get()->row('montant');
+
+            $paieSolde = $paie + $achat;
 
             if ($approSolde > 0.0 && $paieSolde > 0.0) 
             {
@@ -565,8 +537,7 @@ class ApiParent extends CI_Controller
             echo json_encode($query);
         }
         public function getevery($login)
-        {  
-
+        {
             $this->db->select('ecole.idecole as id');
             $this->db->from('parent');
             $this->db->join('parent_has_eleve', 'parent.idparent = parent_has_eleve.idparent');
@@ -591,22 +562,82 @@ class ApiParent extends CI_Controller
                 }     
 
             }
-            // print_r($r);
+            return $r;
+        }
+        public function operatingAnnonce($login)
+        {
             $banque = $this->db->get_where('annonce', ['type' => 'banque'])->result_array();
             $admin = $this->db->get_where('annonce', ['type' => 'admin'])->result_array();
-            array_push($r, $banque);
-            array_push($r, $admin);
-            $counter = count($r);
-            for($i = 0; $i < $counter; $i)
+            $merge1 = array_merge($banque, $admin);
+
+            $data = $this->getevery($login);
+            foreach($data as $d)
             {
-                if($r[$i] == array())
+                for($i = 0; $i < count($d); $i++)
                 {
-                    unset($r[$i]);
+                    array_push($merge1, $d[$i]);
                 }
             }
-            print_r($r);
-            // echo json_encode($r);
+           echo json_encode($merge1);
+        }
+        public function paiementMagasin()
+        {
+            $login = $this->input->post("login");
+            $montant = $this->input->post("montant");
+            $devise = $this->input->post("devise");
+            $ideleve = $this->input->post("ideleve");
+            $idarticle = $this->input->post("idarticle");
             
+            $data = [
+                "idarticle" => $idarticle,
+                "ideleve" =>$ideleve
+            ];
+            $solde = $this->solde($login, $devise);
+            if($solde >= $montant)
+            {
+                $insertAchat = $this->db->insert('achat_article_ecole', $data);
+                if($insertAchat)
+                {
+                    echo json_encode("true");
+                }
+                else
+                {
+                    echo json_encode("false");
+                }
+            }
+            else
+            {
+                echo json_encode("false");
+            }
+        }
+        public function getProductCarousel($login)
+        {
+            $this->db->select('*');
+            $this->db->from('parent');
+            $this->db->join('parent_has_eleve', 'parent.idparent = parent_has_eleve.idparent');
+            $this->db->join('eleve', 'parent_has_eleve.ideleve = eleve.ideleve');
+            $this->db->join('ecole', 'eleve.idecole = ecole.idecole');
+            $this->db->join('article_ecole', 'ecole.idecole = article_ecole.idecole');
+            $this->db->where('parent.login', $login);
+            $this->db->limit(3);
+            $data = $this->db->get()->result_array();
+
+            echo json_encode($data);
+        }
+        
+        public function getProduct($login)
+        {
+            $this->db->select('*');
+            $this->db->from('parent');
+            $this->db->join('parent_has_eleve', 'parent.idparent = parent_has_eleve.idparent');
+            $this->db->join('eleve', 'parent_has_eleve.ideleve = eleve.ideleve');
+            $this->db->join('ecole', 'eleve.idecole = ecole.idecole');
+            $this->db->join('article_ecole', 'ecole.idecole = article_ecole.idecole');
+            $this->db->join('devise', 'article_ecole.iddevise = devise.iddevise');
+            $this->db->where('parent.login', $login);
+            $data = $this->db->get()->result_array();
+            
+            echo json_encode($data);
         }
         public function getAnnonceSchool($login)
         {

@@ -70,10 +70,10 @@ class UserModel extends CI_Model
     {
         $this->db->select('*');
         $this->db->from('etudiant');
-        $this->db->join('promotion', 'promotion.idpromotion = etudiant.idpromotion');
-        $this->db->join('options', 'options.idpromotion = promotion.idpromotion');
-        $this->db->join('faculte', 'faculte.idfaculte = options.idfaculte');
-        $this->db->join('universite', 'universite.iduniversite = faculte.iduniversite');
+        $this->db->join('options', 'options.idoptions = etudiant.idoptions');
+        $this->db->join('promotion', 'options.idpromotion = promotion.idpromotion');
+        $this->db->join('faculte', 'options.idfaculte = faculte.idfaculte');
+        $this->db->join('universite', 'faculte.iduniversite = universite.iduniversite');
         $this->db->where('etudiant.matricule', $matricule);
         $this->db->group_by('idetudiant');
         $query = $this->db->get()->result_array();
@@ -380,7 +380,7 @@ class UserModel extends CI_Model
         $this->db->join('options', 'options.idfaculte = faculte.idfaculte');
         $this->db->join('promotion', 'promotion.idpromotion = options.idpromotion');
         $this->db->where('etudiant.idetudiant', $idetudiant);
-        $this->db->join('etudiant', 'etudiant.idpromotion = promotion.idpromotion');
+        $this->db->join('etudiant', 'etudiant.idoptions = options.idoptions');
         $this->db->limit(3);
         $this->db->order_by("idpaiement", "desc");
         $this->db->group_by('idpaiement');
@@ -426,11 +426,11 @@ class UserModel extends CI_Model
         $this->db->from("paiement");
         $this->db->join('frais', 'frais.idfrais = paiement.idfrais');
         $this->db->join('devise', 'frais.iddevise = devise.iddevise');
-        $this->db->join('universite', 'frais.iduniversite = universite.iduniversite');
-        $this->db->join('faculte', 'faculte.iduniversite=universite.iduniversite');
-        $this->db->join('options', 'options.idfaculte = faculte.idfaculte');
-        $this->db->join('promotion', 'promotion.idpromotion = options.idpromotion');
-        $this->db->join('etudiant', 'etudiant.idpromotion = promotion.idpromotion');
+        $this->db->join('etudiant', 'paiement.idetudiant = etudiant.idetudiant');
+        $this->db->join('options', 'etudiant.idoptions = options.idoptions');
+        $this->db->join('faculte', 'faculte.idfaculte = options.idfaculte');
+        $this->db->join('universite', 'faculte.iduniversite = universite.iduniversite');
+        $this->db->join('promotion', 'options.idpromotion = promotion.idpromotion');
         $this->db->where('paiement.idetudiant', $idetudiant);
         $this->db->order_by("idpaiement", "desc");
         $this->db->group_by('idpaiement');
@@ -455,7 +455,8 @@ class UserModel extends CI_Model
         $this->db->select('*');
         $this->db->from('etudiant');
         $this->db->where('etudiant.matricule', $matricule);
-        $this->db->join('promotion', 'promotion.idpromotion=etudiant.idpromotion');
+        $this->db->join('options', 'etudiant.idoptions = options.idoptions');
+        $this->db->join('promotion', 'options.idpromotion = promotion.idpromotion');
         $this->db->join('universite', 'universite.iduniversite=promotion.iduniversite');
         $this->db->join('frais', 'frais.iduniversite=universite.iduniversite');
         $this->db->join('devise', 'devise.iddevise=frais.iddevise');
