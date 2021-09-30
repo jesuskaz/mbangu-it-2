@@ -6,7 +6,7 @@ class ApiEleve extends CI_Controller
         parent::__construct();
         $this->load->model("ApiModel");
         $this->load->model("Modele");
-        $this->Modele->checkToken();
+        // $this->Modele->checkToken();
     }
 
     public function getFaculte()

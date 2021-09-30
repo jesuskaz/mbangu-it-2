@@ -9,7 +9,7 @@ class Student extends CI_Controller
         $this->load->model("UserModel");
         $this->load->library('Ciqrcode');
         $this->load->model("Modele");
-        $this->Modele->checkToken();
+        // $this->Modele->checkToken();
     }
     public function getStudent($matricule)
     {

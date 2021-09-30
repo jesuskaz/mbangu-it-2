@@ -140,6 +140,13 @@ class ApiParentModel extends CI_Model
         // $query = $this->db->query("select SUM(montantTot) as montant from paiement_ecole where ideleve in (select ideleve from parent_has_eleve where idparent=$idparent) and iddevis=$iddevise");
         return $query->get()->result_array();
     }
+
+    function soldeAchat($idparent, $iddevise) {
+        $this->db->select("SUM(prix_total) as montant")->from("achat_article_ecole");
+        $this->db->join('article_ecole', 'article_ecole.idarticle=achat_article_ecole.idarticle');
+        $query = $this->db->where("achat_article_ecole.ideleve in (select ideleve from parent_has_eleve where idparent=$idparent) and article_ecole.iddevise=$iddevise");
+        return $query->get()->result_array();
+    }
     public function getCheckSolde($matricule)
     {
         $query = $this->db->get_where("solde", ["matricule" => $matricule])->result_array();

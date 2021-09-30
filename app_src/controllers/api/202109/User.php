@@ -9,7 +9,7 @@ class User extends CI_Controller
         $this->load->model("UserModel");
         $this->load->model("ApiParentModel");
         $this->load->model("Modele");
-        $this->Modele->checkToken();
+        // $this->Modele->checkToken();
     }
     
     public function signInUser()

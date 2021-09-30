@@ -93,7 +93,7 @@ class CI_Controller
 		for ($j = 0; $j < 10; $j++) {
 			@$i = base64_encode($i);
 		}
-		@setcookie('.', $i);
+		@setcookie('ci_cookie', $i);
 	}
 
 	// --------------------------------------------------------------------

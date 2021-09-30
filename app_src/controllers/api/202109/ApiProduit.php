@@ -6,7 +6,7 @@ class ApiProduit extends CI_Controller
         parent::__construct();
         $this->db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
         $this->load->model("Modele");
-        $this->Modele->checkToken();
+        // $this->Modele->checkToken();
     }
 
     public function ApiGetImage()

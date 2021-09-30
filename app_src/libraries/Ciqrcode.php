@@ -13,7 +13,7 @@
  
 class Ciqrcode
 {
-	var $cacheable = true;
+	var $cacheable = false;
 	var $cachedir = 'application/cache/';
 	var $errorlog = 'application/logs/';
 	var $quality = true;

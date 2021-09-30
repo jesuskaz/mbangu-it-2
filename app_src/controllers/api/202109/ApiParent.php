@@ -10,7 +10,7 @@ class ApiParent extends CI_Controller
         $this->load->model("UserModel");
         $this->load->library("Ciqrcode");
         $this->load->model("Modele");
-        $this->Modele->checkToken();
+        // $this->Modele->checkToken();
     }
     public function signup()
     {
@@ -124,28 +124,37 @@ class ApiParent extends CI_Controller
         $idparent = $this->db->get_where('parent', ['login' => $login])->row('idparent');
         $soldeAppro = $this->ApiParentModel->solde($idparent, $idDevise);
         $soldePaie = $this->ApiParentModel->soldePaie($idparent, $idDevise);
+        $soldeAchat = $this->ApiParentModel->soldeAchat($idparent, $idDevise);
 
-        $solde = 0;
+        $soldeApp = (float) $soldeAppro[0]["montant"];
+        $soldePai = (float) $soldePaie[0]["montant"];
+        $soldeAcha = (float) $soldeAchat[0]["montant"];
 
-        if ($soldeAppro[0]["montant"] && $soldePaie[0]["montant"]) {
-            $soldeApp = $soldeAppro[0]["montant"];
-            $soldePai = $soldePaie[0]["montant"];
-            if ($soldeApp > $soldePai) {
-                $nombre = $soldeApp - $soldePai;
-                $solde = array(["solde" => (round($nombre, 3))]);
-                echo json_encode($solde);
-            } else {
-                $solde = array(["solde" => 0]);
-                echo json_encode($solde);
-            }
-        } else if ($soldeAppro[0]["montant"] != null && $soldePaie[0]["montant"] == null) {
-            $nombre = $soldeAppro[0]["montant"];
-            $solde = array(["solde" => round($nombre, 2)]);
-            echo json_encode($solde);
-        } else {
-            $solde = array(["solde" => 0]);
-            echo json_encode($solde);
-        }
+        $nombre = $soldeApp - $soldePai - $soldeAcha;
+        $solde = array(["solde" => round($nombre, 2)]);
+        echo json_encode($solde);
+
+        // $solde = 0;
+
+        // if ($soldeAppro[0]["montant"] && $soldePaie[0]["montant"]) {
+        //     $soldeApp = $soldeAppro[0]["montant"];
+        //     $soldePai = $soldePaie[0]["montant"];
+        //     if ($soldeApp > $soldePai) {
+        //         $nombre = $soldeApp - $soldePai;
+        //         $solde = array(["solde" => (round($nombre, 3))]);
+        //         echo json_encode($solde);
+        //     } else {
+        //         $solde = array(["solde" => 0]);
+        //         echo json_encode($solde);
+        //     }
+        // } else if ($soldeAppro[0]["montant"] != null && $soldePaie[0]["montant"] == null) {
+        //     $nombre = $soldeAppro[0]["montant"];
+        //     $solde = array(["solde" => round($nombre, 2)]);
+        //     echo json_encode($solde);
+        // } else {
+        //     $solde = array(["solde" => 0]);
+        //     echo json_encode($solde);
+        // }
     }
 
     public function soldeCdf($login, $devise = "CDF")
@@ -156,29 +165,39 @@ class ApiParent extends CI_Controller
         $idparent = $this->db->get_where('parent', ['login' => $login])->row('idparent');
         $soldeAppro = $this->ApiParentModel->solde($idparent, $idDevise);
         $soldePaie = $this->ApiParentModel->soldePaie($idparent, $idDevise);
+        $soldeAchat = $this->ApiParentModel->soldeAchat($idparent, $idDevise);
 
-        $solde = 0;
+        $soldeApp = (float) $soldeAppro[0]["montant"];
+        $soldePai = (float) $soldePaie[0]["montant"];
+        $soldeAcha = (float) $soldeAchat[0]["montant"];
 
-        if ($soldeAppro[0]["montant"] && $soldePaie[0]["montant"]) {
-            $soldeApp = $soldeAppro[0]["montant"];
-            $soldePai = $soldePaie[0]["montant"];
+        $nombre = $soldeApp - $soldePai - $soldeAcha;
+        $solde = array(["solde" => round($nombre, 2)]);
+        echo json_encode($solde);
 
-            if ($soldeApp > $soldePai) {
-                $nombre = $soldeApp - $soldePai;
-                $solde = array(["solde" => (round($nombre, 2))]);
-                echo json_encode($solde);
-            } else {
-                $solde = array(["solde" => 0]);
-                echo json_encode($solde);
-            }
-        } else if ($soldeAppro[0]["montant"] != null && $soldePaie[0]["montant"] == null) {
-            $nombre = $soldeAppro[0]["montant"];
-            $solde = array(["solde" => round($nombre, 2)]);
-            echo json_encode($solde);
-        } else {
-            $solde = array(["solde" => 0]);
-            echo json_encode($solde);
-        }
+
+        // $solde = 0;
+
+        // if ($soldeAppro[0]["montant"] && $soldePaie[0]["montant"]) {
+        //     $soldeApp = $soldeAppro[0]["montant"];
+        //     $soldePai = $soldePaie[0]["montant"];
+
+        //     if ($soldeApp > $soldePai) {
+        //         $nombre = $soldeApp - $soldePai;
+        //         $solde = array(["solde" => (round($nombre, 2))]);
+        //         echo json_encode($solde);
+        //     } else {
+        //         $solde = array(["solde" => 0]);
+        //         echo json_encode($solde);
+        //     }
+        // } else if ($soldeAppro[0]["montant"] != null && $soldePaie[0]["montant"] == null) {
+        //     $nombre = $soldeAppro[0]["montant"];
+        //     $solde = array(["solde" => round($nombre, 2)]);
+        //     echo json_encode($solde);
+        // } else {
+        //     $solde = array(["solde" => 0]);
+        //     echo json_encode($solde);
+        // }
     }
     public function getEleve($login)
     {
@@ -254,58 +273,183 @@ class ApiParent extends CI_Controller
             return 0;
         }
     }
-    public function paiementFrais($fraisId, $ideleve, $devise, $montantInitial)
+    public function paiementFrais($fraisId, $ideleve, $devise)
     {
         $iddevise = $this->db->get_where('devise', ['nomDevise' => $devise])->row('iddevise');
         $paiement = $this->db->query("select sum(montant) as montant from paiement_ecole where idfrais_ecole = $fraisId and ideleve = $ideleve and iddevise = $iddevise");
 
         return $paiement->row("montant");
     }
-    public function verifyFrais($fraisId, $ideleve, $login, $devise, $montantInitial)
+    // public function verifyFrais($fraisId, $ideleve, $login, $devise, $montantInitial)
+    // {
+    //     $iddevise = $this->db->get_where('devise', ['nomDevise' => $devise])->row('iddevise');
+    //     // Frais 
+    //     $frais = $this->db->get_where("frais_ecole", ["idfrais_ecole" => $fraisId])->result_array();
+    //     $montantFrais = $frais[0]["montant"];
+
+    //     $paiement = $this->paiementFrais($fraisId, $ideleve, $devise, $montantInitial);
+    //     //Appro
+    //     // $approvisionnement = $this->db->query("
+    //     //     select sum(montant) as montant from appro_parent where idparent in 
+    //     //     (select idparent from parent where login='$login') and iddevise=$iddevise")->row("montant");
+
+    //     $rep['status'] = false;
+    //     $reste = $montantFrais - $paiement;
+    //     if ($paiement == $montantFrais) {
+    //         $rep['message'] = "Ce frais déjà totalement payé.";
+    //     } else if ($montantInitial > $reste) {
+    //         $rep['message'] = "Le montant restant pour ce frais est de $reste $devise.";
+    //     } else if ($montantInitial + $paiement <= $montantFrais) {
+
+    //     } else {
+    //     }
+
+    //     echo json_encode($rep);
+    //     exit;
+
+    //     // if ($paiement > 0.0) {
+    //     //     if ($paiement <= $montantFrais && $approvisionnement != 0.0) {
+    //     //         echo json_encode("tranche");
+    //     //     } else if ($approvisionnement <= 0.0 || $soldeParent < $montantInitial) {
+    //     //         echo json_encode('inferieur');
+    //     //     }
+    //     // } else if ($paiement < $montantInitial && $paiement != 0.0) {
+    //     //     echo json_encode("superieur");
+    //     // } else if ($paiement == 0.0 && $montantInitial < $soldeParent) {
+    //     //     echo json_encode("insert");
+    //     // } else if ($soldeParent < $montantInitial) {
+    //     //     echo json_encode('inferieur');
+    //     // } else if ($paiement > $soldeParent || $soldeParent <= 0.0) {
+    //     //     echo json_encode("inferieur");
+    //     // } else if ($paiement == $montantFrais) {
+    //     //     echo json_encode("complet");
+    //     // }
+
+
+    //     //////////////////////////////
+    //     /////////////////////////////
+    //     // $soldeParent = $this->solde($login, $devise);
+
+    //     // if ($soldeParent > $montantInitial) {
+    //     //     if ($approvisionnement > 0.0 && $paiement > 0.0) {
+    //     //         if ($approvisionnement > $paiement) {
+    //     //             $soldeApproPaie = $approvisionnement - $paiement;
+    //     //         }
+    //     //     } else if ($approvisionnement > 0.0 && $paiement <= 0.0) {
+    //     //         $soldeApproPaie = $approvisionnement;
+    //     //     }
+    //     //     if ($paiement > 0.0) {
+    //     //         if ($paiement <= $montantFrais && $approvisionnement != 0.0) {
+    //     //             echo json_encode("tranche");
+    //     //         } else if ($approvisionnement <= 0.0 || $soldeParent < $montantInitial) {
+    //     //             echo json_encode('inferieur');
+    //     //         }
+    //     //     } else if ($paiement < $montantInitial && $paiement != 0.0) {
+    //     //         echo json_encode("superieur");
+    //     //     } else if ($paiement == 0.0 && $montantInitial < $soldeParent) {
+    //     //         echo json_encode("insert");
+    //     //     } else if ($soldeParent < $montantInitial) {
+    //     //         echo json_encode('inferieur');
+    //     //     } else if ($paiement > $soldeParent || $soldeParent <= 0.0) {
+    //     //         echo json_encode("inferieur");
+    //     //     } else if ($paiement == $montantFrais) {
+    //     //         echo json_encode("complet");
+    //     //     }
+    //     // } else {
+    //     //     echo json_encode("critique");
+    //     // }
+    // }
+
+    public function insertPayment()
     {
+        $devise = $this->input->post("devise");
+        $ideleve = $this->input->post("ideleve");
+        $montant = $this->input->post("montant");
+        $idfrais = $this->input->post("idfrais");
+        $rep['status'] = false;
 
-        $iddevise = $this->db->get_where('devise', ['nomDevise' => $devise])->row('iddevise');
-        // Frais 
-        $frais = $this->db->get_where("frais_ecole", ["idfrais_ecole" => $fraisId])->result_array();
-        $montantFrais = $frais[0]["montant"];
-
-        $paiement = $this->paiementFrais($fraisId, $ideleve, $devise, $montantInitial);
-        //Appro
-        $approvisionnement = $this->db->query("
-            select sum(montant) as montant from appro_parent where idparent in 
-            (select idparent from parent where login='$login') and iddevise=$iddevise")->row("montant");
-
-        $soldeParent = $this->solde($login, $devise);
-
-        if ($soldeParent > $montantInitial) {
-            if ($approvisionnement > 0.0 && $paiement > 0.0) {
-                if ($approvisionnement > $paiement) {
-                    $soldeApproPaie = $approvisionnement - $paiement;
-                }
-            } else if ($approvisionnement > 0.0 && $paiement <= 0.0) {
-                $soldeApproPaie = $approvisionnement;
-            }
-            if ($paiement > 0.0) {
-                if ($paiement <= $montantFrais && $approvisionnement != 0.0) {
-                    echo json_encode("tranche");
-                } else if ($approvisionnement <= 0.0 || $soldeParent < $montantInitial) {
-                    echo json_encode('inferieur');
-                }
-            } else if ($paiement < $montantInitial && $paiement != 0.0) {
-                echo json_encode("superieur");
-            } else if ($paiement == 0.0 && $montantInitial < $soldeParent) {
-                echo json_encode("insert");
-            } else if ($soldeParent < $montantInitial) {
-                echo json_encode('inferieur');
-            } else if ($paiement > $soldeParent || $soldeParent <= 0.0) {
-                echo json_encode("inferieur");
-            } else if ($paiement == $montantFrais) {
-                echo json_encode("complet");
-            }
-        } else {
-            echo json_encode("critique");
+        if (!isset($devise, $ideleve, $montant, $idfrais)) {
+            $rep['message'] = "Missing params.";
+            echo json_encode($rep);
+            exit;
         }
+
+        $montant = (float) $montant;
+
+        if ($montant <= 0) {
+            $rep['message'] = "Montant non valide : $montant";
+            echo json_encode($rep);
+            exit;
+        }
+
+        $iddevise = (int) $this->db->get_where('devise', ["nomDevise" => $devise])->row('iddevise');
+        if (!$iddevise) {
+            $rep['message'] = "Devise non valide : $devise";
+            echo json_encode($rep);
+            exit;
+        }
+
+        $frais = $this->db->get_where("frais_ecole", ["idfrais_ecole" => $idfrais])->result_array();
+        if (!count($frais)) {
+            $rep['message'] = "Frais non valide.";
+            echo json_encode($rep);
+            exit;
+        }
+        $collection = $this->db->get_where('eleve', ['ideleve' => $ideleve])->result_array();
+        if (!count($collection)) {
+            $rep['message'] = "Eleve non valide.";
+            echo json_encode($rep);
+            exit;
+        }
+        $collection = $collection[0];
+
+        $montantFrais = (float)($frais[0]["montant"]);
+        $nomFrais = $frais[0]["intitulefrais"];
+
+        $paiement = (float) $this->paiementFrais($idfrais, $ideleve, $devise);
+
+        $reste = $montantFrais - $paiement;
+        if ($paiement == $montantFrais) {
+            $rep['message'] = "Ce frais est déjà totalement payé.";
+        } else if ($montant > $reste) {
+            $rep['message'] = "Le montant restant pour ce frais est de $reste $devise.";
+        } else if ($montant + $paiement <= $montantFrais) {
+        } else {
+        }
+
+        $commissionMontant = $montant * TAUX_COMMISSION;
+        $totMontant = $montant + $commissionMontant;
+
+        $dateQr = date('m-d-y-H-i-s');
+        $scale = 4;
+        $size = 100;
+        $qr_image = 'qrcode-' . $dateQr . '.png';
+        $params['level'] = $scale;
+        $params['size'] = $size;
+        $params['savename'] = FCPATH . 'upload/qrcode/' . $qr_image;
+
+        $params['data'] = 'MbanguPay | ' . $collection["matricule"] . ' | ' . $collection["nom"] . '-' . $collection["prenom"] . " | FRAIS $nomFrais" .  " | MONTANT : " . $montant . ' ' . $devise;
+
+        $this->ciqrcode->generate($params);
+
+        $insertOperation = [
+            "montant" => $montant,
+            "ideleve" => $ideleve,
+            "idfrais_ecole" => $idfrais,
+            'codeQr' => $qr_image,
+            "commission" => $commissionMontant,
+            "montant" => $montant,
+            "montantTot" => $totMontant,
+            "iddevise" => $iddevise,
+            "typeOperation" => "Paiement effectue"
+        ];
+        $this->db->insert('paiement_ecole', $insertOperation);
+
+        $rep['message'] = "Paiement effectué.";
+        $rep['status'] = true;
+        echo json_encode($rep);
     }
+
     public function getReste($idfrais, $ideleve, $devise)
     {
         $iddevise = $this->db->get_where('devise', ["nomDevise" => $devise])->row('iddevise');
@@ -342,54 +486,7 @@ class ApiParent extends CI_Controller
             echo json_encode($query);
         }
     }
-    public function insertPayment()
-    {
-        $devise = $this->input->post("devise");
-        $ideleve = $this->input->post("ideleve");
-        $iddevise = $this->db->get_where('devise', ["nomDevise" => $devise])->row('iddevise');
 
-        $montant = $this->input->post("montant");
-        $idfrais = $this->input->post("idfrais");
-        $totMontant = $this->input->post("montantTot");
-        $commissionMontant = $this->input->post("commission");
-
-        $frais = $this->db->where('idfrais_ecole', $idfrais)->get('frais_ecole')->result()[0]->intitulefrais;
-
-
-        $dateQr = date('m-d-y-H-i-s');
-        $scale = 4;
-        $size = 100;
-        $qr_image = 'qrcode-' . $dateQr . '.png';
-        // $params['data'] = $ideleve;
-        $params['level'] = $scale;
-        $params['size'] = $size;
-        $params['savename'] = FCPATH . 'upload/qrcode/' . $qr_image;
-        $collection = $this->db->get_where('eleve', ['ideleve' => $ideleve])->result_array()[0];
-        $params['data'] = 'MbanguPay | ' . $collection["matricule"] . ' | ' . $collection["nom"] . '-' . $collection["prenom"] . " | FRAIS $frais" .  " | MONTANT : " . $montant . ' ' . $devise;
-
-        $this->ciqrcode->generate($params);
-
-        $insertOperation = [
-            "montant" => $montant,
-            "ideleve" => $ideleve,
-            "idfrais_ecole" => $idfrais,
-            'codeQr' => $qr_image,
-            // "operateur" => "assets/images/bangulogo.png",
-            "commission" => $commissionMontant,
-            "montant" => $montant,
-            "montantTot" => $totMontant,
-            // "nomOperateur" => "mbangu",
-            "iddevise" => $iddevise,
-            "typeOperation" => "Paiement effectue"
-        ];
-
-        $query = $this->db->insert('paiement_ecole', $insertOperation);
-        if ($query) {
-            echo json_encode("true");
-        } else {
-            echo json_encode("false");
-        }
-    }
     public function paieOperation($login, $limit = null)
     {
         $idparent = $this->db->get_where('parent', ['login' => $login])->row('idparent');
@@ -738,6 +835,7 @@ class ApiParent extends CI_Controller
         $login = $this->input->post("login");
         $montant = $this->input->post("montant");
         $devise = $this->input->post("devise");
+
         $ideleve = $this->input->post("ideleve");
         $idarticle = $this->input->post("idarticle");
         $pt = $this->input->post("prix_total");
@@ -749,17 +847,26 @@ class ApiParent extends CI_Controller
             "qte" => $qte,
             "prix_total" => $pt,
         ];
-        $solde = $this->solde($login, $devise);
-        if ($solde >= $montant) {
-            $insertAchat = $this->db->insert('achat_article_ecole', $data);
-            if ($insertAchat) {
-                echo json_encode("true");
-            } else {
-                echo json_encode("false");
-            }
+
+        $insertAchat = $this->db->insert('achat_article_ecole', $data);
+        if ($insertAchat) {
+            echo json_encode("true");
         } else {
             echo json_encode("false");
         }
+
+
+        // $solde = $this->solde($login, $devise);
+        // if ($solde >= $montant) {
+        //     $insertAchat = $this->db->insert('achat_article_ecole', $data);
+        //     if ($insertAchat) {
+        //         echo json_encode("true");
+        //     } else {
+        //         echo json_encode("false");
+        //     }
+        // } else {
+        //     echo json_encode("false");
+        // }
     }
 
     public function getProduct($login)
