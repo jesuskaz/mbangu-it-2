@@ -343,6 +343,108 @@ class Student extends CI_Controller
     }
     public function insertPayment()
     {
+
+
+        $devise = $this->input->post("devise");
+        $matricule = $this->input->post("matricule");
+        $montant = $this->input->post("montant");
+        $idfrais = $this->input->post("idfrais");
+        $rep['status'] = false;
+
+        if (!isset($devise, $matricule, $montant, $idfrais)) {
+            $rep['message'] = "Missing params.";
+            echo json_encode($rep);
+            exit;
+        }
+
+        $montant = (float) $montant;
+
+        if ($montant <= 0) {
+            $rep['message'] = "Montant non valide : $montant";
+            echo json_encode($rep);
+            exit;
+        }
+
+        $iddevise = (int) $this->db->get_where('devise', ["nomDevise" => $devise])->row('iddevise');
+        if (!$iddevise) {
+            $rep['message'] = "Devise non valide : $devise";
+            echo json_encode($rep);
+            exit;
+        }
+
+        $frais = $this->db->get_where("frais", ["idfrais" => $idfrais])->result_array();
+        if (!count($frais)) {
+            $rep['message'] = "Frais non valide.";
+            echo json_encode($rep);
+            exit;
+        }
+        $collection = $this->db->get_where('etudiant', ['matricule' => $matricule])->result_array();
+        if (!count($collection)) {
+            $rep['message'] = "Etudiant non valide.";
+            echo json_encode($rep);
+            exit;
+        }
+        $collection = $collection[0];
+
+        $montantFrais = (float)($frais[0]["montant"]);
+        $nomFrais = $frais[0]["designation"];
+
+        $paiement = (float) $this->paiementFrais($idfrais, $collection['idetudiant'], $iddevise);
+
+        $reste = $montantFrais - $paiement;
+        if ($paiement == $montantFrais) {
+            $rep['message'] = "Ce frais est déjà totalement payé.";
+        } else if ($montant > $reste) {
+            $rep['message'] = "Le montant restant pour ce frais est de $reste $devise.";
+        } else if ($montant + $paiement <= $montantFrais) {
+        } else {
+        }
+
+        $commissionMontant = $montant * TAUX_COMMISSION;
+        $totMontant = $montant + $commissionMontant;
+
+        $dateQr = date('m-d-y-H-i-s');
+        $scale = 4;
+        $size = 100;
+        $qr_image = 'qrcode-' . $dateQr . '.png';
+        $params['level'] = $scale;
+        $params['size'] = $size;
+        $params['savename'] = FCPATH . 'upload/qrcode/' . $qr_image;
+
+        $params['data'] = 'MbanguPay | ' . $collection["matricule"] . ' | ' . $collection["nom"] . '-' . $collection["prenom"] . " | FRAIS $nomFrais" .  " | MONTANT : " . $montant . ' ' . $devise;
+
+        $this->ciqrcode->generate($params);
+
+        $this->db->where(['etudiant.idetudiant' => $collection['idetudiant'], 'anneeAcademique.actif' => 1]);
+        $this->db->join('etudiant', 'etudiant.idanneeAcademique=anneeAcademique.idanneeAcademique');
+        $annee = $this->db->get('anneeAcademique')->result();
+
+        if (!count($annee)) {
+            $rep['message'] = "Année académique non trouvée.";
+            echo json_encode($rep);
+            exit;
+        }
+
+        $insertOperation = [
+            "montant" => $montant,
+            "idetudiant" => $collection['idetudiant'],
+            "idfrais" => $idfrais,
+            'codeQr' => $qr_image,
+            "commission" => $commissionMontant,
+            "montant" => $montant,
+            "montantTotal" => $totMontant,
+            "iddevise" => $iddevise,
+            "idanneeAcademique" => $annee[0]->idanneeAcademique,
+            "typeOperation" => "Paiement effectue"
+        ];
+        $this->db->insert('paiement', $insertOperation);
+
+        $rep['message'] = "Paiement effectué.";
+        $rep['status'] = true;
+        echo json_encode($rep);
+
+        exit;
+
         $devise = $this->input->post("devise");
         $matricule = $this->input->post("matricule");
         $iddevise = $this->db->get_where('devise', ["nomDevise" => $devise])->row('iddevise');
@@ -402,95 +504,83 @@ class Student extends CI_Controller
             echo json_encode("false");
         }
     }
-    public function paiementFrais($montant, $fraisId, $matricule, $devise, $montantInitial)
+
+    public function paiementFrais($fraisId, $idetudiant, $devise)
     {
-        $this->db->select('*');
-        $this->db->from('etudiant');
-        $this->db->where('matricule', $matricule);
-        $this->db->join('options', 'etudiant.idoptions = options.idoptions');
-        $this->db->join('faculte', 'faculte.idfaculte = faculte.idfaculte');
-        $this->db->join('universite', 'faculte.iduniversite = universite.iduniversite');
-        $etudiant = $this->db->get()->result_array();
-
-        $idetudiant = $etudiant[0]['idetudiant'];
-
-        $iddevise = $this->db->get_where('devise', ['nomDevise' => $devise])->row('iddevise');
-
-        $paiement = $this->UserModel->fraisPaiSolde($fraisId, $idetudiant, $iddevise);
-
-        return $paiement;
+        $query = $this->db->query("select sum(montant) as montant from paiement where idfrais = $fraisId and idetudiant = $idetudiant and iddevise = $devise");
+        return $query->row('montant');
     }
 
-    public function verifyFrais($montant, $fraisId, $matricule, $devise, $montantInitial)
-    {
-        $this->db->select('*');
-        $this->db->from('etudiant');
-        $this->db->where('matricule', $matricule);
-        $this->db->join('options', 'etudiant.idoptions = options.idoptions');
-        $this->db->join('faculte', 'options.idfaculte = faculte.idfaculte');
-        $this->db->join('universite', 'universite.iduniversite = faculte.iduniversite');
-        $etudiant = $this->db->get()->result_array();
+    // public function verifyFrais($montant, $fraisId, $matricule, $devise, $montantInitial)
+    // {
+    //     $this->db->select('*');
+    //     $this->db->from('etudiant');
+    //     $this->db->where('matricule', $matricule);
+    //     $this->db->join('options', 'etudiant.idoptions = options.idoptions');
+    //     $this->db->join('faculte', 'options.idfaculte = faculte.idfaculte');
+    //     $this->db->join('universite', 'universite.iduniversite = faculte.iduniversite');
+    //     $etudiant = $this->db->get()->result_array();
 
-        $idetudiant = $etudiant[0]['idetudiant'];
-        $iduniversite = $etudiant[0]['iduniversite'];
+    //     $idetudiant = $etudiant[0]['idetudiant'];
+    //     $iduniversite = $etudiant[0]['iduniversite'];
 
-        $iddevise = $this->db->get_where('devise', ['nomDevise' => $devise])->row('iddevise');
-        // Frais
-        $frais = $this->db->get_where('frais', ['idfrais' => $fraisId, 'iddevise' => $iddevise, "iduniversite" => $iduniversite])->result_array();
-        $montantFrais = $frais[0]["montant"];
+    //     $iddevise = $this->db->get_where('devise', ['nomDevise' => $devise])->row('iddevise');
+    //     // Frais
+    //     $frais = $this->db->get_where('frais', ['idfrais' => $fraisId, 'iddevise' => $iddevise, "iduniversite" => $iduniversite])->result_array();
+    //     $montantFrais = $frais[0]["montant"];
 
-        $paiement = $this->paiementFrais($montant, $fraisId, $matricule, $devise, $montantInitial);
-        //Appro
-        $approvisionnement = $this->UserModel->fraisApproSolde($idetudiant, $iddevise);
+    //     $paiement = $this->paiementFrais($montant, $fraisId, $matricule, $devise, $montantInitial);
+    //     //Appro
+    //     $approvisionnement = $this->UserModel->fraisApproSolde($idetudiant, $iddevise);
 
-        //Calcul Solde Appro
+    //     //Calcul Solde Appro
 
-        $this->db->select("sum(montant) as montant");
-        $this->db->from("appro");
-        $this->db->join("devise", "devise.iddevise = appro.iddevise");
-        $this->db->where('devise.nomDevise', $devise);
-        $approSolde = $this->db->get()->row('montant');
+    //     $this->db->select("sum(montant) as montant");
+    //     $this->db->from("appro");
+    //     $this->db->join("devise", "devise.iddevise = appro.iddevise");
+    //     $this->db->where('devise.nomDevise', $devise);
+    //     $approSolde = $this->db->get()->row('montant');
 
-        // Calcul Solde Paiement
+    //     // Calcul Solde Paiement
 
-        $this->db->select("sum(montant) as montant");
-        $this->db->from("paiement");
-        $this->db->join("devise", "devise.iddevise = paiement.iddevise");
-        $this->db->where('devise.nomDevise', $devise);
-        $paieSolde = $this->db->get()->row('montant');
+    //     $this->db->select("sum(montant) as montant");
+    //     $this->db->from("paiement");
+    //     $this->db->join("devise", "devise.iddevise = paiement.iddevise");
+    //     $this->db->where('devise.nomDevise', $devise);
+    //     $paieSolde = $this->db->get()->row('montant');
 
-        $soldeEtudiant = $this->solde($matricule, $devise);
+    //     $soldeEtudiant = $this->solde($matricule, $devise);
 
-        if ($soldeEtudiant > $montantInitial) {
-            if ($approSolde && $paieSolde) {
-                if ($approSolde > $paieSolde) {
-                    $soldeApproPaie = $approSolde - $paieSolde;
-                }
-            } else if ($approSolde) {
-                $soldeApproPaie = $approSolde;
-            }
+    //     if ($soldeEtudiant > $montantInitial) {
+    //         if ($approSolde && $paieSolde) {
+    //             if ($approSolde > $paieSolde) {
+    //                 $soldeApproPaie = $approSolde - $paieSolde;
+    //             }
+    //         } else if ($approSolde) {
+    //             $soldeApproPaie = $approSolde;
+    //         }
 
-            if ($paiement) {
-                if ($paiement <= $montantFrais && $approvisionnement != null) {
-                    echo json_encode("tranche");
-                } else if ($approvisionnement == null || $soldeApproPaie < $montantInitial) {
-                    echo json_encode('inferieur');
-                }
-            } else if ($paiement < $montantInitial && $paiement != null) {
-                echo json_encode("superieur");
-            } else if ($paiement == null && $montantInitial < $soldeApproPaie) {
-                echo json_encode("insert");
-            } else if ($soldeApproPaie < $montantInitial) {
-                echo json_encode('inferieur');
-            } else if ($paiement > $soldeApproPaie || $soldeApproPaie == null) {
-                echo json_encode("inferieur");
-            } else if ($paiement == $montantFrais) {
-                echo json_encode("complet");
-            }
-        } else {
-            echo json_encode("critique");
-        }
-    }
+    //         if ($paiement) {
+    //             if ($paiement <= $montantFrais && $approvisionnement != null) {
+    //                 echo json_encode("tranche");
+    //             } else if ($approvisionnement == null || $soldeApproPaie < $montantInitial) {
+    //                 echo json_encode('inferieur');
+    //             }
+    //         } else if ($paiement < $montantInitial && $paiement != null) {
+    //             echo json_encode("superieur");
+    //         } else if ($paiement == null && $montantInitial < $soldeApproPaie) {
+    //             echo json_encode("insert");
+    //         } else if ($soldeApproPaie < $montantInitial) {
+    //             echo json_encode('inferieur');
+    //         } else if ($paiement > $soldeApproPaie || $soldeApproPaie == null) {
+    //             echo json_encode("inferieur");
+    //         } else if ($paiement == $montantFrais) {
+    //             echo json_encode("complet");
+    //         }
+    //     } else {
+    //         echo json_encode("critique");
+    //     }
+    // }
 
     public function solde($matricule, $devise)
     {
@@ -791,14 +881,9 @@ class Student extends CI_Controller
             "qte" => $qte,
             "prix_total" => $pt,
         ];
-        $solde = $this->solde($login, $devise);
-        if ($solde >= $montant) {
-            $insertAchat = $this->db->insert('achat_article_universite', $data);
-            if ($insertAchat) {
-                echo json_encode("true");
-            } else {
-                echo json_encode("false");
-            }
+        $insertAchat = $this->db->insert('achat_article_universite', $data);
+        if ($insertAchat) {
+            echo json_encode("true");
         } else {
             echo json_encode("false");
         }
