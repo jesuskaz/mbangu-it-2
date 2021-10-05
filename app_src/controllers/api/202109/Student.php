@@ -343,8 +343,6 @@ class Student extends CI_Controller
     }
     public function insertPayment()
     {
-
-
         $devise = $this->input->post("devise");
         $matricule = $this->input->post("matricule");
         $montant = $this->input->post("montant");
@@ -394,115 +392,122 @@ class Student extends CI_Controller
         $reste = $montantFrais - $paiement;
         if ($paiement == $montantFrais) {
             $rep['message'] = "Ce frais est déjà totalement payé.";
+            echo json_encode($rep);
+            exit;
         } else if ($montant > $reste) {
             $rep['message'] = "Le montant restant pour ce frais est de $reste $devise.";
+            echo json_encode($rep);
+            exit;
         } else if ($montant + $paiement <= $montantFrais) {
+
+            $commissionMontant = $montant * TAUX_COMMISSION;
+            $totMontant = $montant + $commissionMontant;
+
+            $dateQr = date('m-d-y-H-i-s');
+            $scale = 4;
+            $size = 100;
+            $qr_image = 'qrcode-' . $dateQr . '.png';
+            $params['level'] = $scale;
+            $params['size'] = $size;
+            $params['savename'] = FCPATH . 'upload/qrcode/' . $qr_image;
+
+            $params['data'] = 'MbanguPay | ' . $collection["matricule"] . ' | ' . $collection["nom"] . '-' . $collection["prenom"] . " | FRAIS $nomFrais" .  " | MONTANT : " . $montant . ' ' . $devise;
+
+            $this->ciqrcode->generate($params);
+
+            $this->db->where(['etudiant.idetudiant' => $collection['idetudiant'], 'anneeAcademique.actif' => 1]);
+            $this->db->join('etudiant', 'etudiant.idanneeAcademique=anneeAcademique.idanneeAcademique');
+            $annee = $this->db->get('anneeAcademique')->result();
+
+            if (!count($annee)) {
+                $rep['message'] = "Année académique non trouvée.";
+                echo json_encode($rep);
+                exit;
+            }
+
+            $insertOperation = [
+                "montant" => $montant,
+                "idetudiant" => $collection['idetudiant'],
+                "idfrais" => $idfrais,
+                'codeQr' => $qr_image,
+                "commission" => $commissionMontant,
+                "montant" => $montant,
+                "montantTotal" => $totMontant,
+                "iddevise" => $iddevise,
+                "idanneeAcademique" => $annee[0]->idanneeAcademique,
+                "typeOperation" => "Paiement effectue"
+            ];
+            $this->db->insert('paiement', $insertOperation);
+
+            $rep['message'] = "Paiement effectué.";
+            $rep['status'] = true;
+            echo json_encode($rep);
         } else {
-        }
-
-        $commissionMontant = $montant * TAUX_COMMISSION;
-        $totMontant = $montant + $commissionMontant;
-
-        $dateQr = date('m-d-y-H-i-s');
-        $scale = 4;
-        $size = 100;
-        $qr_image = 'qrcode-' . $dateQr . '.png';
-        $params['level'] = $scale;
-        $params['size'] = $size;
-        $params['savename'] = FCPATH . 'upload/qrcode/' . $qr_image;
-
-        $params['data'] = 'MbanguPay | ' . $collection["matricule"] . ' | ' . $collection["nom"] . '-' . $collection["prenom"] . " | FRAIS $nomFrais" .  " | MONTANT : " . $montant . ' ' . $devise;
-
-        $this->ciqrcode->generate($params);
-
-        $this->db->where(['etudiant.idetudiant' => $collection['idetudiant'], 'anneeAcademique.actif' => 1]);
-        $this->db->join('etudiant', 'etudiant.idanneeAcademique=anneeAcademique.idanneeAcademique');
-        $annee = $this->db->get('anneeAcademique')->result();
-
-        if (!count($annee)) {
-            $rep['message'] = "Année académique non trouvée.";
+            $rep['message'] = "Erreur de paiement...";
             echo json_encode($rep);
             exit;
         }
 
-        $insertOperation = [
-            "montant" => $montant,
-            "idetudiant" => $collection['idetudiant'],
-            "idfrais" => $idfrais,
-            'codeQr' => $qr_image,
-            "commission" => $commissionMontant,
-            "montant" => $montant,
-            "montantTotal" => $totMontant,
-            "iddevise" => $iddevise,
-            "idanneeAcademique" => $annee[0]->idanneeAcademique,
-            "typeOperation" => "Paiement effectue"
-        ];
-        $this->db->insert('paiement', $insertOperation);
+        // exit;
 
-        $rep['message'] = "Paiement effectué.";
-        $rep['status'] = true;
-        echo json_encode($rep);
+        // $devise = $this->input->post("devise");
+        // $matricule = $this->input->post("matricule");
+        // $iddevise = $this->db->get_where('devise', ["nomDevise" => $devise])->row('iddevise');
 
-        exit;
+        // $this->db->select('*');
+        // $this->db->from("etudiant");
+        // $this->db->join('anneeAcademique', 'anneeAcademique.idanneeAcademique = etudiant.idanneeAcademique');
+        // $this->db->where('etudiant.matricule', $matricule);
+        // $query = $this->db->get()->result_array();
 
-        $devise = $this->input->post("devise");
-        $matricule = $this->input->post("matricule");
-        $iddevise = $this->db->get_where('devise', ["nomDevise" => $devise])->row('iddevise');
+        // $idetudiant = $query[0]["idetudiant"];
+        // $idanneeAcademique = $query[0]['idanneeAcademique'];
 
-        $this->db->select('*');
-        $this->db->from("etudiant");
-        $this->db->join('anneeAcademique', 'anneeAcademique.idanneeAcademique = etudiant.idanneeAcademique');
-        $this->db->where('etudiant.matricule', $matricule);
-        $query = $this->db->get()->result_array();
+        // $montant = $this->input->post("montant");
+        // $idfrais = $this->input->post("idfrais");
+        // $frais = $this->db->where('idfrais', $idfrais)->get('frais')->result()[0]->designation;
 
-        $idetudiant = $query[0]["idetudiant"];
-        $idanneeAcademique = $query[0]['idanneeAcademique'];
+        // //Commission
+        // $totMontant = $this->input->post("montantTot");
+        // $commissionMontant = $this->input->post("commission");
 
-        $montant = $this->input->post("montant");
-        $idfrais = $this->input->post("idfrais");
-        $frais = $this->db->where('idfrais', $idfrais)->get('frais')->result()[0]->designation;
+        // $dateQr = date('m-d-y-H-i-s');
+        // // QrCode generator
+        // $scale = 4;
+        // $size = 100;
+        // $qr_image = 'qrcode-' . $dateQr . '.png';
+        // // $params['data'] = $matricule;
+        // $params['level'] = $scale;
+        // $params['size'] = $size;
+        // $params['savename'] = FCPATH . 'upload/qrcode/' . $qr_image;
+        // //print_r($params["savename"]);
+        // $collection = $this->db->get_where('etudiant', ['idetudiant' => $idetudiant])->result_array()[0];
+        // $params['data'] = 'MbanguPay | ' . $collection["matricule"] . ' | ' . $collection["nom"] . '-' . $collection["prenom"] . " | FRAIS $frais" . " | MONTANT PAYE : " . $montant . ' ' . $devise;
 
-        //Commission
-        $totMontant = $this->input->post("montantTot");
-        $commissionMontant = $this->input->post("commission");
+        // ///
 
-        $dateQr = date('m-d-y-H-i-s');
-        // QrCode generator
-        $scale = 4;
-        $size = 100;
-        $qr_image = 'qrcode-' . $dateQr . '.png';
-        // $params['data'] = $matricule;
-        $params['level'] = $scale;
-        $params['size'] = $size;
-        $params['savename'] = FCPATH . 'upload/qrcode/' . $qr_image;
-        //print_r($params["savename"]);
-        $collection = $this->db->get_where('etudiant', ['idetudiant' => $idetudiant])->result_array()[0];
-        $params['data'] = 'MbanguPay | ' . $collection["matricule"] . ' | ' . $collection["nom"] . '-' . $collection["prenom"] . " | FRAIS $frais" . " | MONTANT PAYE : " . $montant . ' ' . $devise;
+        // $this->ciqrcode->generate($params);
 
-        ///
+        // $insertOperation = [
+        //     "montant" => $montant,
+        //     "idetudiant" => $idetudiant,
+        //     "idfrais" => $idfrais,
+        //     'idanneeAcademique' => $idanneeAcademique,
+        //     'codeQr' => $qr_image,
+        //     "operateur" => "assets/images/bangulogo.png",
+        //     "commission" => $commissionMontant,
+        //     "montantTotal" => $totMontant,
+        //     "nomOperateur" => "mbangu",
+        //     "iddevise" => $iddevise,
+        //     "typeOperation" => "Paiement effectue",
+        // ];
 
-        $this->ciqrcode->generate($params);
-
-        $insertOperation = [
-            "montant" => $montant,
-            "idetudiant" => $idetudiant,
-            "idfrais" => $idfrais,
-            'idanneeAcademique' => $idanneeAcademique,
-            'codeQr' => $qr_image,
-            "operateur" => "assets/images/bangulogo.png",
-            "commission" => $commissionMontant,
-            "montantTotal" => $totMontant,
-            "nomOperateur" => "mbangu",
-            "iddevise" => $iddevise,
-            "typeOperation" => "Paiement effectue",
-        ];
-
-        $query = $this->db->insert('paiement', $insertOperation);
-        if ($query) {
-            echo json_encode("true");
-        } else {
-            echo json_encode("false");
-        }
+        // $query = $this->db->insert('paiement', $insertOperation);
+        // if ($query) {
+        //     echo json_encode("true");
+        // } else {
+        //     echo json_encode("false");
+        // }
     }
 
     public function paiementFrais($fraisId, $idetudiant, $devise)
