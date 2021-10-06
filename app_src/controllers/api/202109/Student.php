@@ -893,4 +893,62 @@ class Student extends CI_Controller
             echo json_encode("false");
         }
     }
+
+    public function updateInfo()
+    {
+        $inputData = $this->input->post("data");
+        $index = $this->input->post("index");
+        $login = $this->input->post("matricule");
+
+        $this->db->where("matricule", $login);
+
+        if ($index == '1') {
+            $data = [
+                "email" => $inputData,
+            ];
+            $update = $this->db->update("etudiant", $data);
+
+            if ($update) {
+                echo json_encode("true");
+            } else {
+                echo json_encode("false");
+            }
+        } else if ($index == '2') {
+            $data = [
+                "adresse" => $inputData,
+            ];
+
+            $update = $this->db->update("etudiant", $data);
+
+            if ($update) {
+                echo json_encode("true");
+            } else {
+                echo json_encode("false");
+            }
+        } else if ($index == '3') {
+            $data = [
+                "telephone" => $inputData,
+            ];
+
+            $update = $this->db->update("etudiant", $data);
+
+            if ($update) {
+                echo json_encode("true");
+            } else {
+                echo json_encode("false");
+            }
+        } else if ($index == '6') {
+            $data = [
+                "nationnalite" => $inputData,
+            ];
+
+            $update = $this->db->update("etudiant", $data);
+
+            if ($update) {
+                echo json_encode("true");
+            } else {
+                echo json_encode("false");
+            }
+        }
+    }
 }

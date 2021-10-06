@@ -23,16 +23,15 @@ class ApiEleve extends CI_Controller
     {
         $inputData = $this->input->post("data");
         $index = $this->input->post("index");
-        $matricule = $this->input->post("matricule");
+        $login = $this->input->post("login");
 
         if ($index == '1') {
             $data = [
                 "email" => $inputData,
             ];
 
-            $this->db->where("matricule", $matricule);
-            $update = $this->db->update("etudiant", $data);
-
+            $this->db->where("login", $login);
+            $update = $this->db->update("parent", $data);
             if ($update) {
                 echo json_encode("true");
             } else {
@@ -43,8 +42,8 @@ class ApiEleve extends CI_Controller
                 "adresse" => $inputData,
             ];
 
-            $this->db->where("matricule", $matricule);
-            $update = $this->db->update("etudiant", $data);
+            $this->db->where("login", $login);
+            $update = $this->db->update("parent", $data);
 
             if ($update) {
                 echo json_encode("true");
@@ -53,17 +52,19 @@ class ApiEleve extends CI_Controller
             }
         } else if ($index == '3') {
             $data = [
-                "tel" => $inputData,
+                "telephone" => $inputData,
             ];
 
-            $this->db->where("matricule", $matricule);
-            $update = $this->db->update("etudiant", $data);
+            $this->db->where("login", $login);
+            $update = $this->db->update("parent", $data);
 
             if ($update) {
                 echo json_encode("true");
             } else {
                 echo json_encode("false");
             }
+        } else {
+            echo json_encode("false");
         }
     }
     public function picture()

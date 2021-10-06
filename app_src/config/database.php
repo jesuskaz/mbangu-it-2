@@ -78,11 +78,11 @@ $db['default'] = array(
 	'hostname' => 'localhost',
 	'database' => 'u589673144_mukunday02',
 
-	'username' => 'root',
-	'password' => '',
+	// 'username' => 'root',
+	// 'password' => '',
 	
-	// 'username' => 'u589673144_mukunday02',
-	// 'password' => 'S@malta771982an',
+	'username' => 'u589673144_mukunday02',
+	'password' => 'S@malta771982an',
 
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
