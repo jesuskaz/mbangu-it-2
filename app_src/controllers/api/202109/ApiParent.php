@@ -280,85 +280,6 @@ class ApiParent extends CI_Controller
 
         return $paiement->row("montant");
     }
-    // public function verifyFrais($fraisId, $ideleve, $login, $devise, $montantInitial)
-    // {
-    //     $iddevise = $this->db->get_where('devise', ['nomDevise' => $devise])->row('iddevise');
-    //     // Frais 
-    //     $frais = $this->db->get_where("frais_ecole", ["idfrais_ecole" => $fraisId])->result_array();
-    //     $montantFrais = $frais[0]["montant"];
-
-    //     $paiement = $this->paiementFrais($fraisId, $ideleve, $devise, $montantInitial);
-    //     //Appro
-    //     // $approvisionnement = $this->db->query("
-    //     //     select sum(montant) as montant from appro_parent where idparent in 
-    //     //     (select idparent from parent where login='$login') and iddevise=$iddevise")->row("montant");
-
-    //     $rep['status'] = false;
-    //     $reste = $montantFrais - $paiement;
-    //     if ($paiement == $montantFrais) {
-    //         $rep['message'] = "Ce frais déjà totalement payé.";
-    //     } else if ($montantInitial > $reste) {
-    //         $rep['message'] = "Le montant restant pour ce frais est de $reste $devise.";
-    //     } else if ($montantInitial + $paiement <= $montantFrais) {
-
-    //     } else {
-    //     }
-
-    //     echo json_encode($rep);
-    //     exit;
-
-    //     // if ($paiement > 0.0) {
-    //     //     if ($paiement <= $montantFrais && $approvisionnement != 0.0) {
-    //     //         echo json_encode("tranche");
-    //     //     } else if ($approvisionnement <= 0.0 || $soldeParent < $montantInitial) {
-    //     //         echo json_encode('inferieur');
-    //     //     }
-    //     // } else if ($paiement < $montantInitial && $paiement != 0.0) {
-    //     //     echo json_encode("superieur");
-    //     // } else if ($paiement == 0.0 && $montantInitial < $soldeParent) {
-    //     //     echo json_encode("insert");
-    //     // } else if ($soldeParent < $montantInitial) {
-    //     //     echo json_encode('inferieur');
-    //     // } else if ($paiement > $soldeParent || $soldeParent <= 0.0) {
-    //     //     echo json_encode("inferieur");
-    //     // } else if ($paiement == $montantFrais) {
-    //     //     echo json_encode("complet");
-    //     // }
-
-
-    //     //////////////////////////////
-    //     /////////////////////////////
-    //     // $soldeParent = $this->solde($login, $devise);
-
-    //     // if ($soldeParent > $montantInitial) {
-    //     //     if ($approvisionnement > 0.0 && $paiement > 0.0) {
-    //     //         if ($approvisionnement > $paiement) {
-    //     //             $soldeApproPaie = $approvisionnement - $paiement;
-    //     //         }
-    //     //     } else if ($approvisionnement > 0.0 && $paiement <= 0.0) {
-    //     //         $soldeApproPaie = $approvisionnement;
-    //     //     }
-    //     //     if ($paiement > 0.0) {
-    //     //         if ($paiement <= $montantFrais && $approvisionnement != 0.0) {
-    //     //             echo json_encode("tranche");
-    //     //         } else if ($approvisionnement <= 0.0 || $soldeParent < $montantInitial) {
-    //     //             echo json_encode('inferieur');
-    //     //         }
-    //     //     } else if ($paiement < $montantInitial && $paiement != 0.0) {
-    //     //         echo json_encode("superieur");
-    //     //     } else if ($paiement == 0.0 && $montantInitial < $soldeParent) {
-    //     //         echo json_encode("insert");
-    //     //     } else if ($soldeParent < $montantInitial) {
-    //     //         echo json_encode('inferieur');
-    //     //     } else if ($paiement > $soldeParent || $soldeParent <= 0.0) {
-    //     //         echo json_encode("inferieur");
-    //     //     } else if ($paiement == $montantFrais) {
-    //     //         echo json_encode("complet");
-    //     //     }
-    //     // } else {
-    //     //     echo json_encode("critique");
-    //     // }
-    // }
 
     public function insertPayment()
     {
@@ -405,6 +326,7 @@ class ApiParent extends CI_Controller
 
         $montantFrais = (float)($frais[0]["montant"]);
         $nomFrais = $frais[0]["intitulefrais"];
+        $mininum =  (float) $frais[0]['somme_minimum'];
 
         $paiement = (float) $this->paiementFrais($idfrais, $ideleve, $devise);
 
@@ -414,40 +336,47 @@ class ApiParent extends CI_Controller
         } else if ($montant > $reste) {
             $rep['message'] = "Le montant restant pour ce frais est de $reste $devise.";
         } else if ($montant + $paiement <= $montantFrais) {
+            if ($paiement == 0 and $montant < $mininum) {
+                $rep['message'] = "Le minimun à payer pour le frais \"$nomFrais\"  est de $mininum.";
+                echo json_encode($rep);
+                exit;
+            }
+            $commissionMontant = $montant * TAUX_COMMISSION;
+            $totMontant = $montant + $commissionMontant;
+
+            $dateQr = date('m-d-y-H-i-s');
+            $scale = 4;
+            $size = 100;
+            $qr_image = 'qrcode-' . $dateQr . '.png';
+            $params['level'] = $scale;
+            $params['size'] = $size;
+            $params['savename'] = FCPATH . 'upload/qrcode/' . $qr_image;
+
+            $params['data'] = 'MbanguPay | ' . $collection["matricule"] . ' | ' . $collection["nom"] . '-' . $collection["prenom"] . " | FRAIS $nomFrais" .  " | MONTANT : " . $montant . ' ' . $devise;
+
+            $this->ciqrcode->generate($params);
+
+            $insertOperation = [
+                "montant" => $montant,
+                "ideleve" => $ideleve,
+                "idfrais_ecole" => $idfrais,
+                'codeQr' => $qr_image,
+                "commission" => $commissionMontant,
+                "montant" => $montant,
+                "montantTot" => $totMontant,
+                "iddevise" => $iddevise,
+                "typeOperation" => "Paiement effectue"
+            ];
+            $this->db->insert('paiement_ecole', $insertOperation);
+
+            $rep['message'] = "Paiement effectué.";
+            $rep['status'] = true;
         } else {
+            $rep['message'] = "Impossible d'enregistrer ce paiement.";
         }
 
-        $commissionMontant = $montant * TAUX_COMMISSION;
-        $totMontant = $montant + $commissionMontant;
-
-        $dateQr = date('m-d-y-H-i-s');
-        $scale = 4;
-        $size = 100;
-        $qr_image = 'qrcode-' . $dateQr . '.png';
-        $params['level'] = $scale;
-        $params['size'] = $size;
-        $params['savename'] = FCPATH . 'upload/qrcode/' . $qr_image;
-
-        $params['data'] = 'MbanguPay | ' . $collection["matricule"] . ' | ' . $collection["nom"] . '-' . $collection["prenom"] . " | FRAIS $nomFrais" .  " | MONTANT : " . $montant . ' ' . $devise;
-
-        $this->ciqrcode->generate($params);
-
-        $insertOperation = [
-            "montant" => $montant,
-            "ideleve" => $ideleve,
-            "idfrais_ecole" => $idfrais,
-            'codeQr' => $qr_image,
-            "commission" => $commissionMontant,
-            "montant" => $montant,
-            "montantTot" => $totMontant,
-            "iddevise" => $iddevise,
-            "typeOperation" => "Paiement effectue"
-        ];
-        $this->db->insert('paiement_ecole', $insertOperation);
-
-        $rep['message'] = "Paiement effectué.";
-        $rep['status'] = true;
         echo json_encode($rep);
+        exit;
     }
 
     public function getReste($idfrais, $ideleve, $devise)
