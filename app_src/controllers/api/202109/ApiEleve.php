@@ -97,6 +97,34 @@ class ApiEleve extends CI_Controller
             }
         }
     }
+    public function pictureEleve()
+    {
+        $ideleve = $this->input->post("ideleve");
+        $name = $this->input->post("name");
+        $path = $this->input->post("picture");
+
+        $tempo = "upload/profile/" . $name;
+        $decodeImage = base64_decode($path);
+
+        file_put_contents($tempo, $decodeImage);
+
+        $data = [
+            "picture" => $tempo
+        ];
+
+        // $isMatricule = $this->db->get_where("eleve",["ideleve" => $ideleve])->result_array();
+
+        // if ($isMatricule) 
+        // {
+        $this->db->where("ideleve", $ideleve);
+        $insert = $this->db->update("eleve", $data);
+        if ($insert) {
+            echo json_encode("true");
+        } else {
+            echo json_encode("false");
+        }
+        // }
+    }
     public function carte()
     {
         $matricule = $this->input->post("matricule");

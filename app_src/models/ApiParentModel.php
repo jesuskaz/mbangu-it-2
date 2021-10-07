@@ -141,7 +141,8 @@ class ApiParentModel extends CI_Model
         return $query->get()->result_array();
     }
 
-    function soldeAchat($idparent, $iddevise) {
+    function soldeAchat($idparent, $iddevise)
+    {
         $this->db->select("SUM(prix_total) as montant")->from("achat_article_ecole");
         $this->db->join('article_ecole', 'article_ecole.idarticle=achat_article_ecole.idarticle');
         $query = $this->db->where("achat_article_ecole.ideleve in (select ideleve from parent_has_eleve where idparent=$idparent) and article_ecole.iddevise=$iddevise");
@@ -541,14 +542,29 @@ class ApiParentModel extends CI_Model
     }
     public function getEleveData($ideleve)
     {
-        $this->db->select('*');
-        $this->db->from('eleve');
-        $this->db->join('ecole', 'eleve.idecole = ecole.idecole');
-        $this->db->join('section', 'ecole.idecole = section.idecole');
-        $this->db->join('optionecole', 'section.idsection = optionecole.idsection');
-        $this->db->join('classe', 'optionecole.idclasse = classe.idclasse');
+        $el = $this->db->where(['ideleve' => (int) $ideleve])->get('eleve')->result();
+        if (!count($el)) return [];
+
+        if (empty($el[0]->idoptionecole)) {
+            $this->db->select("eleve.nom, eleve.prenom, 
+            eleve.postnom, eleve.matricule, eleve.picture, intitulesection section, intituleclasse classe, nomecole
+            ");
+            $this->db->join('section_has_classe', 'section_has_classe.idsection_has_classe = eleve.idsection_has_classe');
+            $this->db->join('classe', 'section_has_classe.idclasse = classe.idclasse');
+            $this->db->join('section', 'section.idsection = section_has_classe.idsection');
+            $this->db->join('ecole', 'section.idecole = ecole.idecole');
+        } else {
+            $this->db->select("eleve.nom, eleve.prenom, 
+            eleve.postnom, eleve.matricule, eleve.picture, intitulesection section, intituleOption option,intituleclasse classe, nomecole
+            ");
+            $this->db->join('optionecole', 'eleve.idoptionecole = optionecole.idoptionecole');
+            $this->db->join('classe', 'optionecole.idclasse = classe.idclasse');
+            $this->db->join('section', 'section.idsection = optionecole.idsection');
+            $this->db->join('ecole', 'section.idecole = ecole.idecole');
+        }
+
         $this->db->where('eleve.ideleve', $ideleve);
-        $this->db->group_by('eleve.ideleve');
+        $this->db->from('eleve');
         $query = $this->db->get()->result_array();
         return $query;
     }
